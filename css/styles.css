@@ -733,3 +733,17 @@ a.btn{display:inline-block;text-decoration:none;color:inherit}
 .ed{display:inline-grid;place-items:center;width:28px;height:28px;margin-left:4px;vertical-align:middle;border-radius:50%;color:var(--mut);text-decoration:none}
 .ed svg{width:16px;height:16px}
 .ed:hover,.ed:focus-visible{background:var(--bg);color:var(--ink)}
+
+/* ---------- Luces ---------- */
+.lzb{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:340px;margin:12px auto}
+.lz{aspect-ratio:1;padding:0;border:3px solid var(--ink);border-radius:10px;background:var(--card);cursor:pointer}
+.lz.on{background:var(--sun);box-shadow:inset 0 -5px 0 rgba(20,33,61,.2)}
+.lz.pista{box-shadow:0 0 0 4px var(--sky)}
+.lz.on.pista{box-shadow:inset 0 -5px 0 rgba(20,33,61,.2),0 0 0 4px var(--sky)}
+.lz:disabled{cursor:default}
+.lz:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+
+/* ---------- Sopa de letras ---------- */
+.spw{list-style:none;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:400px;margin:0 auto 8px;padding:0}
+.spw li{padding:4px 10px;border:2px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);font-size:14px;font-weight:800;letter-spacing:.04em}
+.spw li.ok{color:var(--mut);text-decoration:line-through}

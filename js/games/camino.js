@@ -75,13 +75,13 @@ function svgTablero(c,dis,mini){
  return s+'</svg>'}
 
 function pinta(){
- const p=prog('c');ini(p);
+ const p=prog('cm');ini(p);
  const b=$('#cmb');if(b)b.innerHTML=svgTablero(p.c,false);
  const t=$('#cmc');if(t)t.textContent=`${p.c.length} / ${T} casillas`;
  const m=$('#cmm');if(m)m.textContent=msg}
 
 function camino(){
- const p=prog('c');ini(p);const r=R('camino'),Z=P();
+ const p=prog('cm');ini(p);const r=R('camino'),Z=P();
  let b=`<div id="cmb" class="cm" data-b="camino" style="${r?'':'touch-action:none;'}max-width:372px;margin:12px auto;border:3px solid var(--ink);border-radius:10px;overflow:hidden;user-select:none;-webkit-user-select:none">${svgTablero(p.c,!!r)}</div>`;
  if(r)b+=res(`¡Camino completado en ${mmss(r.t)}!`,'Pasaste por las 36 casillas y por todos los números en orden. Vuelve mañana para un reto nuevo.',`Daily Arcade · Camino #${DAY} · 6×6 · ${mmss(r.t)}`);
  else b+=`${S.set.tm?`<p class="tm" id="tm">${p.t0?mmss(Date.now()-p.t0):'0:00'}</p>`:''}<p class="cap" id="cmc" style="text-align:center;margin:0">${p.c.length} / ${T} casillas</p><p class="msg" id="cmm" role="status">${msg}</p><div class="row" style="justify-content:center"><button class="btn" data-a="undo">Deshacer</button><button class="btn" data-a="reiniciar">Reiniciar</button></div><p class="foot" style="margin-top:8px;text-align:center">Arrastra desde el 1 (o toca casillas contiguas). También puedes usar las flechas.</p>`;
@@ -98,7 +98,7 @@ A.addEventListener('pointerdown',e=>{
  if(V!='camino'||R('camino'))return;
  const b=e.target.closest('#cmb');if(!b)return;
  const i=casilla(e,b);if(i<0)return;
- const p=prog('c');ini(p);e.preventDefault();
+ const p=prog('cm');ini(p);e.preventDefault();
  try{b.setPointerCapture(e.pointerId)}catch(x){}
  arr=true;p.t0=p.t0||Date.now();
  if(!p.c.length||p.c.includes(i)||ady(p.c[p.c.length-1],i))hacia(p,i);else msg=p.c.length?'Sigue desde el final de tu camino.':'Empieza por el número 1.';
@@ -107,7 +107,7 @@ A.addEventListener('pointermove',e=>{
  if(!arr||V!='camino'||R('camino'))return;
  const b=e.target.closest('#cmb');if(!b)return;
  const i=casilla(e,b);if(i<0)return;
- const p=prog('c');ini(p);
+ const p=prog('cm');ini(p);
  if(hacia(p,i)){if(!final(p))pinta()}});
 const suelta=()=>{if(!arr)return;arr=false;if(V=='camino'&&!R('camino'))sv()};
 A.addEventListener('pointerup',suelta);A.addEventListener('pointercancel',suelta);
@@ -116,7 +116,7 @@ A.addEventListener('pointerup',suelta);A.addEventListener('pointercancel',suelta
 const DIR={ArrowUp:-N,ArrowDown:N,ArrowLeft:-1,ArrowRight:1,w:-N,s:N,a:-1,d:1};
 function mover(m){
  if(R('camino'))return;
- const p=prog('c');ini(p);
+ const p=prog('cm');ini(p);
  if(!p.c.length){p.t0=p.t0||Date.now();const s=P().nums[0];paso(p,s);sv();return draw()}
  const h=p.c[p.c.length-1],x=h%N,d=DIR[m];
  if((m=='ArrowLeft'||m=='a')&&x==0||(m=='ArrowRight'||m=='d')&&x==N-1)return;
@@ -134,11 +134,11 @@ function tecla(m){
  if('wasd'.includes(m)&&m.length==1)mover(m)}
 
 function undo(){
- const p=prog('c');ini(p);
+ const p=prog('cm');ini(p);
  if(R('camino')||!p.c.length)return;
  p.c.pop();msg='';sv();draw()}
 function reiniciar(){
- const p=prog('c');ini(p);
+ const p=prog('cm');ini(p);
  if(R('camino'))return;
  p.c=[];msg='';sv();draw()}
 
@@ -150,7 +150,7 @@ DailyArcade.register({
   s+=`<polyline points="${c.map(i=>(i%3+.5)+','+((i/3|0)+.5)).join(' ')}" fill="none" style="stroke:var(--sky);stroke-width:.3;stroke-linecap:round;stroke-linejoin:round"/>`;
   nm.forEach((i,j)=>{s+=`<circle cx="${i%3+.5}" cy="${(i/3|0)+.5}" r=".3" style="fill:var(--ink)"/><text x="${i%3+.5}" y="${(i/3|0)+.5}" text-anchor="middle" dominant-baseline="central" style="fill:var(--bg);font:800 .36px sans-serif">${j+1}</text>`});
   return `<p class="cap">Ejemplo en 3×3: pasa por las 9 casillas y por el 1, el 2 y el 3 en orden.</p>${s}</svg>`})(),
- pk:'c',
+ pk:'cm',
  winLabel:'completados',
  winStreak:false,       // no se puede perder: solo se completa
  render:camino,
