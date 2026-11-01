@@ -733,15 +733,3 @@ a.btn{display:inline-block;text-decoration:none;color:inherit}
 .ed{display:inline-grid;place-items:center;width:28px;height:28px;margin-left:4px;vertical-align:middle;border-radius:50%;color:var(--mut);text-decoration:none}
 .ed svg{width:16px;height:16px}
 .ed:hover,.ed:focus-visible{background:var(--bg);color:var(--ink)}
-
-
-/* ---------- Camino, Luces, Tuberías y Sopa de letras ---------- */
-.cm svg{touch-action:none}
-.lzb{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:340px;margin:12px auto}
-.lz{display:block;aspect-ratio:1;padding:0;border:2px solid var(--ink);border-radius:12px;background:var(--card);box-shadow:2px 2px 0 var(--sh)}
-.lz.on{background:var(--sun);box-shadow:2px 2px 0 var(--sh),inset 0 0 0 3px rgba(255,255,255,.45)}
-.lz.pista{outline:3px solid var(--sky);outline-offset:2px}
-.lz:disabled{cursor:default}
-.spw{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;list-style:none;margin:0 0 8px;padding:0}
-.spw li{border:2px solid var(--line);border-radius:99px;padding:2px 12px;font-weight:800;letter-spacing:.06em;background:var(--card)}
-.spw li.ok{text-decoration:line-through;color:var(--mut)}

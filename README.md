@@ -44,10 +44,6 @@ Sube: `index.html`, `admin.html`, `css/`, `js/`, `content/`.
 | Sudoku mini | tablero 6×6 generado con la fecha (siempre con una sola solución) | no |
 | Escalera | dos palabras generadas con la fecha y la lista de `content/aceptadas.js` | no, pero **mejora con el diccionario completo** |
 | Operaciones | seis números y un objetivo generados con la fecha (siempre con solución) | no |
-| Camino | tablero 6×6 con números en un recorrido que pasa por todas las casillas (siempre con solución); se valida por reglas | no |
-| Luces | tablero 5×5 de luces; el mínimo de pulsaciones se calcula resolviendo el sistema módulo 2 (siempre con solución) | no |
-| Tuberías | tablero 6×6 con parejas de colores: se trazan primero los caminos y después se colocan los extremos; se valida por reglas | no |
-| Sopa de letras | cuadrícula 8×8 con 6 palabras de 5 letras (horizontal, vertical y diagonal) | no, reutiliza las listas de palabras |
 
 Los juegos generados con la fecha no se cargan en Supabase: todo el mundo recibe el mismo reto. Su solución viaja en el
 navegador, como la palabra de hoy; para rankings habrá que comprobarlo en el servidor (fase 2).
@@ -81,8 +77,7 @@ js/nube.js                    cuentas, rol y reto del día
 js/content.js                 contenido local y reto de hoy
 js/core.js  js/app.js         utilidades, pantallas y arranque
 js/games/*.js                 un archivo por juego (+ _plantilla.js):
-                              palabra, cifra (Cifrado), coronas, sudoku, escalera, operaciones,
-                              camino, luces, tuberias, sopa
+                              palabra, cifra (Cifrado), coronas, sudoku, escalera, operaciones
 supabase/schema.sql seed.sql  base de datos y carga inicial
 local/  admin-local/          modo local (no subir)
 herramientas/                 generador de diccionario (no subir)
@@ -150,13 +145,3 @@ Bloqueo **silencioso y simétrico**:
 
 ## Pendiente (fase 2)
 Cuenta y RGPD (recuperar contraseña, cambiar contraseña y correo, borrar cuenta, política de privacidad), comprobación de intentos en servidor y ajustes de lanzamiento.
-
-## Camino, Luces, Tuberías y Sopa de letras
-- **Todos se generan con la fecha** (misma semilla para todo el mundo) y no necesitan contenido en Supabase. La dificultad varía con el día de la semana, como en Sudoku y Operaciones.
-- **Se validan por reglas**, no contra una solución guardada: Camino (36 casillas, números en orden, termina en el último número), Luces (todas apagadas), Tuberías (todas las parejas unidas y ninguna casilla vacía) y Sopa (la selección coincide con una de las palabras). Cuando se valide en el servidor basta con reenviar el estado final y aplicar las mismas reglas.
-- **Resultados guardados:** Camino y Tuberías `{st:'completed', t}`; Luces `{st:'completed', n (pulsaciones), par (mínimo), h (pistas), t}`; Sopa `{st:'completed', t, h, n}`. Ranking: tiempo en todos; en Luces además `n` frente a `par`. Se usa `par` (y no otro nombre) porque `ver_perfil` solo devuelve `st,t,att,sc,n,par,h`.
-- **Bases de datos ya creadas:** ejecuta `supabase/migracion-07-juegos-nuevos.sql` (idempotente). Sin ella los resultados de estos cuatro juegos no se guardan en el servidor.
-- **Camino y Tuberías** se juegan arrastrando (o tocando casillas contiguas). Camino también admite las flechas del teclado.
-- **Sopa de letras** usa la lista de retos de Palabra si está disponible (modo local) y, si no (producción, donde `local/` no se sube), `content/aceptadas.js`. La palabra de Palabra de hoy se excluye. Con el diccionario completo pueden salir palabras poco habituales (plurales, conjugaciones): si molesta, filtra la lista en `pool()` de `js/games/sopa.js`.
-- **Pistas:** Luces y Sopa tienen botón de pista; cuenta en el resultado (`h`).
-- La solución de cada reto se puede calcular en el navegador, igual que en Operaciones o Escalera: para rankings globales habrá que validar en el servidor (fase 2).
