@@ -26,7 +26,7 @@ function giveup(){const p=prog('c');fin('cifra',{st:'lost',sc:0,t:Date.now()-(p.
 function csel(b){if(R('cifra'))return;prog('c').t0=prog('c').t0||Date.now();sel=b.dataset.l;draw()}
 
 DailyArcade.register({
- id:'cifra',name:'Cifrado',desc:'Descifra la frase: cada letra esconde otra.',color:'--berry',icon:'Ñ→Q',
+ id:'cifra',name:'Cifrado',desc:'Descifra la frase: cada letra esconde otra.',color:'--berry',icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1.2" fill="currentColor"/></svg>',
  how:["Cada letra de la frase está <b>cambiada por otra</b>, y siempre por la misma.", "Toca una letra cifrada y <b>escribe la que crees</b> que es.", "Revelar letra y Comprobar <b>restan puntos</b>."],
  demo:`<p class="cap">Si descubres que la <b>K</b> es una <b>A</b>, todas las K son A:</p><div class="wd"><div class="c"><small>X</small><b>C</b></div><div class="c sel"><small>K</small><b>A</b></div><div class="c"><small>M</small><b>S</b></div><div class="c sel"><small>K</small><b>A</b></div></div>`,
  pk:'c',

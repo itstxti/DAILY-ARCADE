@@ -1,7 +1,7 @@
 /* PLANTILLA para un juego nuevo — "Número secreto" (funciona de verdad).
    Pasos:
    1. Copia este archivo con otro nombre (p. ej. js/games/numero.js).
-   2. Cambia id, name, desc, icon, color y pk (la clave de progreso debe ser ÚNICA).
+   2. Cambia id, name, desc, icon (un <svg viewBox="0 0 24 24"> de trazos, sin emojis ni texto), color y pk (la clave de progreso debe ser ÚNICA).
    3. Añade en index.html:  <script src="js/games/numero.js"></script>
    Todo lo que declares aquí dentro queda aislado: no choca con otros juegos.
 
@@ -40,7 +40,7 @@
   sv();draw()}
 
  DailyArcade.register({
-  id:'numero',name:'Número',desc:'Encuentra el número secreto del 1 al 100.',color:'--mint',icon:'#',
+  id:'numero',name:'Número',desc:'Encuentra el número secreto del 1 al 100.',color:'--mint',icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 7 20M17 4l-2 16M4 9h17M3 15h17"/></svg>',
   pk:'n',                 // clave de progreso, única por juego
   how:['Adivina el número secreto del 1 al 100.','Tras cada intento te dice si es más alto o más bajo.'],
   winLabel:'ganadas',

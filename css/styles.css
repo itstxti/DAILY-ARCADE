@@ -9,6 +9,10 @@
     --mint: #1E8A66;
     --lav: #B79CF0;
     --coral: #F28B6B;
+    --aqua: #2DB9D3;
+    --lime: #A8D13A;
+    --pink: #E06CC0;
+    --orange: #EE7B1E;
     --mut: #5B6683;
     --sh: #14213D;
     box-sizing: border-box;
@@ -733,3 +737,52 @@ a.btn{display:inline-block;text-decoration:none;color:inherit}
 .ed{display:inline-grid;place-items:center;width:28px;height:28px;margin-left:4px;vertical-align:middle;border-radius:50%;color:var(--mut);text-decoration:none}
 .ed svg{width:16px;height:16px}
 .ed:hover,.ed:focus-visible{background:var(--bg);color:var(--ink)}
+
+/* ---------- Luces ---------- */
+.lzb{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:340px;margin:12px auto}
+.lz{aspect-ratio:1;padding:0;border:3px solid var(--ink);border-radius:10px;background:var(--card);cursor:pointer}
+.lz.on{background:var(--sun);box-shadow:inset 0 -5px 0 rgba(20,33,61,.2)}
+.lz.pista{box-shadow:0 0 0 4px var(--sky)}
+.lz.on.pista{box-shadow:inset 0 -5px 0 rgba(20,33,61,.2),0 0 0 4px var(--sky)}
+.lz:disabled{cursor:default}
+.lz:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+
+/* ---------- Sopa de letras ---------- */
+.spw{list-style:none;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:400px;margin:0 auto 8px;padding:0}
+.spw li{padding:4px 10px;border:2px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);font-size:14px;font-weight:800;letter-spacing:.04em}
+.spw li.ok{color:var(--mut);text-decoration:line-through}
+
+/* Iconos de juego: SVG de trazos (hereda el color del texto de la insignia) */
+.gi svg,.gl svg{display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.gi svg{width:22px;height:22px}
+.gl svg{width:36px;height:36px}
+
+/* ---------- Inicio: progreso del día y cuadrícula de juegos ---------- */
+.hp{margin:0 0 16px}
+.ht{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px;font-weight:800}
+.ht span{color:var(--mut);font-size:13px;font-weight:700}
+.hbar{height:12px;border:2px solid var(--ink);border-radius:999px;background:var(--card);overflow:hidden}
+.hbar i{display:block;height:100%;background:var(--sky);transition:width .3s}
+.hbar.full i{background:var(--mint)}
+.gg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:8px}
+.gt{display:flex;flex-direction:column;align-items:flex-start;gap:6px;width:100%;text-align:left;background:var(--card);border:2px solid var(--ink);border-radius:18px;padding:12px;box-shadow:4px 4px 0 var(--sh)}
+.gt:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--sh)}
+.gt .gl{position:relative;width:52px;height:52px;border-radius:12px;margin-bottom:2px}
+.gt .gl>svg{width:30px;height:30px}
+.gt strong{font-size:17px;line-height:1.15}
+.gt em{font-style:normal;font-weight:700;font-size:13px;line-height:1.25;color:var(--mut)}
+.gt.en em{color:var(--ink)}
+.gt.en em::before{content:"";display:inline-block;width:8px;height:8px;margin-right:6px;border:1.5px solid var(--ink);border-radius:50%;background:var(--sun);vertical-align:baseline}
+.gt.ok{background:color-mix(in srgb,var(--mint) 14%,var(--card));box-shadow:2px 2px 0 var(--sh)}
+.gt.ok .gl{filter:saturate(.7)}
+.gt .ck{position:absolute;top:-8px;right:-8px;width:22px;height:22px;display:grid;place-items:center;border:2px solid var(--ink);border-radius:50%;background:var(--mint)}
+.gt .ck svg{width:12px;height:12px;fill:none;stroke:#fff;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+@media (prefers-reduced-motion:reduce){.hbar i{transition:none}}
+
+/* ---------- Teclado de Palabra: estado de cada letra ----------
+   (la regla .k anterior pisaba los colores de .s0/.s1/.s2; aquí se fuerzan con más especificidad) */
+.k.s0{background:#5B6683;color:#fff;text-decoration:line-through;text-decoration-thickness:2px}
+.k.s1{background:var(--sun);color:#14213D}
+.k.s2{background:var(--mint);color:#fff}
+.cb .k.s1{background:#E69F00;color:#14213D}
+.cb .k.s2{background:#0072B2;color:#fff}

@@ -21,7 +21,7 @@ function pk(k){const p=prog('p');p.g=p.g||[];if(R('palabra'))return;p.cur=p.cur|
  sv();draw()}
 
 DailyArcade.register({
- id:'palabra',name:'Palabra',desc:'Adivina la palabra de 5 letras en 6 intentos.',color:'--sky',icon:'Aa',
+ id:'palabra',name:'Palabra',desc:'Adivina la palabra de 5 letras en 6 intentos.',color:'--sky',icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="8" width="5.5" height="8" rx="1.2"/><rect x="9.25" y="8" width="5.5" height="8" rx="1.2" fill="currentColor"/><rect x="16.5" y="8" width="5.5" height="8" rx="1.2"/></svg>',
  how:["Adivina la palabra de <b>5 letras</b> en <b>6 intentos</b>.", "Escribe una palabra que exista y pulsa <b>Enter</b>.", "Cada letra te dice cuánto te acercas: mira el ejemplo."],
  demo:`<p class="cap">Si la palabra fuera <b>CAMPO</b> y escribes <b>COPAS</b>:</p><div class="r"><span class="t s2">C<i>✓</i></span><span class="t s1">O<i>●</i></span><span class="t s1">P<i>●</i></span><span class="t s1">A<i>●</i></span><span class="t s0">S<i>–</i></span></div><p class="cap"><b class="dot s2">✓</b> en su sitio &nbsp; <b class="dot s1">●</b> en otro sitio &nbsp; <b class="dot s0">–</b> no está</p>`,
  pk:'p',                 // clave donde se guarda el progreso del día

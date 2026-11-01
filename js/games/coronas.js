@@ -21,7 +21,7 @@ function cell(i){const p=prog('o');if(R('coronas'))return;p.b=p.b&&p.b.length==N
 function undo(){const p=prog('o');if(hist.length&&!R('coronas')){p.b=hist.pop();sv();draw()}}
 
 DailyArcade.register({
- id:'coronas',name:'Coronas',desc:'Una corona por fila, columna y color, sin tocarse.',color:'--sun',icon:'♛',
+ id:'coronas',name:'Coronas',desc:'Una corona por fila, columna y color, sin tocarse.',color:'--sun',icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5z"/><path d="M5 21h14"/></svg>',
  how:["Una corona ♛ en cada <b>fila</b>, <b>columna</b> y <b>color</b>.", "Las coronas <b>no pueden tocarse</b>, ni en diagonal.", "Toca una casilla: vacía → ✕ → ♛."],
  demo:(()=>{const g=[0,0,1,1,0,3,3,1,2,2,3,3,2,2,3,3],c=[1,7,8,14];return `<p class="cap">Ejemplo resuelto:</p><div class="bd2" style="grid-template-columns:repeat(4,1fr)">${g.map((r,i)=>`<span class="z" style="background:${REG[r]}">${c.includes(i)?'♛':''}</span>`).join('')}</div>`})(),
  pk:'o',

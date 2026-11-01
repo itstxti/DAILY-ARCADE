@@ -88,7 +88,7 @@ function chk(){
  sv();draw()}
 
 DailyArcade.register({
- id:'sudoku',name:'Sudoku mini',desc:'Rellena el tablero 6×6 sin repetir números.',color:'--mint',icon:'6×6',
+ id:'sudoku',name:'Sudoku mini',desc:'Rellena el tablero 6×6 sin repetir números.',color:'--mint',icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>',
  how:["Rellena el tablero con los números del <b>1 al 6</b>.", "No repitas número en ninguna <b>fila</b>, <b>columna</b> ni <b>caja de 2×3</b>.", "Los números fijos no se cambian. Toca una casilla y elige un número."],
  demo:(()=>{let z='';for(let i=0;i<36;i++){const x=i%6,y=i/6|0,cj=y<2&&x<3;z+=`<span class="sx${x==2?' vr':''}${y%2&&y<5?' hr':''}${cj?' eq':''}">${cj?y*3+x+1:''}</span>`}return `<p class="cap">Cada caja de 2×3 (en azul) lleva del 1 al 6:</p><div class="sd">${z}</div>`})(),
  pk:'s',

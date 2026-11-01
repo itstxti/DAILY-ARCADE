@@ -148,7 +148,7 @@ function pista(){
  msg='Pista: la letra marcada es el principio de una palabra.';sv();draw()}
 
 DailyArcade.register({
- id:'sopa',name:'Sopa de letras',desc:'Encuentra las 6 palabras escondidas en la cuadrícula.',color:'--mint',icon:'abc',
+ id:'sopa',name:'Sopa de letras',desc:'Encuentra las 6 palabras escondidas en la cuadrícula.',color:'--pink',icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>',
  how:["Encuentra las <b>6 palabras</b> de la lista escondidas en la cuadrícula.","Van en <b>horizontal, vertical o diagonal</b>. Se pueden marcar en cualquier sentido.","Arrastra de la primera a la última letra, o toca esas dos letras."],
  demo:(()=>{const L=['M','E','S','A','X','S','O','L','X','X','X','X'];let s=`<svg viewBox="0 0 4 3" style="display:block;width:140px;margin:6px auto;border:3px solid var(--ink);border-radius:8px">`;
   for(let i=0;i<12;i++)s+=`<rect x="${i%4}" y="${i/4|0}" width="1" height="1" style="fill:var(--card);stroke:var(--line);stroke-width:.03"/>`;

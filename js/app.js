@@ -12,6 +12,7 @@ let ask=false; /* confirmación de "Borrar mis resultados" */
 const IDS=()=>GAMES.map(g=>g.id);
 let AM=null,fq='',fr; /* AM: amistades (null = sin cargar). fq: texto buscado. fr: resultado (undefined = sin buscar, null = no encontrado) */
 let cfm=null; /* amigo pendiente de confirmar "Quitar" */
+let fs=false; /* cerrar sesión falló al subir resultados: se ofrece reintentar o salir igualmente */
 let blq=null,BL=null; /* blq: usuario pendiente de confirmar "Bloquear". BL: usuarios que has bloqueado (null = sin cargar) */
 function cargarBloqueados(){return Nube.bloqueados().then(l=>{BL=l}).catch(e=>{console.warn(e);BL=BL||[]}).then(()=>{if(V=='ajustes')draw()})}
 let FP=null; /* perfil de amigo abierto: {u, n, res (misma forma que S.res), err} */
@@ -43,11 +44,11 @@ async function alEntrar(){
  try{await Nube.sincronizar(S,DAY,IDS())}
  catch(e){console.warn('Sincronización fallida',e);msg='No se han podido sincronizar tus resultados con tu cuenta. Siguen guardados en este navegador y se reintentará.'}
  sv()}
-async function cerrar(){
- msg='Guardando tus resultados…';draw();
- try{await Nube.subirTodo(S,DAY,IDS())}catch(e){console.warn(e);msg='No se han podido guardar tus últimos resultados en tu cuenta. Comprueba la conexión e inténtalo de nuevo.';draw();return}
+async function cerrar(forzar){
+ if(!forzar){msg='Guardando tus resultados…';fs=false;draw();
+  try{await Nube.subirTodo(S,DAY,IDS())}catch(e){console.warn(e);msg='No se han podido guardar tus últimos resultados en tu cuenta. Comprueba la conexión e inténtalo de nuevo. Si cierras sesión igualmente, los resultados que no se hayan subido se perderán de este navegador.';fs=true;draw();return}}
  try{await Nube.salir()}catch(e){console.warn(e)}
- S={res:{},pr:{},me:{n:'Invitado',v:'public'},set:S.set,uid:null};Nube.user=Nube.perfil=null;AM=null;BL=null;blq=null;fq='';fr=undefined;sv();msg='';eu=null;draw()}
+ S={res:{},pr:{},me:{n:'Invitado',v:'public'},set:S.set,uid:null};Nube.user=Nube.perfil=null;AM=null;BL=null;blq=null;fq='';fr=undefined;sv();msg='';fs=false;eu=null;draw()}
 
 /* ---------- Ajustes ---------- */
 function seg(a,k,o,lab){const on=a=='vis'?S.me.v:S.set[k];return `<div class="seg" role="group" aria-label="${lab}">${o.map(([v,l])=>`<button class="btn" data-a="${a}" data-v="${v}"${a=='set'?` data-k="${k}"`:''} aria-pressed="${on==v}">${l}</button>`).join('')}</div>`}
@@ -157,7 +158,7 @@ ${fu}
 <div class="st"><span><b>Correo</b><small>${esc(u.email)}</small></span></div></section>
 ${M}
 ${adm?'<section class="res pb"><h2>Administración</h2><p>Gestiona el reto de cada día.</p><div class="row"><a class="btn pri" href="admin.html">Abrir el panel</a></div></section>':''}
-<button class="btn out" data-a="salir">Cerrar sesión</button>`}
+${fs?'<div class="row"><button class="btn" style="flex:1" data-a="salir">Reintentar</button><button class="btn dg" style="flex:1" data-a="salir-igual">Cerrar sesión igualmente</button></div>':'<button class="btn out" data-a="salir">Cerrar sesión</button>'}`}
 
 /* ---------- Inicio ---------- */
 function status(g){
@@ -166,11 +167,18 @@ function status(g){
  return r?'Completado':p&&p.t0?'En curso':'Sin jugar'}
 const SV=d=>`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const IC={user:SV('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>'),fr:SV('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.8 0 4.5 1.9 4.5 5"/>'),cfg:SV('<path d="M4 6h8M18 6h2M4 12h2M12 12h8M4 18h10M20 18h0"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>')};
+/* Estado de un juego en el inicio: ok (completado), en (empezado) o nv (sin jugar). */
+const estado=g=>R(g.id)?'ok':status(g)=='Sin jugar'?'nv':'en';
+const CK='<span class="ck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>';
+function ficha(g){const e=estado(g),s=status(g);
+ return `<button class="gt ${e}" data-a="go" data-v="${g.id}" aria-label="${g.name}. ${s}"><span class="gl" style="background:var(${g.color})">${g.icon}${e=='ok'?CK:''}</span><strong>${g.name}</strong><em>${s}</em></button>`}
+function progreso(){const T=GAMES.length,n=GAMES.filter(g=>R(g.id)).length,t=n==T;
+ return `<div class="hp"><div class="ht"><b>${t?'¡Todo completado hoy!':`Hoy: ${n} de ${T}`}</b><span>${t?'Vuelve mañana':`${T-n} por jugar`}</span></div><div class="hbar${t?' full':''}" role="progressbar" aria-label="Juegos completados hoy" aria-valuemin="0" aria-valuemax="${T}" aria-valuenow="${n}"><i style="width:${Math.round(n/T*100)}%"></i></div></div>`}
 function home(){
  const st=streak(),f=new Date(D0).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'});
  return `<header class="top"><h1>Daily Arcade</h1><span style="display:flex;gap:8px;align-items:center">${Nube.user?`<button class="bk ic" data-a="go" data-v="amigos" aria-label="Amigos${nrec()?` (${nrec()} solicitudes)`:''}" title="Amigos">${IC.fr}${nrec()?`<span class="bd" aria-hidden="true">${nrec()}</span>`:''}</button>`:''}<button class="bk ic" data-a="go" data-v="perfil" aria-label="Perfil" title="Perfil">${IC.user}</button><button class="bk ic" data-a="go" data-v="ajustes" aria-label="Ajustes" title="Ajustes">${IC.cfg}</button></span></header>
 <div class="hb"><div class="sn"><b>${st}</b>${st==1?'día':'días'} de racha</div><div><b>Reto nº ${DAY}</b>${f}</div><div><b id="cd">--:--:--</b>próximo reto</div></div>`+
- GAMES.map(g=>`<button class="gc" data-a="go" data-v="${g.id}"><span class="gl" style="background:var(${g.color})">${g.icon}</span><span><strong>${g.name}</strong><small>${g.desc}</small><em>${status(g)}</em></span></button>`).join('')+
+ progreso()+`<div class="gg">${GAMES.map(ficha).join('')}</div>`+
  `<p class="foot">Sin cuenta: los resultados se guardan solo en este navegador. Cada día cambia el reto a medianoche, hora de Madrid.</p>`}
 
 /* ---------- Control ---------- */
@@ -189,7 +197,7 @@ $('#app').onclick=e=>{
  const sm=e.target.closest('.how>summary');if(sm){const d=sm.parentNode;HW[d.dataset.g]=!d.open;return}
  const b=e.target.closest('[data-a]');if(!b)return;
  const a=b.dataset.a,g=cur();
- if(a=='go'){if(b.dataset.v=='cuenta')vp=V=='ajustes'?'ajustes':'perfil';V=b.dataset.v;msg='';sel=null;hist=[];ask=false;eu=null;en=false;cfm=null;blq=null;fr=undefined;fq='';if(V=='ranking'){RK={tab:RK.tab,d:DAY,dia:null,rachas:null,err:''}}draw();if(V=='amigos'&&Nube.user)cargarAmigos();if(V=='ranking'&&Nube.user)cargarRanking();if(V=='ajustes'&&Nube.user)cargarBloqueados()}
+ if(a=='go'){if(b.dataset.v=='cuenta')vp=V=='ajustes'?'ajustes':'perfil';V=b.dataset.v;msg='';fs=false;sel=null;hist=[];ask=false;eu=null;en=false;cfm=null;blq=null;fr=undefined;fq='';if(V=='ranking'){RK={tab:RK.tab,d:DAY,dia:null,rachas:null,err:''}}draw();if(V=='amigos'&&Nube.user)cargarAmigos();if(V=='ranking'&&Nube.user)cargarRanking();if(V=='ajustes'&&Nube.user)cargarBloqueados()}
  else if(a=='set'){const k=b.dataset.k;S.set[k]=k=='th'?b.dataset.v:!S.set[k];sv();theme();draw()}
  else if(a=='copy')copy();
  else if(a=='entrar'||a=='registrar'){
@@ -198,7 +206,8 @@ $('#app').onclick=e=>{
   msg='Un momento…';draw();
   (a=='entrar'?Nube.entrar(em,pw):Nube.libre(us).then(ok=>{if(!ok)throw{message:'Ese usuario ya está en uso.'};return Nube.registrar(em,pw,nm,us)}).then(s=>{if(!s)throw{message:'Cuenta creada. Revisa tu correo para confirmarla y luego entra.'}}))
    .then(async()=>{msg='';await alEntrar();draw()}).catch(e=>{msg=e.message&&!e.status?e.message:Nube.tr(e);draw()})}
- else if(a=='salir')cerrar()
+ else if(a=='salir')cerrar(false)
+ else if(a=='salir-igual')cerrar(true)
  else if(a=='usr-edit'){eu=(Nube.perfil&&Nube.perfil.usuario)||'';msg='';draw();const i=$('#us');if(i){i.focus();i.select()}}
  else if(a=='usr-cancel'){eu=null;msg='';draw()}
  else if(a=='usr-save'){const v=nu($('#us').value);

@@ -25,7 +25,7 @@ function streak(){return runs(days()).cur}
 let V='home',msg='',sel=null,hist=[];
 const theme=()=>{const r=document.documentElement;if(S.set.th=='auto')r.removeAttribute('data-theme');else r.dataset.theme=S.set.th;document.body.classList.toggle('cb',S.set.cb)};
 const KR=['qwertyuiop','asdfghjklñ','zxcvbnm'];
-const kb=(st,en)=>`<div class="kb">${KR.map((r,i)=>`<div class="kr">${i==2&&en?'<button class="k w" data-a="k" data-k="Enter">Enter</button>':''}${[...r].map(l=>`<button class="k ${st&&st[l]!=null?'s'+st[l]:''}" data-a="k" data-k="${l}">${l}</button>`).join('')}${i==2?'<button class="k w" data-a="k" data-k="Del" aria-label="Borrar">⌫</button>':''}</div>`).join('')}</div>`;
+const kb=(st,en)=>`<div class="kb">${KR.map((r,i)=>`<div class="kr">${i==2&&en?'<button class="k w" data-a="k" data-k="Enter">Enter</button>':''}${[...r].map(l=>`<button class="k ${st&&st[l]!=null?'s'+st[l]:''}" data-a="k" data-k="${l}"${st&&st[l]!=null?` aria-label="${l}, ${['no está en la palabra','está en otro sitio','en su sitio'][st[l]]}"`:''}>${l}</button>`).join('')}${i==2?'<button class="k w" data-a="k" data-k="Del" aria-label="Borrar">⌫</button>':''}</div>`).join('')}</div>`;
 const res=(t,d,s)=>`<section class="res"><h2>${t}</h2><p>${d}</p><pre id="sh">${s}</pre><button class="btn pri" data-a="copy">Copiar resultado</button></section>`;
 /* Instrucciones del juego (propiedad "how" al registrarlo). Abiertas la primera vez; después, plegadas. Se recuerda lo que el jugador abra o cierre. */
 const HW={};
