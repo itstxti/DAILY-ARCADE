@@ -15,6 +15,7 @@ En este modo el contenido se edita en `local/palabras.js` y `local/frases.js` (u
    (carga 510 retos desde el reto nº 1 = 31-10-2026).
 3. En **Project Settings → API** copia *Project URL* y la clave *anon public* en `js/config.js`.
    Nunca pongas la clave `service_role`.
+   `js/config.js` se sube al repositorio (la URL y la clave anon son públicas por diseño; la seguridad la dan las reglas RLS), así que el deploy en Vercel lo incluye.
 4. Abre la web, entra en Perfil → Entrar / crear cuenta y crea tu cuenta.
    (Si Supabase te pide confirmar el correo, confírmalo; para pruebas puedes desactivarlo en Authentication → Providers → Email.)
 5. Hazte administrador: en el SQL Editor ejecuta (con tu correo)
