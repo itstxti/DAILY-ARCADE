@@ -89,7 +89,7 @@ function pista(){
  sv();draw()}
 
 DailyArcade.register({
- id:'luces',name:'Luces',desc:'Apaga todas las luces con las menos pulsaciones posibles.',color:'--sun',icon:'☼',
+ id:'luces',name:'Luces',desc:'Apaga todas las luces con las menos pulsaciones posibles.',color:'--lime',icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17v-1.2c0-1-.5-1.6-1.3-2.4A6 6 0 1 1 16.3 13.4c-.8.8-1.3 1.4-1.3 2.4V17z"/><path d="M10 20.5h4"/></svg>',
  how:["Apaga <b>todas las luces</b> del tablero.","Al pulsar una casilla se invierten <b>ella y sus vecinas</b> (arriba, abajo, izquierda y derecha).","Cuenta cada pulsación: intenta acercarte al <b>mínimo</b>. Pulsar dos veces la misma casilla la deja como estaba."],
  demo:(()=>{const e=[0,1,0,1,1,1,0,1,0];return `<p class="cap">Al pulsar la casilla del centro se invierten las casillas en amarillo:</p><div class="lzb" style="grid-template-columns:repeat(3,1fr);width:120px;gap:3px">${e.map(v=>`<span class="lz${v?' on':''}"></span>`).join('')}</div>`})(),
  pk:'l',

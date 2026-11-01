@@ -9,6 +9,10 @@
     --mint: #1E8A66;
     --lav: #B79CF0;
     --coral: #F28B6B;
+    --aqua: #2DB9D3;
+    --lime: #A8D13A;
+    --pink: #E06CC0;
+    --orange: #EE7B1E;
     --mut: #5B6683;
     --sh: #14213D;
     box-sizing: border-box;
@@ -733,3 +737,22 @@ a.btn{display:inline-block;text-decoration:none;color:inherit}
 .ed{display:inline-grid;place-items:center;width:28px;height:28px;margin-left:4px;vertical-align:middle;border-radius:50%;color:var(--mut);text-decoration:none}
 .ed svg{width:16px;height:16px}
 .ed:hover,.ed:focus-visible{background:var(--bg);color:var(--ink)}
+
+/* ---------- Luces ---------- */
+.lzb{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:340px;margin:12px auto}
+.lz{aspect-ratio:1;padding:0;border:3px solid var(--ink);border-radius:10px;background:var(--card);cursor:pointer}
+.lz.on{background:var(--sun);box-shadow:inset 0 -5px 0 rgba(20,33,61,.2)}
+.lz.pista{box-shadow:0 0 0 4px var(--sky)}
+.lz.on.pista{box-shadow:inset 0 -5px 0 rgba(20,33,61,.2),0 0 0 4px var(--sky)}
+.lz:disabled{cursor:default}
+.lz:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+
+/* ---------- Sopa de letras ---------- */
+.spw{list-style:none;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:400px;margin:0 auto 8px;padding:0}
+.spw li{padding:4px 10px;border:2px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);font-size:14px;font-weight:800;letter-spacing:.04em}
+.spw li.ok{color:var(--mut);text-decoration:line-through}
+
+/* Iconos de juego: SVG de trazos (hereda el color del texto de la insignia) */
+.gi svg,.gl svg{display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.gi svg{width:22px;height:22px}
+.gl svg{width:36px;height:36px}

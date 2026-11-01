@@ -85,7 +85,7 @@ function giveup(){
  fin('operaciones',{st:'lost',gap:dif(p),n:p.l.length,t:Date.now()-(p.t0||Date.now())});draw()}
 
 DailyArcade.register({
- id:'operaciones',name:'Operaciones',desc:'Llega al número objetivo con sumas, restas, productos y divisiones.',color:'--coral',icon:'+×',
+ id:'operaciones',name:'Operaciones',desc:'Llega al número objetivo con sumas, restas, productos y divisiones.',color:'--coral',icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5v7M2.5 8h7"/><path d="M14.5 8h7"/><path d="M15 15l6 6M21 15l-6 6"/><path d="M2.5 18h7"/><circle cx="6" cy="14.6" r=".9" fill="currentColor"/><circle cx="6" cy="21.4" r=".9" fill="currentColor"/></svg>',
  how:["Llega al <b>número objetivo</b> combinando los números.", "Elige <b>número, operación y otro número</b>: el resultado es un número nuevo.", "Cada número se usa una vez. Restas positivas y divisiones exactas."],
  demo:`<p class="cap">Objetivo <b>106</b> con 4, 6 y 25:</p><div class="eq1"><span class="chp">25</span><b>×</b><span class="chp">4</span><b>=</b><span class="chp rs">100</span></div><div class="eq1"><span class="chp rs">100</span><b>+</b><span class="chp">6</span><b>=</b><span class="chp rs">106</span></div><p class="cap">El resultado (en amarillo) pasa a ser un número nuevo.</p>`,
  pk:'x',

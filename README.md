@@ -15,6 +15,7 @@ En este modo el contenido se edita en `local/palabras.js` y `local/frases.js` (u
    (carga 510 retos desde el reto nº 1 = 31-10-2026).
 3. En **Project Settings → API** copia *Project URL* y la clave *anon public* en `js/config.js`.
    Nunca pongas la clave `service_role`.
+   `js/config.js` se sube al repositorio (la URL y la clave anon son públicas por diseño; la seguridad la dan las reglas RLS), así que el deploy en Vercel lo incluye.
 4. Abre la web, entra en Perfil → Entrar / crear cuenta y crea tu cuenta.
    (Si Supabase te pide confirmar el correo, confírmalo; para pruebas puedes desactivarlo en Authentication → Providers → Email.)
 5. Hazte administrador: en el SQL Editor ejecuta (con tu correo)
@@ -44,6 +45,10 @@ Sube: `index.html`, `admin.html`, `css/`, `js/`, `content/`.
 | Sudoku mini | tablero 6×6 generado con la fecha (siempre con una sola solución) | no |
 | Escalera | dos palabras generadas con la fecha y la lista de `content/aceptadas.js` | no, pero **mejora con el diccionario completo** |
 | Operaciones | seis números y un objetivo generados con la fecha (siempre con solución) | no |
+| Camino | tablero 6×6 con números generado con la fecha (siempre con solución) | no |
+| Luces | tablero 5×5 generado con la fecha (siempre con solución) | no |
+| Tuberías | tablero 6×6 con parejas de colores generado con la fecha (siempre con solución) | no |
+| Sopa de letras | cuadrícula 8×8 con 6 palabras de `local/palabras.js` o `content/aceptadas.js` | no |
 
 Los juegos generados con la fecha no se cargan en Supabase: todo el mundo recibe el mismo reto. Su solución viaja en el
 navegador, como la palabra de hoy; para rankings habrá que comprobarlo en el servidor (fase 2).
@@ -77,14 +82,14 @@ js/nube.js                    cuentas, rol y reto del día
 js/content.js                 contenido local y reto de hoy
 js/core.js  js/app.js         utilidades, pantallas y arranque
 js/games/*.js                 un archivo por juego (+ _plantilla.js):
-                              palabra, cifra (Cifrado), coronas, sudoku, escalera, operaciones
+                              palabra, cifra (Cifrado), coronas, sudoku, escalera, operaciones, camino, luces, tuberias, sopa
 supabase/schema.sql seed.sql  base de datos y carga inicial
 local/  admin-local/          modo local (no subir)
 herramientas/                 generador de diccionario (no subir)
 ```
 
 ## Añadir un juego nuevo
-1. Copia `js/games/_plantilla.js` a `js/games/mijuego.js` y cambia `id`, `name`, `desc`, `icon`, `color` y `pk` (único).
+1. Copia `js/games/_plantilla.js` a `js/games/mijuego.js` y cambia `id`, `name`, `desc`, `icon` (un `<svg viewBox="0 0 24 24">` de trazos, sin emojis), `color` y `pk` (único).
 2. Añade `<script src="js/games/mijuego.js"></script>` en `index.html`, junto a los demás.
 3. Añade `how:[…]` (3 frases) y, si quieres, `demo:` (un ejemplo visual en HTML): se muestran como «Cómo se juega» bajo el título del juego.
 Aparece en el inicio, cuenta para la racha y sale en el perfil. La plantilla documenta la API.

@@ -140,7 +140,7 @@ function reiniciar(){
  p.t=Array.from({length:K},()=>[]);act=null;msg='';sv();draw()}
 
 DailyArcade.register({
- id:'tuberias',name:'Tuberías',desc:'Une las parejas de puntos del mismo color y rellena todo el tablero.',color:'--berry',icon:'∿',
+ id:'tuberias',name:'Tuberías',desc:'Une las parejas de puntos del mismo color y rellena todo el tablero.',color:'--aqua',icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h7a5 5 0 0 1 5 5v7"/><path d="M4 4.5v7M12.5 20h7"/></svg>',
  how:["Une cada pareja de puntos del <b>mismo color</b> con un camino.","Los caminos <b>no pueden cruzarse</b> y entre todos tienen que <b>rellenar el tablero</b>.","Arrastra desde un punto. Si pasas por otro camino, lo cortas. Las letras ayudan a distinguir los colores."],
  demo:(()=>{const c=[[0,1,2],[3,6,7],[4,5,8]],cl=['#E5484D','#3E6FE0','#2FA36B'],ex=[[0,2],[3,7],[4,8]];let s=`<svg viewBox="0 0 3 3" style="display:block;width:120px;margin:6px auto;border:3px solid var(--ink);border-radius:8px">`;
   for(let i=0;i<9;i++)s+=`<rect x="${i%3}" y="${i/3|0}" width="1" height="1" style="fill:var(--card);stroke:var(--line);stroke-width:.03"/>`;
