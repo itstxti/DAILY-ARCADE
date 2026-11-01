@@ -42,6 +42,7 @@ async function alEntrar(){
  if(Nube.perfil){S.me.n=Nube.perfil.nombre;S.me.v=Nube.perfil.privacidad=='public'||!Nube.perfil.privacidad?'public':'private'}
  sv();
  if(navigator.onLine)try{await Nube.sincronizar(S,DAY,IDS())}
+ if(navigator.onLine)try{await Nube.sincronizar(S,DAY,IDS())}
  catch(e){console.warn('Sincronización fallida',e);msg='No se han podido sincronizar tus resultados con tu cuenta. Siguen guardados en este navegador y se reintentará.'}
  sv()}
 async function cerrar(forzar){
@@ -63,6 +64,7 @@ ${msg?`<p class="msg" role="status">${msg}</p>`:''}
 <section class="res pb"><h2>Apariencia</h2><div class="st v"><span><b>Tema</b></span>${seg('set','th',[['auto','Sistema'],['light','Claro'],['dark','Oscuro']],'Tema')}</div>${sw('cb','Paleta para daltónicos','Cambia los colores de acierto en Palabra; los símbolos ✓ ● – se mantienen.')}</section>
 <section class="res pb"><h2>Juegos</h2>${sw('tm','Mostrar cronómetro','En todos los juegos.')}${sw('hl','Resaltar conflictos','En Coronas, marca filas, columnas y regiones repetidas y coronas que se tocan. En Sudoku, números repetidos.')}</section>
 ${inv()?'':`<section class="res pb"><h2>Usuarios bloqueados</h2>${BL===null?'<p class="cap">Cargando…</p>':BL.length?BL.map(b=>`<div class="st"><span><b>${esc(b.nombre||'@'+b.usuario)}</b>${b.nombre?`<small>@${esc(b.usuario)}</small>`:''}</span><button class="lnk" data-a="bl-un" data-u="${b.usuario}">Desbloquear</button></div>`).join(''):'<p>No has bloqueado a nadie.</p>'}</section>`}
+${secInstalar()}
 ${secInstalar()}
 <section class="res pb"><h2>Datos</h2><p>${inv()?'Tus resultados se guardan solo en este navegador.':'Tus resultados se guardan en tu cuenta y en este navegador.'}</p>${ask?'<p><b>¿Borrar todos tus resultados?</b> '+(inv()?'':'Se borrarán también de tu cuenta. ')+'No se puede deshacer.</p><div class="row"><button class="btn dg" data-a="reset-si">Sí, borrar</button><button class="btn" data-a="reset-no">Cancelar</button></div>':'<div class="row"><button class="btn" data-a="reset">Borrar mis resultados</button></div>'}</section>`}
 
@@ -148,6 +150,7 @@ function cuenta(){
   M=`<p class="msg" role="status">${msg}</p>`;
  if(!u)return `<div class="bar"><button class="bk" data-a="go" data-v="${vp}">‹ ${vp=='ajustes'?'Ajustes':'Perfil'}</button><h1>Cuenta</h1></div>
 <section class="res"><h2>Entrar o crear cuenta</h2><p>Es opcional. Con una cuenta tus resultados y rachas se guardan en el servidor y los recuperas en cualquier dispositivo. Lo que ya hayas jugado en este navegador se sube al entrar.</p><button class="btn gg" data-a="google"><svg class="gi" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.5 12.27c0-.79-.07-1.54-.2-2.27H12v4.3h5.9a5.05 5.05 0 0 1-2.19 3.31v2.75h3.54c2.07-1.91 3.25-4.72 3.25-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.54-2.75c-.98.66-2.24 1.05-3.74 1.05-2.88 0-5.31-1.94-6.18-4.56H2.16v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.82 14.08a6.6 6.6 0 0 1 0-4.16V7.08H2.16a11 11 0 0 0 0 9.84l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.07.56 4.21 1.65l3.15-3.15C17.46 2.09 14.97 1 12 1A11 11 0 0 0 2.16 7.08l3.66 2.84C6.69 7.32 9.12 5.38 12 5.38z"/></svg>Continuar con Google</button><p class="or"><span>o con tu correo</span></p><div class="me" style="flex-direction:column;align-items:stretch;gap:8px"><input id="em" type="email" placeholder="Correo" autocomplete="email"><input id="pw" type="password" placeholder="Contraseña (mínimo 6)" autocomplete="current-password"><input id="nm2" placeholder="Nombre (solo al crear la cuenta)" maxlength="20"><input id="us2" placeholder="Usuario para tus amigos (opcional, solo al crear)" maxlength="16" autocapitalize="none" autocomplete="off" spellcheck="false"></div><div class="row"><button class="btn pri" data-a="entrar">Entrar</button><button class="btn" data-a="registrar">Crear cuenta</button></div></section>${M}`;
+<section class="res"><h2>Entrar o crear cuenta</h2><p>Es opcional. Con una cuenta tus resultados y rachas se guardan en el servidor y los recuperas en cualquier dispositivo. Lo que ya hayas jugado en este navegador se sube al entrar.</p><button class="btn gg" data-a="google"><svg class="gi" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.5 12.27c0-.79-.07-1.54-.2-2.27H12v4.3h5.9a5.05 5.05 0 0 1-2.19 3.31v2.75h3.54c2.07-1.91 3.25-4.72 3.25-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.54-2.75c-.98.66-2.24 1.05-3.74 1.05-2.88 0-5.31-1.94-6.18-4.56H2.16v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.82 14.08a6.6 6.6 0 0 1 0-4.16V7.08H2.16a11 11 0 0 0 0 9.84l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.07.56 4.21 1.65l3.15-3.15C17.46 2.09 14.97 1 12 1A11 11 0 0 0 2.16 7.08l3.66 2.84C6.69 7.32 9.12 5.38 12 5.38z"/></svg>Continuar con Google</button><p class="or"><span>o con tu correo</span></p><div class="me" style="flex-direction:column;align-items:stretch;gap:8px"><input id="em" type="email" placeholder="Correo" autocomplete="email"><input id="pw" type="password" placeholder="Contraseña (mínimo 6)" autocomplete="current-password"><input id="nm2" placeholder="Nombre (solo al crear la cuenta)" maxlength="20"><input id="us2" placeholder="Usuario para tus amigos (opcional, solo al crear)" maxlength="16" autocapitalize="none" autocomplete="off" spellcheck="false"></div><div class="row"><button class="btn pri" data-a="entrar">Entrar</button><button class="btn" data-a="registrar">Crear cuenta</button></div></section>${M}`;
  const fu=!us?'':eu===null
   ?`<div class="st"><span><b>Usuario</b><small>@${esc(us)}</small></span><button class="lnk" data-a="usr-edit">Cambiar</button></div>`
   :`<div class="st v"><span><b>Usuario</b><small>Con él te encontrarán tus amigos. De 3 a 15 caracteres: minúsculas, números o _.</small></span><div class="me"><span class="at">@</span><input id="us" value="${esc(eu)}" maxlength="16" autocapitalize="none" autocomplete="off" spellcheck="false" aria-label="Usuario"></div><div class="row"><button class="btn pri" data-a="usr-save">Guardar</button><button class="btn" data-a="usr-cancel">Cancelar</button></div></div>`;
@@ -225,12 +228,18 @@ $('#app').onclick=e=>{
  else if(a=='copy')copy();
  else if(a=='share-dia')enviar(resumenDia(),b);
  else if(a=='instalar'){if(dip){dip.prompt();dip.userChoice.catch(()=>{}).then(()=>{dip=null;draw()})}}
+ else if(a=='share-dia')enviar(resumenDia(),b);
+ else if(a=='instalar'){if(dip){dip.prompt();dip.userChoice.catch(()=>{}).then(()=>{dip=null;draw()})}}
  else if(a=='entrar'||a=='registrar'){
   const em=$('#em').value.trim(),pw=$('#pw').value,nm=($('#nm2').value.trim()||'Jugador').slice(0,20),us=a=='registrar'?nu($('#us2').value):'';
   if(us&&!UOK.test(us)){msg=UMSG;draw();return}
   msg='Un momento…';draw();
   (a=='entrar'?Nube.entrar(em,pw):Nube.libre(us).then(ok=>{if(!ok)throw{message:'Ese usuario ya está en uso.'};return Nube.registrar(em,pw,nm,us)}).then(s=>{if(!s)throw{message:'Cuenta creada. Revisa tu correo para confirmarla y luego entra.'}}))
    .then(async()=>{msg='';await alEntrar();draw()}).catch(e=>{msg=e.message&&!e.status?e.message:Nube.tr(e);draw()})}
+ else if(a=='google'){
+  if(location.protocol=='file:'){msg='Entrar con Google necesita abrir la web desde http://localhost o desde el deploy (no con doble clic en el archivo).';draw();return}
+  msg='Abriendo Google…';draw();
+  Nube.entrarGoogle().catch(e=>{console.warn(e);msg=e.message&&!e.status?e.message:Nube.tr(e);draw()})}
  else if(a=='google'){
   if(location.protocol=='file:'){msg='Entrar con Google necesita abrir la web desde http://localhost o desde el deploy (no con doble clic en el archivo).';draw();return}
   msg='Abriendo Google…';draw();
@@ -284,6 +293,12 @@ addEventListener('keydown',e=>{
 (async()=>{
  if(Nube.activo){
   $('#app').innerHTML='<p class="sub">Cargando el reto de hoy…</p>';
+  try{
+   try{await Nube.init()}catch(e){if(!Nube.sb)throw e;console.warn('No se ha podido recuperar la sesión (¿sin conexión?)',e)}
+   let r;
+   try{r=await Nube.reto(DAY);if(r)try{localStorage.setItem('da-reto',JSON.stringify({dia:DAY,palabra:r.palabra,frase:r.frase,autor:r.autor}))}catch(_){}}
+   catch(e){let c=null;try{c=JSON.parse(localStorage.getItem('da-reto')||'null')}catch(_){}if(c&&c.dia==DAY)r=c;else throw e} /* sin conexión: el reto de hoy guardado la última vez */
+   if(!r)throw new Error('sin-reto');
   try{
    try{await Nube.init()}catch(e){if(!Nube.sb)throw e;console.warn('No se ha podido recuperar la sesión (¿sin conexión?)',e)}
    let r;
