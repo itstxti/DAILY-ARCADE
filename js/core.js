@@ -10,8 +10,6 @@ const cur=()=>GAMES.find(g=>g.id==V);
 
 /* En móvil se abre el menú de compartir del sistema; en ordenador se copia al portapapeles. */
 const CAN_SHARE=!!navigator.share&&matchMedia('(pointer:coarse)').matches;
-/* En móvil se abre el menú de compartir del sistema; en ordenador se copia al portapapeles. */
-const CAN_SHARE=!!navigator.share&&matchMedia('(pointer:coarse)').matches;
 const $=s=>document.querySelector(s),TZ='Europe/Madrid';
 const parts=()=>{const o={};new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).forEach(p=>o[p.type]=+p.value);return o};
 const P=parts(),D0=Date.UTC(P.year,P.month-1,P.day),DAY=Math.round((D0-EPOCH)/864e5)+1,WD=new Date(D0).getUTCDay();
