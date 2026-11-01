@@ -1,0 +1,18 @@
+# Soluciones de todos los retos (palabras y frases de todos los días)
+local/
+admin-local/
+supabase/seed.sql
+
+# Herramientas que solo usas en tu ordenador
+herramientas/
+
+# Secretos y basura habitual
+.env
+.env.*
+*.key
+node_modules/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+js/config.js

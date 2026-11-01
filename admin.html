@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Daily Arcade · Administración</title>
+<style>
+body{font:15px/1.4 system-ui,sans-serif;margin:0;background:#ECEFF8;color:#14213D}
+main{max-width:1100px;margin:0 auto;padding:16px}
+.box{background:#fff;border:2px solid #14213D;border-radius:12px;padding:12px 16px;margin:12px 0}
+input{font:inherit;padding:6px 8px;border:2px solid #C5CCE3;border-radius:8px;box-sizing:border-box;max-width:100%}
+button{font:inherit;font-weight:700;border:2px solid #14213D;border-radius:10px;padding:6px 12px;background:#F6B73C;cursor:pointer}
+button.sec{background:#fff}.warn{color:#B3263F}.ok{color:#1E8A66}
+table{border-collapse:collapse;width:100%;background:#fff}th,td{border:1px solid #C5CCE3;padding:6px;text-align:left;vertical-align:top}
+th{background:#14213D;color:#fff}tr.hoy td{background:#FFF3D1}.wrap{overflow-x:auto}small{color:#5B6683}
+.w{width:90px;text-transform:lowercase;font-weight:800}.f{width:100%;min-width:260px}.a{width:150px}
+</style></head><body><main>
+<h1>Administración</h1>
+<p><a href="index.html">← Volver al juego</a></p>
+<div id="a">Cargando…</div>
+</main>
+<script src="js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="js/core.js"></script>
+<script src="js/nube.js"></script>
+<script>
+/* La seguridad NO depende de esta página: aunque alguien la abra, las reglas de la base de datos
+   (schema.sql) solo dejan leer y escribir el calendario a los administradores. */
+const A=document.getElementById('a'),e2=t=>String(t).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';');
+const DIAS=['dom','lun','mar','mié','jue','vie','sáb'],RANGO=[[30,50],[70,100],[70,100],[55,80],[55,80],[40,60],[40,60]];
+const fecha=d=>new Date(EPOCH+(d-1)*864e5),fmt=d=>fecha(d).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+const norm=s=>s.toLowerCase().replace(/ñ/g,'\u0001').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\u0001/g,'ñ').trim();
+let aviso='';
+function login(){A.innerHTML=`<div class="box"><h2>Entrar</h2><p>Con tu cuenta de administrador.</p><p><input id="em" type="email" placeholder="Correo"> <input id="pw" type="password" placeholder="Contraseña"> <button id="go">Entrar</button></p><p class="warn">${aviso}</p></div>`;
+ document.getElementById('go').onclick=async()=>{try{await Nube.entrar(document.getElementById('em').value.trim(),document.getElementById('pw').value);aviso='';pintar()}catch(e){aviso=Nube.tr(e);login()}}}
+function fila(r,nuevo){const wd=fecha(r.dia).getUTCDay(),[mn,mx]=RANGO[wd],n=(r.frase||'').length,bien=n>=mn&&n<=mx;
+ return `<tr class="${r.dia==DAY?'hoy':''}" data-d="${r.dia}"><td>${r.dia}</td><td>${fmt(r.dia)}<br><small>${DIAS[wd]}</small></td>
+<td><input class="w" maxlength="8" value="${e2(r.palabra||'')}"></td><td><input class="f" value="${e2(r.frase||'')}"><br><small class="${bien||!n?'':'warn'}">${n?n+' caracteres'+(bien?' ✓':' · ideal '+mn+'-'+mx):'recomendado '+mn+'-'+mx+' caracteres'}</small></td>
+<td><input class="a" value="${e2(r.autor||'Refrán popular')}"></td><td><button data-s="${r.dia}">${nuevo?'Añadir':'Guardar'}</button></td></tr>`}
+async function pintar(){
+ if(!Nube.activo||!Nube.sb){A.innerHTML='<div class="box warn">Configura js/config.js con los datos de Supabase para usar el panel.</div>';return}
+ await Nube.init();
+ if(!Nube.user)return login();
+ if(!(Nube.perfil&&Nube.perfil.rol=='admin')){A.innerHTML=`<div class="box"><b class="warn">Tu cuenta no tiene permisos de administrador.</b><p>${e2(Nube.user.email)}</p><button class="sec" id="out">Cerrar sesión</button></div>`;document.getElementById('out').onclick=async()=>{await Nube.salir();pintar()};return}
+ const q=await Nube.sb.from('retos').select('*').gte('dia',Math.max(1,DAY-2)).order('dia').limit(150);
+ if(q.error){A.innerHTML=`<div class="box warn">Error: ${e2(q.error.message)}</div>`;return}
+ const mx=await Nube.sb.from('retos').select('dia').order('dia',{ascending:false}).limit(1),ult=mx.data&&mx.data[0]?mx.data[0].dia:0,quedan=ult-DAY;
+ A.innerHTML=`<div class="box"><b>Hoy: reto nº ${DAY}</b> (${fmt(DAY)}) · Sesión: ${e2(Nube.user.email)} <button class="sec" id="out">Cerrar sesión</button><br>
+<span class="${quedan<30?'warn':'ok'}">${quedan<0?'⚠ Hoy no hay reto. ¡Añade uno ya!':(quedan<30?'⚠ ':'✓ ')+'Hay contenido hasta el reto nº '+ult+' ('+fmt(ult)+'). Quedan '+quedan+' días.'}</span>
+${aviso?`<br><b class="${/guardado|añadido/i.test(aviso)?'ok':'warn'}">${e2(aviso)}</b>`:''}</div>
+<div class="wrap"><table><tr><th>Reto</th><th>Fecha</th><th>Palabra (5 letras)</th><th>Frase (Cifrado)</th><th>Autor</th><th></th></tr>${q.data.map(r=>fila(r)).join('')}${fila({dia:ult+1},true)}</table></div>
+<p><small>Para cambiar el día de hoy o uno ya jugado, ten en cuenta que los jugadores que ya lo hayan jugado lo habrán visto con el contenido anterior.</small></p>`;
+ document.getElementById('out').onclick=async()=>{await Nube.salir();aviso='';pintar()};
+ A.querySelectorAll('button[data-s]').forEach(b=>b.onclick=async()=>{
+  const tr=b.closest('tr'),d=+b.dataset.s,i=tr.querySelectorAll('input'),pal=norm(i[0].value),fr=i[1].value.trim(),au=i[2].value.trim()||'Refrán popular';
+  if(!/^[a-zñ]{5}$/.test(pal))return alert('La palabra debe tener exactamente 5 letras.');
+  if(fr.length<25||fr.length>110)return alert('La frase debe tener entre 25 y 110 caracteres (ahora '+fr.length+').');
+  const r=await Nube.sb.from('retos').upsert({dia:d,palabra:pal,frase:fr,autor:au});
+  aviso=r.error?'No se pudo guardar: '+r.error.message:'Reto nº '+d+' guardado.';pintar()})}
+pintar().catch(e=>{A.innerHTML=`<div class="box warn">Error: ${e2(e.message)}</div>`});
+</script></body></html>
