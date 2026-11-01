@@ -57,14 +57,14 @@ function secCuenta(){
  if(inv())return `<section class="res pb"><h2>Cuenta</h2><p>Juegas como invitado: tu perfil solo existe en este navegador y nadie más puede verlo.${Nube.activo?' Con una cuenta podrás elegir quién ve tu perfil.':''}</p>${Nube.activo?'<div class="row"><button class="btn pri" data-a="go" data-v="cuenta">Entrar o crear cuenta</button></div>':''}</section>`;
  return `<section class="res pb"><h2>Cuenta</h2><div class="st"><span><b>${esc(S.me.n)}</b><small>${esc(Nube.user.email)}</small></span><button class="btn" data-a="go" data-v="cuenta">Mi cuenta</button></div><div class="st v"><span><b>Privacidad del perfil</b><small>${VT[S.me.v]}</small></span>${seg('vis','',[['public','Público'],['private','Privado']],'Privacidad del perfil')}</div></section>`}
 function ajustes(){
- return `<div class="bar"><button class="bk" data-a="go" data-v="home">‹ Inicio</button><h1>Ajustes</h1></div>
+ return `<div class="aj"><div class="bar"><button class="bk" data-a="go" data-v="home">‹ Inicio</button><h1>Ajustes</h1></div>
 ${secCuenta()}
 ${msg?`<p class="msg" role="status">${msg}</p>`:''}
 <section class="res pb"><h2>Apariencia</h2><div class="st v"><span><b>Tema</b></span>${seg('set','th',[['auto','Sistema'],['light','Claro'],['dark','Oscuro']],'Tema')}</div>${sw('cb','Paleta para daltónicos','Cambia los colores de acierto en Palabra; los símbolos ✓ ● – se mantienen.')}</section>
 <section class="res pb"><h2>Juegos</h2>${sw('tm','Mostrar cronómetro','En todos los juegos.')}${sw('hl','Resaltar conflictos','En Coronas, marca filas, columnas y regiones repetidas y coronas que se tocan. En Sudoku, números repetidos.')}</section>
 ${inv()?'':`<section class="res pb"><h2>Usuarios bloqueados</h2>${BL===null?'<p class="cap">Cargando…</p>':BL.length?BL.map(b=>`<div class="st"><span><b>${esc(b.nombre||'@'+b.usuario)}</b>${b.nombre?`<small>@${esc(b.usuario)}</small>`:''}</span><button class="lnk" data-a="bl-un" data-u="${b.usuario}">Desbloquear</button></div>`).join(''):'<p>No has bloqueado a nadie.</p>'}</section>`}
 ${secInstalar()}
-<section class="res pb"><h2>Datos</h2><p>${inv()?'Tus resultados se guardan solo en este navegador.':'Tus resultados se guardan en tu cuenta y en este navegador.'}</p>${ask?'<p><b>¿Borrar todos tus resultados?</b> '+(inv()?'':'Se borrarán también de tu cuenta. ')+'No se puede deshacer.</p><div class="row"><button class="btn dg" data-a="reset-si">Sí, borrar</button><button class="btn" data-a="reset-no">Cancelar</button></div>':'<div class="row"><button class="btn" data-a="reset">Borrar mis resultados</button></div>'}</section>`}
+<section class="res pb"><h2>Datos</h2><p>${inv()?'Tus resultados se guardan solo en este navegador.':'Tus resultados se guardan en tu cuenta y en este navegador.'}</p>${ask?'<p><b>¿Borrar todos tus resultados?</b> '+(inv()?'':'Se borrarán también de tu cuenta. ')+'No se puede deshacer.</p><div class="row"><button class="btn dg" data-a="reset-si">Sí, borrar</button><button class="btn" data-a="reset-no">Cancelar</button></div>':'<div class="row"><button class="btn" data-a="reset">Borrar mis resultados</button></div>'}</section></div>`}
 
 /* ---------- Perfil ---------- */
 function blk(g,e,am){
@@ -76,17 +76,17 @@ function blk(g,e,am){
 function resumen(res){
  const all=days(res),gr=runs(all),T=GAMES.length,full=all.filter(d=>Object.keys(res[d]).length==T).length;
  return `<div class="sm"><div><b>${gr.cur}</b>racha actual</div><div><b>${gr.best}</b>mejor racha</div><div><b>${all.length}</b>días jugados</div></div>
-<section class="res pb"><h2>Últimos 28 días</h2><div class="hm" aria-label="Actividad de los últimos 28 días">${Array.from({length:28},(_,i)=>{const d=DAY-27+i,n=Object.keys(res[d]||{}).length;return `<span${i==27?' class="hoy"':''} title="Reto ${d}: ${n}/${T}" style="opacity:${.12+n/T*.88}"></span>`}).join('')}</div><p class="cap">${full} ${full==1?'día':'días'} con los ${T} juegos completados.</p></section>`}
+<section class="res pb"><h2>Últimos 28 días</h2><div class="hm" aria-label="Actividad de los últimos 28 días">${Array.from({length:28},(_,i)=>{const d=DAY-27+i,n=Object.keys(res[d]||{}).length;return `<span${i==27?' class="hoy"':''} title="Reto ${d}: ${n}/${T}" style="${n?`opacity:${.35+n/T*.65}`:'background:var(--line)'}"></span>`}).join('')}</div><p class="cap">${full} ${full==1?'día':'días'} con los ${T} juegos completados.</p></section>`}
 function perfil(){
  const me=S.me,
  us=Nube.perfil&&Nube.perfil.usuario,
  pie=inv()?`<div class="hs"><p>Juegas sin cuenta: tus resultados se guardan solo en este navegador.</p>${Nube.activo?'<div class="row"><button class="btn pri" data-a="go" data-v="cuenta">Entrar o crear cuenta</button></div>':''}</div>`
   :`<div class="hs"><button class="btn pri" data-a="go" data-v="amigos">Amigos${nrec()?` · ${nrec()} ${nrec()==1?'solicitud':'solicitudes'}`:''}</button></div>`;
  return `<div class="bar"><button class="bk" data-a="go" data-v="home">‹ Inicio</button><h1>Perfil</h1></div>
-<section class="res hd"><div class="me"><span class="av lg">${esc((me.n[0]||'I').toUpperCase())}</span>${en
+<section class="res hd"><div class="me"><span class="av lg">${inv()?IC.user:esc((me.n[0]||'I').toUpperCase())}</span>${en
  ?`<span class="id" style="flex:1;align-items:stretch"><input id="nm" value="${esc(me.n)}" maxlength="20" placeholder="Tu nombre" aria-label="Nombre" autocomplete="off"><span class="row" style="margin:0"><button class="btn pri" data-a="nm-save">Guardar</button><button class="btn" data-a="nm-cancel">Cancelar</button></span></span>`
  :`<span class="id" style="flex:1"><b>${esc(me.n)}<button class="lnk ed" data-a="nm-edit" aria-label="Editar nombre" title="Editar nombre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg></button></b>${us?`<small>@${esc(us)}</small>`:''}</span>${inv()?'':`<span class="tag" style="flex:none" title="Quién puede ver tu perfil. Se cambia en Ajustes.">${VS[me.v]}</span>`}`}</div>${pie}</section>
-${resumen(S.res)}`+GAMES.map(g=>blk(g)).join('')}
+${resumen(S.res)}`+'<section class="gml">'+GAMES.map(g=>blk(g)).join('')+'</section>'}
 
 /* ---------- Amigos (solo con sesión) ---------- */
 function amigos(){
@@ -140,7 +140,7 @@ function perfilAmigo(){
   fil=rel=='amigos'?(cfm==f.u?`<p>¿Quitar a ${esc(nm)} de tus amigos?</p><div class="row">${bt('am-del-si','Quitar','dg')}<button class="btn" style="flex:1" data-a="am-del-no">Cancelar</button></div>`:`<div class="row">${bt('am-del','Quitar amigo')}</div>`)
    :rel=='recibida'?`<div class="row">${bt('am-ok','Aceptar','pri')}${bt('am-no','Rechazar')}</div>`
    :rel=='enviada'?`<div class="row">${bt('am-can','Cancelar solicitud')}</div>`:'';
- return back+`<section class="res hd"><div class="me"><span class="av lg">${esc((nm[0]||'?').toUpperCase())}</span><span class="id" style="flex:1"><b>${esc(nm)}</b><small>@${esc(f.u)}</small></span><span style="flex:none">${der}</span></div><div class="hs">${blq==f.u?`<p>¿Bloquear a ${esc(nm)}? Dejará de poder encontrarte y ver tu perfil, y se eliminará vuestra amistad o solicitud. No se enterará.</p><div class="row">${bt('bl-si','Bloquear','dg')}<button class="btn" style="flex:1" data-a="bl-no">Cancelar</button></div>`:fil+`<p class="cap"${fil?' style="margin-top:12px"':''}><button class="lnk" data-a="bl-ask" data-u="${f.u}">Bloquear a @${esc(f.u)}</button></p>`}</div></section>${msg?`<p class="msg" role="status">${msg}</p>`:''}${resumen(f.res)}`+GAMES.map(g=>blk(g,E(g.id,f.res),true)).join('')}
+ return back+`<section class="res hd"><div class="me"><span class="av lg">${esc((nm[0]||'?').toUpperCase())}</span><span class="id" style="flex:1"><b>${esc(nm)}</b><small>@${esc(f.u)}</small></span><span style="flex:none">${der}</span></div><div class="hs">${blq==f.u?`<p>¿Bloquear a ${esc(nm)}? Dejará de poder encontrarte y ver tu perfil, y se eliminará vuestra amistad o solicitud. No se enterará.</p><div class="row">${bt('bl-si','Bloquear','dg')}<button class="btn" style="flex:1" data-a="bl-no">Cancelar</button></div>`:fil+`<p class="cap"${fil?' style="margin-top:12px"':''}><button class="lnk" data-a="bl-ask" data-u="${f.u}">Bloquear a @${esc(f.u)}</button></p>`}</div></section>${msg?`<p class="msg" role="status">${msg}</p>`:''}${resumen(f.res)}`+'<section class="gml">'+GAMES.map(g=>blk(g,E(g.id,f.res),true)).join('')+'</section>'}
 
 /* ---------- Cuenta (solo con Supabase) ---------- */
 function cuenta(){
@@ -172,12 +172,12 @@ const IC={user:SV('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s
 const estado=g=>R(g.id)?'ok':status(g)=='Sin jugar'?'nv':'en';
 const CK='<span class="ck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>';
 function ficha(g){const e=estado(g),s=status(g);
- return `<button class="gt ${e}" data-a="go" data-v="${g.id}" aria-label="${g.name}. ${s}"><span class="gl" style="background:var(${g.color})">${g.icon}${e=='ok'?CK:''}</span><strong>${g.name}</strong><em>${s}</em></button>`}
+ return `<button class="gt ${e}" data-a="go" data-v="${g.id}" aria-label="${g.name}. ${s}"><span class="gl" style="background:var(${g.color})">${g.icon}${e=='ok'?CK:''}</span><strong>${g.name}</strong>${e=='nv'?'':`<em>${s}</em>`}</button>`}
 function progreso(){const T=GAMES.length,n=GAMES.filter(g=>R(g.id)).length,t=n==T;
- return `<div class="hp"><div class="ht"><b>${t?'¡Todo completado hoy!':`Hoy: ${n} de ${T}`}</b><span class="hr"><span>${t?'Vuelve mañana':`${T-n} por jugar`}</span>${n?compBtn('share-dia',CAN_SHARE?'Compartir mi día':'Copiar mi día'):''}</span></div><div class="hbar${t?' full':''}" role="progressbar" aria-label="Juegos completados hoy" aria-valuemin="0" aria-valuemax="${T}" aria-valuenow="${n}"><i style="width:${Math.round(n/T*100)}%"></i></div></div>`}
+ return `<div class="hp"><div class="ht"><b>${t?'¡Todo completado hoy!':`Hoy: ${n} de ${T}`}</b><span class="hr"><span>${t?'Vuelve mañana':`${T-n} por jugar`}</span>${n?compBtn('share-dia',CAN_SHARE?'Compartir mi día':'Copiar mi día'):''}</span></div><div class="slots" role="progressbar" aria-label="Juegos completados hoy" aria-valuemin="0" aria-valuemax="${T}" aria-valuenow="${n}">${GAMES.map(g=>R(g.id)?`<i style="background:var(${g.color})"></i>`:'<i></i>').join('')}</div></div>`}
 function home(){
  const st=streak(),f=new Date(D0).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'});
- return `<header class="top"><h1>Daily Arcade</h1><span style="display:flex;gap:8px;align-items:center">${Nube.user?`<button class="bk ic" data-a="go" data-v="amigos" aria-label="Amigos${nrec()?` (${nrec()} solicitudes)`:''}" title="Amigos">${IC.fr}${nrec()?`<span class="bd" aria-hidden="true">${nrec()}</span>`:''}</button>`:''}<button class="bk ic" data-a="go" data-v="perfil" aria-label="Perfil" title="Perfil">${IC.user}</button><button class="bk ic" data-a="go" data-v="ajustes" aria-label="Ajustes" title="Ajustes">${IC.cfg}</button></span></header>
+ return `<header class="top"><h1>Daily Arcade</h1><span style="display:flex;gap:8px;align-items:center">${Nube.user?`<button class="bk ic" data-a="go" data-v="amigos" aria-label="Amigos${nrec()?` (${nrec()} solicitudes)`:''}" title="Amigos">${IC.fr}${nrec()?`<span class="nbd" aria-hidden="true">${nrec()}</span>`:''}</button>`:''}<button class="bk ic" data-a="go" data-v="perfil" aria-label="Perfil" title="Perfil">${IC.user}</button><button class="bk ic" data-a="go" data-v="ajustes" aria-label="Ajustes" title="Ajustes">${IC.cfg}</button></span></header>
 <div class="hb"><div class="sn"><b>${st}</b>${st==1?'día':'días'} de racha</div><div><b>Reto nº ${DAY}</b>${f}</div><div><b id="cd">--:--:--</b>próximo reto</div></div>`+
  progreso()+`<div class="gg">${GAMES.map(ficha).join('')}</div>`+
  `<p class="foot">Sin cuenta: los resultados se guardan solo en este navegador. Cada día cambia el reto a medianoche, hora de Madrid.</p>`}
