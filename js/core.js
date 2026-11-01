@@ -8,6 +8,8 @@ const GAMES=[];
 const DailyArcade={register(g){g.winLabel=g.winLabel||'ganadas';GAMES.push(g)}};
 const cur=()=>GAMES.find(g=>g.id==V);
 
+/* En móvil se abre el menú de compartir del sistema; en ordenador se copia al portapapeles. */
+const CAN_SHARE=!!navigator.share&&matchMedia('(pointer:coarse)').matches;
 const $=s=>document.querySelector(s),TZ='Europe/Madrid';
 const parts=()=>{const o={};new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).forEach(p=>o[p.type]=+p.value);return o};
 const P=parts(),D0=Date.UTC(P.year,P.month-1,P.day),DAY=Math.round((D0-EPOCH)/864e5)+1,WD=new Date(D0).getUTCDay();
@@ -26,7 +28,12 @@ let V='home',msg='',sel=null,hist=[];
 const theme=()=>{const r=document.documentElement;if(S.set.th=='auto')r.removeAttribute('data-theme');else r.dataset.theme=S.set.th;document.body.classList.toggle('cb',S.set.cb)};
 const KR=['qwertyuiop','asdfghjklñ','zxcvbnm'];
 const kb=(st,en)=>`<div class="kb">${KR.map((r,i)=>`<div class="kr">${i==2&&en?'<button class="k w" data-a="k" data-k="Enter">Enter</button>':''}${[...r].map(l=>`<button class="k ${st&&st[l]!=null?'s'+st[l]:''}" data-a="k" data-k="${l}"${st&&st[l]!=null?` aria-label="${l}, ${['no está en la palabra','está en otro sitio','en su sitio'][st[l]]}"`:''}>${l}</button>`).join('')}${i==2?'<button class="k w" data-a="k" data-k="Del" aria-label="Borrar">⌫</button>':''}</div>`).join('')}</div>`;
-const res=(t,d,s)=>`<section class="res"><h2>${t}</h2><p>${d}</p><pre id="sh">${s}</pre><button class="btn pri" data-a="copy">Copiar resultado</button></section>`;
+/* Botón de compartir solo con icono (compartir en móvil, copiar en ordenador). El texto lo lee enviar() de app.js. */
+const IC_CP='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/></svg>',
+ IC_SH='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>',
+ IC_OK='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const compBtn=(a,l)=>`<button class="btn ib" data-a="${a}" aria-label="${l}" title="${l}">${CAN_SHARE?IC_SH:IC_CP}</button>`;
+const res=(t,d,s)=>`<section class="res"><h2>${t}</h2><p>${d}</p><div class="pw"><pre id="sh">${s}</pre>${compBtn('copy',CAN_SHARE?'Compartir resultado':'Copiar resultado')}</div></section>`;
 /* Instrucciones del juego (propiedad "how" al registrarlo). Abiertas la primera vez; después, plegadas. Se recuerda lo que el jugador abra o cierre. */
 const HW={};
 const how=()=>{const g=cur();if(!g||!g.how)return '';const o=HW[g.id]!==undefined?HW[g.id]:!E(g.id).length;

@@ -11,6 +11,8 @@ const Nube=(()=>{
     r=await sb.from('profiles').select(c).eq('id',N.user.id).maybeSingle();if(!r.error)break}
    N.perfil=r.data}};
  N.entrar=async(email,password)=>{const{error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;await N.init()};
+ /* Google: redirige a Google y vuelve a esta misma página; init() recoge la sesión al volver. Ver README (Entrar con Google). */
+ N.entrarGoogle=async()=>{const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname,queryParams:{prompt:'select_account'}}});if(error)throw error};
  N.registrar=async(email,password,nombre,usuario)=>{const{data,error}=await sb.auth.signUp({email,password,options:{data:{nombre,usuario}}});if(error)throw error;await N.init();return !!data.session};
  N.salir=async()=>{await sb.auth.signOut();N.user=N.perfil=null};
  N.reto=async dia=>{const{data,error}=await sb.from('retos').select('palabra,frase,autor').eq('dia',dia).maybeSingle();if(error)throw error;return data};

@@ -33,7 +33,7 @@ begin
   end if;
   insert into profiles (id, nombre, usuario)
   values (new.id,
-          left(coalesce(nullif(trim(new.raw_user_meta_data->>'nombre'), ''), 'Jugador'), 20),
+          left(coalesce(nullif(trim(new.raw_user_meta_data->>'nombre'), ''), nullif(trim(new.raw_user_meta_data->>'full_name'), ''), nullif(trim(new.raw_user_meta_data->>'name'), ''), 'Jugador'), 20),
           u);
   return new;
 end
