@@ -71,6 +71,7 @@ button:focus-visible {
 .top {
     display: flex;
     flex-wrap: nowrap;
+    flex-wrap: nowrap;
     justify-content: space-between;
     align-items: center;
     gap: 8px;
@@ -458,6 +459,26 @@ pre {
     color: var(--ink)
 }
 
+.me input:-webkit-autofill,
+.me input:-webkit-autofill:hover,
+.me input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--ink);
+    caret-color: var(--ink);
+    box-shadow: 0 0 0 40px var(--card) inset;
+    transition: background-color 9999s;
+}
+
+/* Firefox */
+.me input:autofill {
+    background: var(--card);
+    color: var(--ink);
+}
+
+:root[data-theme="dark"] { color-scheme: dark; }
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { color-scheme: dark; }
+}
+
 .sm {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -557,6 +578,9 @@ pre {
 }
 
 .bk.ic {
+    position: relative;
+    width: 44px;
+    height: 44px;
     position: relative;
     width: 44px;
     height: 44px;
@@ -762,6 +786,7 @@ pre {
     margin-top: 2px;
     color: var(--mut);
     font-size: 13px;
+    font-size: 13px;
     font-weight: 500
 }
 
@@ -788,6 +813,7 @@ pre {
 
 .hb div {
     padding: 10px 8px;
+    font-size: 13px;
     font-size: 13px;
     line-height: 1.25;
     color: var(--mut)
@@ -912,6 +938,8 @@ pre {
     place-items: center;
     width: 40px;
     height: 40px;
+    width: 40px;
+    height: 40px;
     padding: 0;
     border-radius: 10px;
     box-shadow: 1px 1px 0 var(--sh)
@@ -925,11 +953,14 @@ pre {
 .pw pre {
     margin: 0;
     padding: 10px 60px 10px 12px;
+    padding: 10px 60px 10px 12px;
     line-height: 1.4
 }
 
 .pw .ib {
     position: absolute;
+    top: 5px;
+    right: 5px
     top: 5px;
     right: 5px
 }
@@ -1463,12 +1494,14 @@ a.btn {
 
 .kp span {
     font-size: 13px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--mut);
     line-height: 1.2
 }
 
 /* Amigos: insignia de solicitudes pendientes sobre el icono de inicio */
+.nbd {
 .nbd {
     position: absolute;
     top: -7px;
@@ -1540,6 +1573,9 @@ a.btn {
 .ed {
     display: inline-grid;
     place-items: center;
+    width: 40px;
+    height: 40px;
+    margin: -8px 0 -8px 2px;
     width: 40px;
     height: 40px;
     margin: -8px 0 -8px 2px;
@@ -1677,7 +1713,17 @@ a.btn {
 .slots i {
     flex: 1;
     height: 16px;
+.slots {
+    display: flex;
+    gap: 4px
+}
+
+.slots i {
+    flex: 1;
+    height: 16px;
     border: 2px solid var(--ink);
+    border-radius: 6px;
+    background: var(--card)
     border-radius: 6px;
     background: var(--card)
 }
