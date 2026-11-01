@@ -22,7 +22,34 @@ En este modo el contenido se edita en `local/palabras.js` y `local/frases.js` (u
    `update profiles set rol = 'admin' where id = (select id from auth.users where email = 'tu@correo.com');`
 6. Cierra sesión y vuelve a entrar. En Cuenta aparece el enlace al panel (`admin.html`).
 
+## Entrar con Google (opcional)
+El botón «Continuar con Google» está en Perfil → Cuenta. Hay que activarlo una vez:
+1. En [Google Cloud Console](https://console.cloud.google.com/) crea un proyecto (o usa uno) → **APIs y servicios → Pantalla de consentimiento de OAuth** (tipo Externo; con nombre de la app y tu correo basta) → publícala en producción para que entre cualquiera.
+2. **Credenciales → Crear credenciales → ID de cliente de OAuth → Aplicación web.**
+   - *Orígenes autorizados de JavaScript:* tu dominio de Vercel (`https://tu-proyecto.vercel.app`) y `http://localhost:PUERTO` para probar en local.
+   - *URI de redirección autorizados:* `https://cobynsvgkvqgzqnkpgkx.supabase.co/auth/v1/callback` (en Supabase: Authentication → Providers → Google te la muestra).
+   Copia el *Client ID* y el *Client secret*.
+3. En Supabase: **Authentication → Providers → Google** → actívalo y pega Client ID y Client secret.
+4. En Supabase: **Authentication → URL Configuration**: *Site URL* = tu dominio de Vercel; en *Redirect URLs* añade `https://tu-proyecto.vercel.app/**` y `http://localhost:PUERTO/**`.
+5. Ejecuta `supabase/migracion-08-google.sql` en el SQL Editor (para que el nombre de Google pase al perfil; las bases nuevas ya lo traen en `schema.sql`).
+
+Notas: no funciona abriendo `index.html` con doble clic (`file://`); usa un servidor local (`npx serve`, la extensión Live Server…) o el deploy. Si alguien ya tenía una cuenta con ese correo, Supabase vincula ambos métodos a la misma cuenta. Los usuarios de Google reciben un `@usuario` automático (`jugador_xxxxxx`) que pueden cambiar en Cuenta. Lo que se jugó como invitado se sube a la cuenta al volver de Google, igual que con el correo.
+
 Si cambias el día de lanzamiento, cambia **a la vez** `EPOCH` en `js/core.js` y la fecha en la función `reto_hoy()` de `schema.sql`.
+
+## Compartir
+- **Por juego:** al terminar, «Compartir resultado» (en móvil abre el menú de compartir del sistema; en ordenador se llama «Copiar resultado» y copia al portapapeles).
+- **Del día:** en el inicio, cuando has completado al menos un juego, aparece «Compartir mi día» (en ordenador, «Copiar mi día») con el resumen del reto: juegos hechos, racha y el resultado de cada juego. No incluye soluciones.
+  El texto sale de `resumenDia()` en `js/app.js` y usa el `status()` de cada juego, así que un juego nuevo aparece solo.
+
+## App instalable y modo sin conexión (PWA)
+- `manifest.webmanifest` + `icons/` + `sw.js` hacen que la web se pueda instalar (Android/Chrome: Ajustes → Instalar app; iPhone: Safari → Compartir → Añadir a pantalla de inicio).
+- **Sin conexión:** `sw.js` guarda los archivos de la web. Con red siempre se carga la última versión (si la red tarda más de 4 s o no hay, se usa la copia guardada); no hace falta limpiar nada tras un deploy.
+  El reto de hoy de Palabra y Cifrado se guarda en el navegador al abrir la web con conexión, y los demás juegos se generan con la fecha, así que se puede jugar sin conexión si ya abriste la web ese día.
+  Los resultados quedan en el navegador y se suben a la cuenta al volver la conexión.
+- La API de Supabase, `admin.html`, `admin-local/`, `supabase/` y `local/` no se guardan nunca.
+- Si añades o quitas archivos de la web, actualiza la lista `SHELL` de `sw.js` y sube el número de `V`.
+- Solo funciona desde `https://` (el deploy de Vercel) o `http://localhost`, no abriendo `index.html` con doble clic.
 
 ## Roles y seguridad
 - **Jugador:** puede jugar y ver su perfil. Solo puede cambiar su propio nombre y su usuario (@usuario, único); el rol no se puede tocar desde la web.
@@ -33,7 +60,7 @@ Si cambias el día de lanzamiento, cambia **a la vez** `EPOCH` en `js/core.js` y
   mirarla. Para rankings habrá que comprobar los intentos en el servidor (fase 2).
 
 ## Qué subir al hosting (producción)
-Sube: `index.html`, `admin.html`, `css/`, `js/`, `content/`.
+Sube: `index.html`, `admin.html`, `manifest.webmanifest`, `sw.js`, `icons/`, `css/`, `js/`, `content/`.
 **No subas:** `local/`, `admin-local/`, `supabase/` (contienen todas las soluciones) ni `herramientas/`.
 
 ## Juegos
@@ -77,13 +104,14 @@ Comprueba la licencia de la lista que uses.
 ## Estructura
 ```
 index.html  admin.html        juego y panel de administración
+manifest.webmanifest sw.js    app instalable y modo sin conexión (PWA); icons/ = iconos
 js/config.js                  claves de Supabase (vacío = modo local)
 js/nube.js                    cuentas, rol y reto del día
 js/content.js                 contenido local y reto de hoy
 js/core.js  js/app.js         utilidades, pantallas y arranque
 js/games/*.js                 un archivo por juego (+ _plantilla.js):
                               palabra, cifra (Cifrado), coronas, sudoku, escalera, operaciones, camino, luces, tuberias, sopa
-supabase/schema.sql seed.sql  base de datos y carga inicial
+supabase/schema.sql seed.sql  base de datos y carga inicial (+ migracion-XX para bases ya creadas)
 local/  admin-local/          modo local (no subir)
 herramientas/                 generador de diccionario (no subir)
 ```

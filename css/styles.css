@@ -790,3 +790,12 @@ a.btn{display:inline-block;text-decoration:none;color:inherit}
 .k.s2{background:var(--mint);color:#fff}
 .cb .k.s1{background:#E69F00;color:#14213D}
 .cb .k.s2{background:#0072B2;color:#fff}
+
+/* Entrar con Google */
+.btn.gg{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin:12px 0 0;padding:11px 14px;background:#fff;color:#1f1f1f}
+.btn.gg .gi{width:20px;height:20px;flex:none}
+.or{display:flex;align-items:center;gap:10px;margin:14px 0 10px;color:var(--mut);font-size:14px;font-weight:600}
+.or::before,.or::after{content:"";flex:1;height:2px;background:var(--ink);opacity:.2}
+
+/* Compartir el día */
+.btn.shd{display:block;width:100%;margin-top:10px;padding:8px 14px}
