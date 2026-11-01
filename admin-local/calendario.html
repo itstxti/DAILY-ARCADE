@@ -1,39 +1,111 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Daily Arcade · Calendario de contenido</title>
-<style>
-body{font:15px/1.4 system-ui,sans-serif;margin:0;background:#ECEFF8;color:#14213D}
-main{max-width:1000px;margin:0 auto;padding:16px}
-h1{margin:0 0 4px}.box{background:#fff;border:2px solid #14213D;border-radius:12px;padding:12px 16px;margin:12px 0}
-.warn{color:#B3263F}.ok{color:#1E8A66}
-table{border-collapse:collapse;width:100%;background:#fff}th,td{border:1px solid #C5CCE3;padding:6px 8px;text-align:left;vertical-align:top}
-th{background:#14213D;color:#fff}tr.hoy td{background:#FFF3D1}td.p{font-weight:800;letter-spacing:.08em}
-.wrap{overflow-x:auto}small{color:#5B6683}
-</style></head><body><main>
-<h1>Calendario de contenido</h1>
-<p>Qué palabra y qué frase toca cada día, y si hay algo que corregir. Se actualiza al recargar la página.</p>
-<div id="out"></div>
-</main>
-<script src="../js/core.js"></script>
-<script src="../js/content.js"></script>
-<script src="../local/palabras.js"></script>
-<script src="../content/aceptadas.js"></script>
-<script src="../local/frases.js"></script>
-<script>
-const DIAS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
-const fecha=d=>new Date(EPOCH+(d-1)*864e5);
-const fmt=d=>fecha(d).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
-const esc2=t=>t.replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';');
-const np=Content.palabras().length,nf=Content.frases().length,pr=Content.problemas();
-const resumen=(n,nom)=>DAY>n?`<span class="warn">⚠ ${nom}: ${n} en la lista. Ya se están repitiendo desde el reto nº ${n+1} (${fmt(n+1)}). Añade más al final.</span>`
- :`<span class="${n-DAY<30?'warn':'ok'}">${n-DAY<30?'⚠ ':'✓ '}${nom}: ${n} en la lista, cubren hasta el reto nº ${n} (${fmt(n)}). Quedan ${n-DAY} días.</span>`;
-let h=`<div class="box"><b>Hoy: reto nº ${DAY}</b> (${fmt(DAY)})<br>${resumen(np,'Palabras')}<br>${resumen(nf,'Frases')}</div>`;
-h+=pr.length?`<div class="box warn"><b>${pr.length} aviso(s) en el contenido:</b><ul>${pr.map(p=>`<li>${esc2(p)}</li>`).join('')}</ul></div>`:`<div class="box ok"><b>✓ No hay avisos en el contenido.</b></div>`;
-let t='';
-for(let d=Math.max(1,DAY);d<DAY+60;d++){
- const wd=fecha(d).getUTCDay(),[f,a]=Content.fraseDe(d),[mn,mx]=Content.rango[wd],ok=f.length>=mn&&f.length<=mx;
- t+=`<tr class="${d==DAY?'hoy':''}"><td>${d}</td><td>${fmt(d)}<br><small>${DIAS[wd]}</small></td><td class="p">${Content.palabraDe(d).toUpperCase()}</td><td>${esc2(f)}<br><small>${esc2(a)}</small></td><td>${f.length}<br><small class="${ok?'ok':'warn'}">${ok?'✓':'⚠ ideal '+mn+'-'+mx}</small></td></tr>`}
-h+=`<div class="wrap"><table><tr><th>Reto</th><th>Fecha</th><th>Palabra</th><th>Frase (Cifrado)</th><th>Largo</th></tr>${t}</table></div>`;
-document.getElementById('out').innerHTML=h;
-</script></body></html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Daily Arcade · Calendario de contenido</title>
+    <style>
+        body {
+            font: 15px/1.4 system-ui, sans-serif;
+            margin: 0;
+            background: #ECEFF8;
+            color: #14213D
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 16px
+        }
+
+        h1 {
+            margin: 0 0 4px
+        }
+
+        .box {
+            background: #fff;
+            border: 2px solid #14213D;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 12px 0
+        }
+
+        .warn {
+            color: #B3263F
+        }
+
+        .ok {
+            color: #1E8A66
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            background: #fff
+        }
+
+        th,
+        td {
+            border: 1px solid #C5CCE3;
+            padding: 6px 8px;
+            text-align: left;
+            vertical-align: top
+        }
+
+        th {
+            background: #14213D;
+            color: #fff
+        }
+
+        tr.hoy td {
+            background: #FFF3D1
+        }
+
+        td.p {
+            font-weight: 800;
+            letter-spacing: .08em
+        }
+
+        .wrap {
+            overflow-x: auto
+        }
+
+        small {
+            color: #5B6683
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h1>Calendario de contenido</h1>
+        <p>Qué palabra y qué frase toca cada día, y si hay algo que corregir. Se actualiza al recargar la página.</p>
+        <div id="out"></div>
+    </main>
+    <script src="../js/core.js"></script>
+    <script src="../js/content.js"></script>
+    <script src="../local/palabras.js"></script>
+    <script src="../content/aceptadas.js"></script>
+    <script src="../local/frases.js"></script>
+    <script>
+        const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+        const fecha = d => new Date(EPOCH + (d - 1) * 864e5);
+        const fmt = d => fecha(d).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+        const esc2 = t => t.replace(/[&<>"]/g, c => '&#' + c.charCodeAt(0) + ';');
+        const np = Content.palabras().length, nf = Content.frases().length, pr = Content.problemas();
+        const resumen = (n, nom) => DAY > n ? `<span class="warn">⚠ ${nom}: ${n} en la lista. Ya se están repitiendo desde el reto nº ${n + 1} (${fmt(n + 1)}). Añade más al final.</span>`
+            : `<span class="${n - DAY < 30 ? 'warn' : 'ok'}">${n - DAY < 30 ? '⚠ ' : '✓ '}${nom}: ${n} en la lista, cubren hasta el reto nº ${n} (${fmt(n)}). Quedan ${n - DAY} días.</span>`;
+        let h = `<div class="box"><b>Hoy: reto nº ${DAY}</b> (${fmt(DAY)})<br>${resumen(np, 'Palabras')}<br>${resumen(nf, 'Frases')}</div>`;
+        h += pr.length ? `<div class="box warn"><b>${pr.length} aviso(s) en el contenido:</b><ul>${pr.map(p => `<li>${esc2(p)}</li>`).join('')}</ul></div>` : `<div class="box ok"><b>✓ No hay avisos en el contenido.</b></div>`;
+        let t = '';
+        for (let d = Math.max(1, DAY); d < DAY + 60; d++) {
+            const wd = fecha(d).getUTCDay(), [f, a] = Content.fraseDe(d), [mn, mx] = Content.rango[wd], ok = f.length >= mn && f.length <= mx;
+            t += `<tr class="${d == DAY ? 'hoy' : ''}"><td>${d}</td><td>${fmt(d)}<br><small>${DIAS[wd]}</small></td><td class="p">${Content.palabraDe(d).toUpperCase()}</td><td>${esc2(f)}<br><small>${esc2(a)}</small></td><td>${f.length}<br><small class="${ok ? 'ok' : 'warn'}">${ok ? '✓' : '⚠ ideal ' + mn + '-' + mx}</small></td></tr>`
+        }
+        h += `<div class="wrap"><table><tr><th>Reto</th><th>Fecha</th><th>Palabra</th><th>Frase (Cifrado)</th><th>Largo</th></tr>${t}</table></div>`;
+        document.getElementById('out').innerHTML = h;
+    </script>
+</body>
+
+</html>

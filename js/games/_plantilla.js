@@ -20,34 +20,36 @@
    Ojo: no uses como nombre de acción go, set, copy, k, entrar, registrar, salir, reset, reset-si, reset-no, vis ni usr-*: los usa la app.
    Instrucciones: how:[…] (3 frases cortas, admite <b>) y demo:'<html>' (opcional, un ejemplo visual) se muestran como «Cómo se juega» bajo el título.
    Para el ejemplo puedes reutilizar las clases: .t .r (fichas), .c .wd (letras), .bd2 .z (tablero), .sd .sx (sudoku), .chp (números), .dot (leyenda) y .cap (pie). */
-(function(){
- const secreto=()=>1+Math.floor(rng(DAY*7+1)()*100);
+(function () {
+  const secreto = () => 1 + Math.floor(rng(DAY * 7 + 1)() * 100);
 
- function render(){
-  const p=prog('n'),r=R('numero');p.g=p.g||[];
-  const lista=p.g.map(n=>`<li>${n} → ${n==secreto()?'¡Correcto!':n<secreto()?'más alto ↑':'más bajo ↓'}</li>`).join('');
-  let b=`<ul>${lista}</ul>`;
-  if(r)b+=res(`¡Lo has encontrado en ${r.att} intentos!`,'Vuelve mañana para un reto nuevo.',`Daily Arcade · Número #${DAY} · ${r.att} intentos`);
-  else b+=`<div class="row"><input id="n" type="number" min="1" max="100" inputmode="numeric" aria-label="Tu número" style="font:inherit;padding:8px;border:2px solid var(--ink);border-radius:10px;background:var(--card);color:var(--ink);width:100px"><button class="btn pri" data-a="probar">Probar</button></div><p class="msg" role="status">${msg}</p>`;
-  return shell('Número',b)}
+  function render() {
+    const p = prog('n'), r = R('numero'); p.g = p.g || [];
+    const lista = p.g.map(n => `<li>${n} → ${n == secreto() ? '¡Correcto!' : n < secreto() ? 'más alto ↑' : 'más bajo ↓'}</li>`).join('');
+    let b = `<ul>${lista}</ul>`;
+    if (r) b += res(`¡Lo has encontrado en ${r.att} intentos!`, 'Vuelve mañana para un reto nuevo.', `Daily Arcade · Número #${DAY} · ${r.att} intentos`);
+    else b += `<div class="row"><input id="n" type="number" min="1" max="100" inputmode="numeric" aria-label="Tu número" style="font:inherit;padding:8px;border:2px solid var(--ink);border-radius:10px;background:var(--card);color:var(--ink);width:100px"><button class="btn pri" data-a="probar">Probar</button></div><p class="msg" role="status">${msg}</p>`;
+    return shell('Número', b)
+  }
 
- function probar(){
-  const p=prog('n'),n=parseInt($('#n').value,10);
-  if(R('numero'))return;
-  if(!(n>=1&&n<=100)){msg='Escribe un número del 1 al 100';return draw()}
-  msg='';p.g.push(n);
-  if(n==secreto())fin('numero',{st:'won',att:p.g.length});
-  sv();draw()}
+  function probar() {
+    const p = prog('n'), n = parseInt($('#n').value, 10);
+    if (R('numero')) return;
+    if (!(n >= 1 && n <= 100)) { msg = 'Escribe un número del 1 al 100'; return draw() }
+    msg = ''; p.g.push(n);
+    if (n == secreto()) fin('numero', { st: 'won', att: p.g.length });
+    sv(); draw()
+  }
 
- DailyArcade.register({
-  id:'numero',name:'Número',desc:'Encuentra el número secreto del 1 al 100.',color:'--mint',icon:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 7 20M17 4l-2 16M4 9h17M3 15h17"/></svg>',
-  pk:'n',                 // clave de progreso, única por juego
-  how:['Adivina el número secreto del 1 al 100.','Tras cada intento te dice si es más alto o más bajo.'],
-  winLabel:'ganadas',
-  render,
-  actions:{probar},
-  // onKey:(tecla)=>{…}   ← solo si el juego usa teclado (tecla = 'a'…'z', 'ñ', 'Enter', 'Del')
-  status:(r,p)=>r?`Resuelto en ${r.att} intentos`:(p&&p.g&&p.g.length?'En curso':'Sin jugar'),
-  stats:(e,w)=>w.length?`<p>Media: ${avg(w.map(x=>x.att)).toFixed(1)} intentos</p>`:''
- });
+  DailyArcade.register({
+    id: 'numero', name: 'Número', desc: 'Encuentra el número secreto del 1 al 100.', color: '--mint', icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 7 20M17 4l-2 16M4 9h17M3 15h17"/></svg>',
+    pk: 'n',                 // clave de progreso, única por juego
+    how: ['Adivina el número secreto del 1 al 100.', 'Tras cada intento te dice si es más alto o más bajo.'],
+    winLabel: 'ganadas',
+    render,
+    actions: { probar },
+    // onKey:(tecla)=>{…}   ← solo si el juego usa teclado (tecla = 'a'…'z', 'ñ', 'Enter', 'Del')
+    status: (r, p) => r ? `Resuelto en ${r.att} intentos` : (p && p.g && p.g.length ? 'En curso' : 'Sin jugar'),
+    stats: (e, w) => w.length ? `<p>Media: ${avg(w.map(x => x.att)).toFixed(1)} intentos</p>` : ''
+  });
 })();
