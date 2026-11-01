@@ -644,3 +644,4 @@ $$;
 
 revoke execute on function buscar_usuario(text), ver_perfil(text), bloquear_usuario(text), desbloquear_usuario(text), mis_bloqueados() from public, anon;
 grant execute on function buscar_usuario(text), ver_perfil(text), bloquear_usuario(text), desbloquear_usuario(text), mis_bloqueados() to authenticated;
+grant select on profiles to service_role;
