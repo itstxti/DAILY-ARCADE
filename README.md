@@ -22,6 +22,19 @@ En este modo el contenido se edita en `local/palabras.js` y `local/frases.js` (u
    `update profiles set rol = 'admin' where id = (select id from auth.users where email = 'tu@correo.com');`
 6. Cierra sesión y vuelve a entrar. En Cuenta aparece el enlace al panel (`admin.html`).
 
+## Entrar con Google (opcional)
+El botón «Continuar con Google» está en Perfil → Cuenta. Hay que activarlo una vez:
+1. En [Google Cloud Console](https://console.cloud.google.com/) crea un proyecto (o usa uno) → **APIs y servicios → Pantalla de consentimiento de OAuth** (tipo Externo; con nombre de la app y tu correo basta) → publícala en producción para que entre cualquiera.
+2. **Credenciales → Crear credenciales → ID de cliente de OAuth → Aplicación web.**
+   - *Orígenes autorizados de JavaScript:* tu dominio de Vercel (`https://tu-proyecto.vercel.app`) y `http://localhost:PUERTO` para probar en local.
+   - *URI de redirección autorizados:* `https://cobynsvgkvqgzqnkpgkx.supabase.co/auth/v1/callback` (en Supabase: Authentication → Providers → Google te la muestra).
+   Copia el *Client ID* y el *Client secret*.
+3. En Supabase: **Authentication → Providers → Google** → actívalo y pega Client ID y Client secret.
+4. En Supabase: **Authentication → URL Configuration**: *Site URL* = tu dominio de Vercel; en *Redirect URLs* añade `https://tu-proyecto.vercel.app/**` y `http://localhost:PUERTO/**`.
+5. Ejecuta `supabase/migracion-08-google.sql` en el SQL Editor (para que el nombre de Google pase al perfil; las bases nuevas ya lo traen en `schema.sql`).
+
+Notas: no funciona abriendo `index.html` con doble clic (`file://`); usa un servidor local (`npx serve`, la extensión Live Server…) o el deploy. Si alguien ya tenía una cuenta con ese correo, Supabase vincula ambos métodos a la misma cuenta. Los usuarios de Google reciben un `@usuario` automático (`jugador_xxxxxx`) que pueden cambiar en Cuenta. Lo que se jugó como invitado se sube a la cuenta al volver de Google, igual que con el correo.
+
 Si cambias el día de lanzamiento, cambia **a la vez** `EPOCH` en `js/core.js` y la fecha en la función `reto_hoy()` de `schema.sql`.
 
 ## Roles y seguridad
@@ -83,7 +96,7 @@ js/content.js                 contenido local y reto de hoy
 js/core.js  js/app.js         utilidades, pantallas y arranque
 js/games/*.js                 un archivo por juego (+ _plantilla.js):
                               palabra, cifra (Cifrado), coronas, sudoku, escalera, operaciones, camino, luces, tuberias, sopa
-supabase/schema.sql seed.sql  base de datos y carga inicial
+supabase/schema.sql seed.sql  base de datos y carga inicial (+ migracion-XX para bases ya creadas)
 local/  admin-local/          modo local (no subir)
 herramientas/                 generador de diccionario (no subir)
 ```
