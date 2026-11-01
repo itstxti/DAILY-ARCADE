@@ -37,6 +37,14 @@ Notas: no funciona abriendo `index.html` con doble clic (`file://`); usa un serv
 
 Si cambias el día de lanzamiento, cambia **a la vez** `EPOCH` en `js/core.js` y la fecha en la función `reto_hoy()` de `schema.sql`.
 
+## Entrar con @usuario (Edge Function)
+Entrar con correo funciona sin nada más. Para poder entrar también con el @usuario:
+1. En Supabase: **Edge Functions → Deploy a new function**, nombre `login`, pega `supabase/functions/login/index.ts` y despliega.
+2. En esa función desactiva **Verify JWT** (la web usa la clave publishable, que no es un JWT; la función valida por sí misma).
+3. Si antes ejecutaste una versión con `email_de_usuario`, ejecuta `supabase/migracion-09-quitar-email-de-usuario.sql`.
+
+La función busca el correo en el servidor y devuelve solo la sesión; limita a 5 intentos por usuario y minuto (en memoria de la instancia). Mientras no esté desplegada, entrar con @usuario muestra «No se ha podido conectar».
+
 ## Compartir
 - **Por juego:** al terminar, «Compartir resultado» (en móvil abre el menú de compartir del sistema; en ordenador se llama «Copiar resultado» y copia al portapapeles).
 - **Del día:** en el inicio, cuando has completado al menos un juego, aparece «Compartir mi día» (en ordenador, «Copiar mi día») con el resumen del reto: juegos hechos, racha y el resultado de cada juego. No incluye soluciones.

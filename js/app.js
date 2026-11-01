@@ -6,6 +6,7 @@ const VT={public:'Cualquiera que te encuentre por tu @usuario podrá ver tu perf
 const inv=()=>!Nube.user,pct=(a,b)=>b?Math.round(100*a/b):0;
 const UOK=/^[a-z0-9_]{3,15}$/,UMSG='El usuario debe tener de 3 a 15 caracteres: minúsculas, números o _.',nu=v=>String(v).trim().toLowerCase().replace(/^@/,'');
 let vp='perfil'; /* de dónde se abrió Cuenta, para el botón Volver */
+let cm='entrar',fm={}; /* pantalla de acceso (entrar/crear) y lo escrito en ella */
 let en=false; /* editando el nombre en Perfil */
 let eu=null; /* usuario en edición (null = no se está editando) */
 let ask=false; /* confirmación de "Borrar mis resultados" */
@@ -57,14 +58,14 @@ function secCuenta(){
  if(inv())return `<section class="res pb"><h2>Cuenta</h2><p>Juegas como invitado: tu perfil solo existe en este navegador y nadie más puede verlo.${Nube.activo?' Con una cuenta podrás elegir quién ve tu perfil.':''}</p>${Nube.activo?'<div class="row"><button class="btn pri" data-a="go" data-v="cuenta">Entrar o crear cuenta</button></div>':''}</section>`;
  return `<section class="res pb"><h2>Cuenta</h2><div class="st"><span><b>${esc(S.me.n)}</b><small>${esc(Nube.user.email)}</small></span><button class="btn" data-a="go" data-v="cuenta">Mi cuenta</button></div><div class="st v"><span><b>Privacidad del perfil</b><small>${VT[S.me.v]}</small></span>${seg('vis','',[['public','Público'],['private','Privado']],'Privacidad del perfil')}</div></section>`}
 function ajustes(){
- return `<div class="bar"><button class="bk" data-a="go" data-v="home">‹ Inicio</button><h1>Ajustes</h1></div>
+ return `<div class="aj"><div class="bar"><button class="bk" data-a="go" data-v="home">‹ Inicio</button><h1>Ajustes</h1></div>
 ${secCuenta()}
 ${msg?`<p class="msg" role="status">${msg}</p>`:''}
 <section class="res pb"><h2>Apariencia</h2><div class="st v"><span><b>Tema</b></span>${seg('set','th',[['auto','Sistema'],['light','Claro'],['dark','Oscuro']],'Tema')}</div>${sw('cb','Paleta para daltónicos','Cambia los colores de acierto en Palabra; los símbolos ✓ ● – se mantienen.')}</section>
 <section class="res pb"><h2>Juegos</h2>${sw('tm','Mostrar cronómetro','En todos los juegos.')}${sw('hl','Resaltar conflictos','En Coronas, marca filas, columnas y regiones repetidas y coronas que se tocan. En Sudoku, números repetidos.')}</section>
 ${inv()?'':`<section class="res pb"><h2>Usuarios bloqueados</h2>${BL===null?'<p class="cap">Cargando…</p>':BL.length?BL.map(b=>`<div class="st"><span><b>${esc(b.nombre||'@'+b.usuario)}</b>${b.nombre?`<small>@${esc(b.usuario)}</small>`:''}</span><button class="lnk" data-a="bl-un" data-u="${b.usuario}">Desbloquear</button></div>`).join(''):'<p>No has bloqueado a nadie.</p>'}</section>`}
 ${secInstalar()}
-<section class="res pb"><h2>Datos</h2><p>${inv()?'Tus resultados se guardan solo en este navegador.':'Tus resultados se guardan en tu cuenta y en este navegador.'}</p>${ask?'<p><b>¿Borrar todos tus resultados?</b> '+(inv()?'':'Se borrarán también de tu cuenta. ')+'No se puede deshacer.</p><div class="row"><button class="btn dg" data-a="reset-si">Sí, borrar</button><button class="btn" data-a="reset-no">Cancelar</button></div>':'<div class="row"><button class="btn" data-a="reset">Borrar mis resultados</button></div>'}</section>`}
+<section class="res pb"><h2>Datos</h2><p>${inv()?'Tus resultados se guardan solo en este navegador.':'Tus resultados se guardan en tu cuenta y en este navegador.'}</p>${ask?'<p><b>¿Borrar todos tus resultados?</b> '+(inv()?'':'Se borrarán también de tu cuenta. ')+'No se puede deshacer.</p><div class="row"><button class="btn dg" data-a="reset-si">Sí, borrar</button><button class="btn" data-a="reset-no">Cancelar</button></div>':'<div class="row"><button class="btn" data-a="reset">Borrar mis resultados</button></div>'}</section></div>`}
 
 /* ---------- Perfil ---------- */
 function blk(g,e,am){
@@ -76,17 +77,17 @@ function blk(g,e,am){
 function resumen(res){
  const all=days(res),gr=runs(all),T=GAMES.length,full=all.filter(d=>Object.keys(res[d]).length==T).length;
  return `<div class="sm"><div><b>${gr.cur}</b>racha actual</div><div><b>${gr.best}</b>mejor racha</div><div><b>${all.length}</b>días jugados</div></div>
-<section class="res pb"><h2>Últimos 28 días</h2><div class="hm" aria-label="Actividad de los últimos 28 días">${Array.from({length:28},(_,i)=>{const d=DAY-27+i,n=Object.keys(res[d]||{}).length;return `<span${i==27?' class="hoy"':''} title="Reto ${d}: ${n}/${T}" style="opacity:${.12+n/T*.88}"></span>`}).join('')}</div><p class="cap">${full} ${full==1?'día':'días'} con los ${T} juegos completados.</p></section>`}
+<section class="res pb"><h2>Últimos 28 días</h2><div class="hm" aria-label="Actividad de los últimos 28 días">${Array.from({length:28},(_,i)=>{const d=DAY-27+i,n=Object.keys(res[d]||{}).length;return `<span${i==27?' class="hoy"':''} title="Reto ${d}: ${n}/${T}" style="${n?`opacity:${.35+n/T*.65}`:'background:var(--line)'}"></span>`}).join('')}</div><p class="cap">${full} ${full==1?'día':'días'} con los ${T} juegos completados.</p></section>`}
 function perfil(){
  const me=S.me,
  us=Nube.perfil&&Nube.perfil.usuario,
  pie=inv()?`<div class="hs"><p>Juegas sin cuenta: tus resultados se guardan solo en este navegador.</p>${Nube.activo?'<div class="row"><button class="btn pri" data-a="go" data-v="cuenta">Entrar o crear cuenta</button></div>':''}</div>`
   :`<div class="hs"><button class="btn pri" data-a="go" data-v="amigos">Amigos${nrec()?` · ${nrec()} ${nrec()==1?'solicitud':'solicitudes'}`:''}</button></div>`;
  return `<div class="bar"><button class="bk" data-a="go" data-v="home">‹ Inicio</button><h1>Perfil</h1></div>
-<section class="res hd"><div class="me"><span class="av lg">${esc((me.n[0]||'I').toUpperCase())}</span>${en
+<section class="res hd"><div class="me"><span class="av lg">${inv()?IC.user:esc((me.n[0]||'I').toUpperCase())}</span>${en
  ?`<span class="id" style="flex:1;align-items:stretch"><input id="nm" value="${esc(me.n)}" maxlength="20" placeholder="Tu nombre" aria-label="Nombre" autocomplete="off"><span class="row" style="margin:0"><button class="btn pri" data-a="nm-save">Guardar</button><button class="btn" data-a="nm-cancel">Cancelar</button></span></span>`
  :`<span class="id" style="flex:1"><b>${esc(me.n)}<button class="lnk ed" data-a="nm-edit" aria-label="Editar nombre" title="Editar nombre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg></button></b>${us?`<small>@${esc(us)}</small>`:''}</span>${inv()?'':`<span class="tag" style="flex:none" title="Quién puede ver tu perfil. Se cambia en Ajustes.">${VS[me.v]}</span>`}`}</div>${pie}</section>
-${resumen(S.res)}`+GAMES.map(g=>blk(g)).join('')}
+${resumen(S.res)}`+'<section class="gml">'+GAMES.map(g=>blk(g)).join('')+'</section>'}
 
 /* ---------- Amigos (solo con sesión) ---------- */
 function amigos(){
@@ -140,14 +141,26 @@ function perfilAmigo(){
   fil=rel=='amigos'?(cfm==f.u?`<p>¿Quitar a ${esc(nm)} de tus amigos?</p><div class="row">${bt('am-del-si','Quitar','dg')}<button class="btn" style="flex:1" data-a="am-del-no">Cancelar</button></div>`:`<div class="row">${bt('am-del','Quitar amigo')}</div>`)
    :rel=='recibida'?`<div class="row">${bt('am-ok','Aceptar','pri')}${bt('am-no','Rechazar')}</div>`
    :rel=='enviada'?`<div class="row">${bt('am-can','Cancelar solicitud')}</div>`:'';
- return back+`<section class="res hd"><div class="me"><span class="av lg">${esc((nm[0]||'?').toUpperCase())}</span><span class="id" style="flex:1"><b>${esc(nm)}</b><small>@${esc(f.u)}</small></span><span style="flex:none">${der}</span></div><div class="hs">${blq==f.u?`<p>¿Bloquear a ${esc(nm)}? Dejará de poder encontrarte y ver tu perfil, y se eliminará vuestra amistad o solicitud. No se enterará.</p><div class="row">${bt('bl-si','Bloquear','dg')}<button class="btn" style="flex:1" data-a="bl-no">Cancelar</button></div>`:fil+`<p class="cap"${fil?' style="margin-top:12px"':''}><button class="lnk" data-a="bl-ask" data-u="${f.u}">Bloquear a @${esc(f.u)}</button></p>`}</div></section>${msg?`<p class="msg" role="status">${msg}</p>`:''}${resumen(f.res)}`+GAMES.map(g=>blk(g,E(g.id,f.res),true)).join('')}
+ return back+`<section class="res hd"><div class="me"><span class="av lg">${esc((nm[0]||'?').toUpperCase())}</span><span class="id" style="flex:1"><b>${esc(nm)}</b><small>@${esc(f.u)}</small></span><span style="flex:none">${der}</span></div><div class="hs">${blq==f.u?`<p>¿Bloquear a ${esc(nm)}? Dejará de poder encontrarte y ver tu perfil, y se eliminará vuestra amistad o solicitud. No se enterará.</p><div class="row">${bt('bl-si','Bloquear','dg')}<button class="btn" style="flex:1" data-a="bl-no">Cancelar</button></div>`:fil+`<p class="cap"${fil?' style="margin-top:12px"':''}><button class="lnk" data-a="bl-ask" data-u="${f.u}">Bloquear a @${esc(f.u)}</button></p>`}</div></section>${msg?`<p class="msg" role="status">${msg}</p>`:''}${resumen(f.res)}`+'<section class="gml">'+GAMES.map(g=>blk(g,E(g.id,f.res),true)).join('')+'</section>'}
 
 /* ---------- Cuenta (solo con Supabase) ---------- */
+/* Entrar y Crear cuenta: dos pantallas (cm). fm guarda lo escrito para no perderlo si hay un error. */
+const GG=`<button class="btn gg" data-a="google"><svg class="ggi" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.5 12.27c0-.79-.07-1.54-.2-2.27H12v4.3h5.9a5.05 5.05 0 0 1-2.19 3.31v2.75h3.54c2.07-1.91 3.25-4.72 3.25-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.54-2.75c-.98.66-2.24 1.05-3.74 1.05-2.88 0-5.31-1.94-6.18-4.56H2.16v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.82 14.08a6.6 6.6 0 0 1 0-4.16V7.08H2.16a11 11 0 0 0 0 9.84l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.07.56 4.21 1.65l3.15-3.15C17.46 2.09 14.97 1 12 1A11 11 0 0 0 2.16 7.08l3.66 2.84C6.69 7.32 9.12 5.38 12 5.38z"/></svg>Continuar con Google</button>`;
+function formCuenta(M){
+ const cr=cm=='crear',v=k=>esc(fm[k]||''),
+  inp=(id,ph,ex,k)=>`<input id="${id}" value="${v(k)}" placeholder="${ph}" aria-label="${ph}" ${ex}>`;
+ return `<div class="bar"><button class="bk" data-a="go" data-v="${vp}">‹ ${vp=='ajustes'?'Ajustes':'Perfil'}</button><h1>${cr?'Crear cuenta':'Entrar'}</h1></div>
+<section class="res"><p>${cr?'Es opcional. Con una cuenta tus resultados y rachas se guardan en el servidor y los recuperas en cualquier dispositivo. Lo que ya hayas jugado en este navegador se sube al crearla.':'Entra para recuperar tus resultados y rachas. Lo que hayas jugado aquí como invitado se sube a tu cuenta.'}</p>${GG}<p class="or"><span>${cr?'o con tu correo':'o con tu correo o usuario'}</span></p>
+<div class="me" style="flex-direction:column;align-items:stretch;gap:8px">${cr
+ ?inp('nm2','Nombre','maxlength="20" autocomplete="name"','nm')+inp('us2','Usuario (opcional)','maxlength="16" autocapitalize="none" autocomplete="off" spellcheck="false"','us')+inp('em','Correo','type="email" autocomplete="email"','em')
+ :inp('em','Correo o usuario','autocapitalize="none" autocomplete="username" spellcheck="false"','em')}<input id="pw" type="password" value="${v('pw')}" placeholder="${cr?'Contraseña (mínimo 6)':'Contraseña'}" aria-label="Contraseña" autocomplete="${cr?'new-password':'current-password'}"></div>
+<button class="btn pri full" data-a="${cr?'registrar':'entrar'}">${cr?'Crear cuenta':'Entrar'}</button>
+<p class="alt">${cr?'¿Ya tienes cuenta? <button class="lnk" data-a="cm" data-v="entrar">Entrar</button>':'¿No tienes cuenta? <button class="lnk" data-a="cm" data-v="crear">Crear cuenta</button>'}</p></section>${M}`}
+
 function cuenta(){
  const u=Nube.user,p=Nube.perfil,adm=p&&p.rol=='admin',us=p&&p.usuario,nm=S.me.n||(p&&p.nombre)||'Jugador',
   M=`<p class="msg" role="status">${msg}</p>`;
- if(!u)return `<div class="bar"><button class="bk" data-a="go" data-v="${vp}">‹ ${vp=='ajustes'?'Ajustes':'Perfil'}</button><h1>Cuenta</h1></div>
-<section class="res"><h2>Entrar o crear cuenta</h2><p>Es opcional. Con una cuenta tus resultados y rachas se guardan en el servidor y los recuperas en cualquier dispositivo. Lo que ya hayas jugado en este navegador se sube al entrar.</p><button class="btn gg" data-a="google"><svg class="gi" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.5 12.27c0-.79-.07-1.54-.2-2.27H12v4.3h5.9a5.05 5.05 0 0 1-2.19 3.31v2.75h3.54c2.07-1.91 3.25-4.72 3.25-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.54-2.75c-.98.66-2.24 1.05-3.74 1.05-2.88 0-5.31-1.94-6.18-4.56H2.16v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.82 14.08a6.6 6.6 0 0 1 0-4.16V7.08H2.16a11 11 0 0 0 0 9.84l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.07.56 4.21 1.65l3.15-3.15C17.46 2.09 14.97 1 12 1A11 11 0 0 0 2.16 7.08l3.66 2.84C6.69 7.32 9.12 5.38 12 5.38z"/></svg>Continuar con Google</button><p class="or"><span>o con tu correo</span></p><div class="me" style="flex-direction:column;align-items:stretch;gap:8px"><input id="em" type="email" placeholder="Correo" autocomplete="email"><input id="pw" type="password" placeholder="Contraseña (mínimo 6)" autocomplete="current-password"><input id="nm2" placeholder="Nombre (solo al crear la cuenta)" maxlength="20"><input id="us2" placeholder="Usuario para tus amigos (opcional, solo al crear)" maxlength="16" autocapitalize="none" autocomplete="off" spellcheck="false"></div><div class="row"><button class="btn pri" data-a="entrar">Entrar</button><button class="btn" data-a="registrar">Crear cuenta</button></div></section>${M}`;
+ if(!u)return formCuenta(M);
  const fu=!us?'':eu===null
   ?`<div class="st"><span><b>Usuario</b><small>@${esc(us)}</small></span><button class="lnk" data-a="usr-edit">Cambiar</button></div>`
   :`<div class="st v"><span><b>Usuario</b><small>Con él te encontrarán tus amigos. De 3 a 15 caracteres: minúsculas, números o _.</small></span><div class="me"><span class="at">@</span><input id="us" value="${esc(eu)}" maxlength="16" autocapitalize="none" autocomplete="off" spellcheck="false" aria-label="Usuario"></div><div class="row"><button class="btn pri" data-a="usr-save">Guardar</button><button class="btn" data-a="usr-cancel">Cancelar</button></div></div>`;
@@ -172,12 +185,12 @@ const IC={user:SV('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s
 const estado=g=>R(g.id)?'ok':status(g)=='Sin jugar'?'nv':'en';
 const CK='<span class="ck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>';
 function ficha(g){const e=estado(g),s=status(g);
- return `<button class="gt ${e}" data-a="go" data-v="${g.id}" aria-label="${g.name}. ${s}"><span class="gl" style="background:var(${g.color})">${g.icon}${e=='ok'?CK:''}</span><strong>${g.name}</strong><em>${s}</em></button>`}
+ return `<button class="gt ${e}" data-a="go" data-v="${g.id}" aria-label="${g.name}. ${s}"><span class="gl" style="background:var(${g.color})">${g.icon}${e=='ok'?CK:''}</span><strong>${g.name}</strong>${e=='nv'?'':`<em>${s}</em>`}</button>`}
 function progreso(){const T=GAMES.length,n=GAMES.filter(g=>R(g.id)).length,t=n==T;
- return `<div class="hp"><div class="ht"><b>${t?'¡Todo completado hoy!':`Hoy: ${n} de ${T}`}</b><span class="hr"><span>${t?'Vuelve mañana':`${T-n} por jugar`}</span>${n?compBtn('share-dia',CAN_SHARE?'Compartir mi día':'Copiar mi día'):''}</span></div><div class="hbar${t?' full':''}" role="progressbar" aria-label="Juegos completados hoy" aria-valuemin="0" aria-valuemax="${T}" aria-valuenow="${n}"><i style="width:${Math.round(n/T*100)}%"></i></div></div>`}
+ return `<div class="hp"><div class="ht"><b>${t?'¡Todo completado hoy!':`Hoy: ${n} de ${T}`}</b><span class="hr"><span>${t?'Vuelve mañana':`${T-n} por jugar`}</span>${n?compBtn('share-dia',CAN_SHARE?'Compartir mi día':'Copiar mi día'):''}</span></div><div class="slots" role="progressbar" aria-label="Juegos completados hoy" aria-valuemin="0" aria-valuemax="${T}" aria-valuenow="${n}">${GAMES.map(g=>R(g.id)?`<i style="background:var(${g.color})"></i>`:'<i></i>').join('')}</div></div>`}
 function home(){
  const st=streak(),f=new Date(D0).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'});
- return `<header class="top"><h1>Daily Arcade</h1><span style="display:flex;gap:8px;align-items:center">${Nube.user?`<button class="bk ic" data-a="go" data-v="amigos" aria-label="Amigos${nrec()?` (${nrec()} solicitudes)`:''}" title="Amigos">${IC.fr}${nrec()?`<span class="bd" aria-hidden="true">${nrec()}</span>`:''}</button>`:''}<button class="bk ic" data-a="go" data-v="perfil" aria-label="Perfil" title="Perfil">${IC.user}</button><button class="bk ic" data-a="go" data-v="ajustes" aria-label="Ajustes" title="Ajustes">${IC.cfg}</button></span></header>
+ return `<header class="top"><h1>Daily Arcade</h1><span style="display:flex;gap:8px;align-items:center">${Nube.user?`<button class="bk ic" data-a="go" data-v="amigos" aria-label="Amigos${nrec()?` (${nrec()} solicitudes)`:''}" title="Amigos">${IC.fr}${nrec()?`<span class="nbd" aria-hidden="true">${nrec()}</span>`:''}</button>`:''}<button class="bk ic" data-a="go" data-v="perfil" aria-label="Perfil" title="Perfil">${IC.user}</button><button class="bk ic" data-a="go" data-v="ajustes" aria-label="Ajustes" title="Ajustes">${IC.cfg}</button></span></header>
 <div class="hb"><div class="sn"><b>${st}</b>${st==1?'día':'días'} de racha</div><div><b>Reto nº ${DAY}</b>${f}</div><div><b id="cd">--:--:--</b>próximo reto</div></div>`+
  progreso()+`<div class="gg">${GAMES.map(ficha).join('')}</div>`+
  `<p class="foot">Sin cuenta: los resultados se guardan solo en este navegador. Cada día cambia el reto a medianoche, hora de Madrid.</p>`}
@@ -216,21 +229,24 @@ function secInstalar(){
  if(dip)return `<section class="res pb"><h2>Instalar</h2><p>${t}</p><div class="row"><button class="btn pri" data-a="instalar">Instalar app</button></div></section>`;
  if(IOS)return `<section class="res pb"><h2>Instalar</h2><p>${t}</p><p>En Safari: pulsa el botón Compartir y elige «Añadir a pantalla de inicio».</p></section>`;
  return ''}
+$('#app').addEventListener('keydown',e=>{if(e.key=='Enter'&&e.target.matches('#em,#pw,#nm2,#us2')){const b=$('.btn.pri.full');if(b)b.click()}});
 $('#app').onclick=e=>{
  const sm=e.target.closest('.how>summary');if(sm){const d=sm.parentNode;HW[d.dataset.g]=!d.open;return}
  const b=e.target.closest('[data-a]');if(!b)return;
  const a=b.dataset.a,g=cur();
- if(a=='go'){if(b.dataset.v=='cuenta')vp=V=='ajustes'?'ajustes':'perfil';V=b.dataset.v;msg='';fs=false;sel=null;hist=[];ask=false;eu=null;en=false;cfm=null;blq=null;fr=undefined;fq='';if(V=='ranking'){RK={tab:RK.tab,d:DAY,dia:null,rachas:null,err:''}}draw();if(V=='amigos'&&Nube.user)cargarAmigos();if(V=='ranking'&&Nube.user)cargarRanking();if(V=='ajustes'&&Nube.user)cargarBloqueados()}
+ if(a=='go'){if(b.dataset.v=='cuenta'){vp=V=='ajustes'?'ajustes':'perfil';cm='entrar';fm={}}V=b.dataset.v;msg='';fs=false;sel=null;hist=[];ask=false;eu=null;en=false;cfm=null;blq=null;fr=undefined;fq='';if(V=='ranking'){RK={tab:RK.tab,d:DAY,dia:null,rachas:null,err:''}}draw();if(V=='amigos'&&Nube.user)cargarAmigos();if(V=='ranking'&&Nube.user)cargarRanking();if(V=='ajustes'&&Nube.user)cargarBloqueados()}
  else if(a=='set'){const k=b.dataset.k;S.set[k]=k=='th'?b.dataset.v:!S.set[k];sv();theme();draw()}
  else if(a=='copy')copy();
  else if(a=='share-dia')enviar(resumenDia(),b);
  else if(a=='instalar'){if(dip){dip.prompt();dip.userChoice.catch(()=>{}).then(()=>{dip=null;draw()})}}
+ else if(a=='cm'){cm=b.dataset.v;msg='';draw()}
  else if(a=='entrar'||a=='registrar'){
-  const em=$('#em').value.trim(),pw=$('#pw').value,nm=($('#nm2').value.trim()||'Jugador').slice(0,20),us=a=='registrar'?nu($('#us2').value):'';
+  const q=s=>($(s)||{}).value||'',em=q('#em').trim(),pw=q('#pw'),nm=(q('#nm2').trim()||'Jugador').slice(0,20),us=a=='registrar'?nu(q('#us2')):'';
+  fm={em,pw,nm:q('#nm2').trim(),us:q('#us2')};
   if(us&&!UOK.test(us)){msg=UMSG;draw();return}
   msg='Un momento…';draw();
-  (a=='entrar'?Nube.entrar(em,pw):Nube.libre(us).then(ok=>{if(!ok)throw{message:'Ese usuario ya está en uso.'};return Nube.registrar(em,pw,nm,us)}).then(s=>{if(!s)throw{message:'Cuenta creada. Revisa tu correo para confirmarla y luego entra.'}}))
-   .then(async()=>{msg='';await alEntrar();draw()}).catch(e=>{msg=e.message&&!e.status?e.message:Nube.tr(e);draw()})}
+  (a=='entrar'?Nube.entrarCon(em,pw):Nube.libre(us).then(ok=>{if(!ok)throw{message:'Ese usuario ya está en uso.'};return Nube.registrar(em,pw,nm,us)}).then(s=>{if(!s)throw{message:'Cuenta creada. Revisa tu correo para confirmarla y luego entra.'}}))
+   .then(async()=>{fm={};msg='';await alEntrar();draw()}).catch(e=>{msg=e.message&&!e.status?e.message:Nube.tr(e);draw()})}
  else if(a=='google'){
   if(location.protocol=='file:'){msg='Entrar con Google necesita abrir la web desde http://localhost o desde el deploy (no con doble clic en el archivo).';draw();return}
   msg='Abriendo Google…';draw();

@@ -3,14 +3,23 @@ const Nube=(()=>{
  const activo=!!(window.SUPABASE_URL&&window.SUPABASE_ANON_KEY);
  const sb=activo&&window.supabase?window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY):null;
  const N={activo,sb,user:null,perfil:null};
- const TR={'Invalid login credentials':'Correo o contraseña incorrectos.','User already registered':'Ese correo ya tiene una cuenta.','Email not confirmed':'Confirma tu correo antes de entrar.'};
+ const TR={'Invalid login credentials':'Usuario, correo o contraseña incorrectos.','User already registered':'Ese correo ya tiene una cuenta.','Email not confirmed':'Confirma tu correo antes de entrar.'};
  N.tr=e=>TR[e.message]||(/at least 6/.test(e.message)?'La contraseña necesita al menos 6 caracteres.':/valid email|invalid format/i.test(e.message)?'Escribe un correo válido.':e.message||'Ha ocurrido un error.');
  N.init=async()=>{if(!sb)throw new Error('No se ha cargado la librería de Supabase (revisa tu conexión a internet).');const{data}=await sb.auth.getSession();N.user=data.session?data.session.user:null;N.perfil=null;
   if(N.user){let r;
    for(const c of ['nombre,rol,usuario,privacidad','nombre,rol,usuario','nombre,rol']){ /* por si aún no se han ejecutado los últimos SQL */
     r=await sb.from('profiles').select(c).eq('id',N.user.id).maybeSingle();if(!r.error)break}
    N.perfil=r.data}};
- N.entrar=async(email,password)=>{const{error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;await N.init()};
+ N.entrarCon=async(id,password)=>{id=String(id).trim();
+ if(!id)throw{message:'Escribe tu correo o tu usuario.'};
+ if(id.includes('@'))return N.entrar(id,password);
+ /* Con @usuario, el login lo hace la Edge Function «login» (supabase/functions/login): el correo no sale del servidor. */
+ const{data,error}=await sb.functions.invoke('login',{body:{id,password}});
+ if(error){const r=error.context,j=r&&r.json?await r.json().catch(()=>({})):{};
+  throw{message:j.error=='rate'?'Demasiados intentos. Espera un minuto e inténtalo de nuevo.':j.error=='unconfirmed'?'Confirma tu correo antes de entrar.':j.error=='invalid'?'Usuario, correo o contraseña incorrectos.':'No se ha podido conectar. Inténtalo de nuevo.'}}
+ const{error:e2}=await sb.auth.setSession({access_token:data.access_token,refresh_token:data.refresh_token});if(e2)throw e2;
+ await N.init()};
+N.entrar=async(email,password)=>{const{error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;await N.init()};
  /* Google: redirige a Google y vuelve a esta misma página; init() recoge la sesión al volver. Ver README (Entrar con Google). */
  N.entrarGoogle=async()=>{const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname,queryParams:{prompt:'select_account'}}});if(error)throw error};
  N.registrar=async(email,password,nombre,usuario)=>{const{data,error}=await sb.auth.signUp({email,password,options:{data:{nombre,usuario}}});if(error)throw error;await N.init();return !!data.session};

@@ -13,10 +13,6 @@
     --lime: #A8D13A;
     --pink: #E06CC0;
     --orange: #EE7B1E;
-    --aqua: #2DB9D3;
-    --lime: #A8D13A;
-    --pink: #E06CC0;
-    --orange: #EE7B1E;
     --mut: #5B6683;
     --sh: #14213D;
     box-sizing: border-box;
@@ -74,7 +70,7 @@ button:focus-visible {
 
 .top {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: space-between;
     align-items: center;
     gap: 8px;
@@ -561,15 +557,12 @@ pre {
 }
 
 .bk.ic {
-    width: 40px;
-    height: 40px;
+    position: relative;
+    width: 44px;
+    height: 44px;
     padding: 0;
     display: grid;
     place-items: center
-}
-
-.top {
-    flex-wrap: nowrap
 }
 
 .top h1 {
@@ -768,7 +761,7 @@ pre {
     display: block;
     margin-top: 2px;
     color: var(--mut);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500
 }
 
@@ -795,7 +788,7 @@ pre {
 
 .hb div {
     padding: 10px 8px;
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.25;
     color: var(--mut)
 }
@@ -917,8 +910,8 @@ pre {
 .btn.ib {
     display: grid;
     place-items: center;
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     padding: 0;
     border-radius: 10px;
     box-shadow: 1px 1px 0 var(--sh)
@@ -931,14 +924,14 @@ pre {
 
 .pw pre {
     margin: 0;
-    padding: 10px 54px 10px 12px;
+    padding: 10px 60px 10px 12px;
     line-height: 1.4
 }
 
 .pw .ib {
     position: absolute;
-    top: 7px;
-    right: 7px
+    top: 5px;
+    right: 5px
 }
 
 .ht {
@@ -1469,18 +1462,14 @@ a.btn {
 }
 
 .kp span {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--mut);
     line-height: 1.2
 }
 
 /* Amigos: insignia de solicitudes pendientes sobre el icono de inicio */
-.bk.ic {
-    position: relative
-}
-
-.bd {
+.nbd {
     position: absolute;
     top: -7px;
     right: -7px;
@@ -1551,9 +1540,9 @@ a.btn {
 .ed {
     display: inline-grid;
     place-items: center;
-    width: 28px;
-    height: 28px;
-    margin-left: 4px;
+    width: 40px;
+    height: 40px;
+    margin: -8px 0 -8px 2px;
     vertical-align: middle;
     border-radius: 50%;
     color: var(--mut);
@@ -1680,23 +1669,17 @@ a.btn {
     font-weight: 700
 }
 
-.hbar {
-    height: 12px;
+.slots {
+    display: flex;
+    gap: 4px
+}
+
+.slots i {
+    flex: 1;
+    height: 16px;
     border: 2px solid var(--ink);
-    border-radius: 999px;
-    background: var(--card);
-    overflow: hidden
-}
-
-.hbar i {
-    display: block;
-    height: 100%;
-    background: var(--sky);
-    transition: width .3s
-}
-
-.hbar.full i {
-    background: var(--mint)
+    border-radius: 6px;
+    background: var(--card)
 }
 
 .gg {
@@ -1799,12 +1782,6 @@ a.btn {
     stroke-linejoin: round
 }
 
-@media (prefers-reduced-motion:reduce) {
-    .hbar i {
-        transition: none
-    }
-}
-
 /* ---------- Teclado de Palabra: estado de cada letra ----------
    (la regla .k anterior pisaba los colores de .s0/.s1/.s2; aquí se fuerzan con más especificidad) */
 .k.s0 {
@@ -1832,4 +1809,100 @@ a.btn {
 .cb .k.s2 {
     background: #0072B2;
     color: #fff
+}
+
+/* ---------- Perfil: juegos agrupados en una sola tarjeta ---------- */
+.gml {
+    margin-top: 16px;
+    border: 2px solid var(--ink);
+    border-radius: 18px;
+    background: var(--card);
+    box-shadow: 4px 4px 0 var(--sh);
+    overflow: hidden
+}
+
+.gml .gm {
+    margin: 0;
+    border: 0;
+    border-top: 2px solid var(--line);
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent
+}
+
+.gml .gm:first-child {
+    border-top: 0
+}
+
+/* ---------- Ajustes: encabezados de sección discretos ---------- */
+.aj h2 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--mut)
+}
+
+/* ---------- Entrar / Crear cuenta ---------- */
+.btn.full {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px 14px
+}
+
+.alt {
+    margin: 14px 0 0;
+    text-align: center;
+    color: var(--mut);
+    font-size: 14px
+}
+
+.alt .lnk {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink)
+}
+
+/* Autocompletado del navegador: respeta el tema */
+:root[data-theme="dark"] {
+    color-scheme: dark
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        color-scheme: dark
+    }
+}
+
+.me input:-webkit-autofill,
+.me input:-webkit-autofill:hover,
+.me input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--ink);
+    caret-color: var(--ink);
+    box-shadow: 0 0 0 40px var(--card) inset;
+    transition: background-color 9999s
+}
+
+.me input:autofill {
+    background: var(--card);
+    color: var(--ink)
+}
+
+/* Botón de Google en oscuro */
+:root[data-theme="dark"] .btn.gg {
+    background: #131314;
+    color: #E3E3E3;
+    border-color: #8E918F
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .btn.gg {
+        background: #131314;
+        color: #E3E3E3;
+        border-color: #8E918F
+    }
+}
+
+.res>p:first-child {
+    margin-top: 0
 }
