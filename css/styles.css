@@ -458,6 +458,26 @@ pre {
     color: var(--ink)
 }
 
+.me input:-webkit-autofill,
+.me input:-webkit-autofill:hover,
+.me input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--ink);
+    caret-color: var(--ink);
+    box-shadow: 0 0 0 40px var(--card) inset;
+    transition: background-color 9999s;
+}
+
+/* Firefox */
+.me input:autofill {
+    background: var(--card);
+    color: var(--ink);
+}
+
+:root[data-theme="dark"] { color-scheme: dark; }
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { color-scheme: dark; }
+}
+
 .sm {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
