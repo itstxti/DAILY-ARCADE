@@ -2,13 +2,13 @@
 (function () {
     const AL = 'abcdefghijklmnñopqrstuvwxyz'; // las frases salen de content/frases.js
     const mkC = () => {
-        const [ph, au] = Content.fraseDe(DAY), pl = [...ph].map(nz).join(''), a = [...AL], r = rng(DAY * 31 + 7);
+        const [ph, au] = Content.fraseDe(SD), pl = [...ph].map(nz).join(''), a = [...AL], r = rng(SD * 31 + 7);
         for (let i = 26; i > 0; i--) { const j = Math.floor(r() * i);[a[i], a[j]] = [a[j], a[i]] }
         const enc = {}, dec = {}; AL.split('').forEach((l, i) => { enc[l] = a[i]; dec[a[i]] = l });
         const ci = [...pl].map(c => enc[c] || c).join(''), ord = [...new Set(ci.split('').filter(c => dec[c]))], k = [1, 4, 4, 3, 3, 2, 2][WD];
         return { ph, au: au || 'Refrán popular', pl, ci, enc, dec, ord, rev: [...new Set(pl.split('').filter(c => enc[c]))].slice(0, k) }
     };
-    let _c; const C = new Proxy({}, { get: (_, k) => (_c = _c || mkC())[k] });
+    const _c = memoSD(mkC), C = new Proxy({}, { get: (_, k) => _c()[k] });
     function cini(p) { if (p.ph !== C.ph) { Object.keys(p).forEach(k => delete p[k]); p.ph = C.ph } if (!p.a) { p.a = {}; p.lk = []; p.h = 0; p.c = 0; p.bad = []; C.rev.forEach(l => { p.a[C.enc[l]] = l; p.lk.push(C.enc[l]) }) } }
     function cdone(p) { if (C.ord.every(l => p.a[l] === C.dec[l])) fin('cifra', { st: 'completed', sc: Math.max(20, 100 - 12 * p.h - 4 * p.c), t: Date.now() - p.t0 }) }
     const est = sc => sc >= 90 ? 5 : sc >= 75 ? 4 : sc >= 55 ? 3 : sc >= 35 ? 2 : 1;

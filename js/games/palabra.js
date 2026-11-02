@@ -2,7 +2,7 @@
 (function () {
     // Las palabras salen de content/palabras.js y content/aceptadas.js (ver js/content.js)
     const OK = Content.aceptadas();
-    const SOL = () => Content.palabraDe(DAY);
+    const SOL = () => Content.palabraDe(SD);
     function ev(g, s) { const r = [0, 0, 0, 0, 0], c = {}; for (let i = 0; i < 5; i++)if (g[i] == s[i]) r[i] = 2; else c[s[i]] = (c[s[i]] || 0) + 1; for (let i = 0; i < 5; i++)if (!r[i] && c[g[i]] > 0) { r[i] = 1; c[g[i]]-- } return r }
     function palabra() {
         const p = prog('p'); p.g = p.g || []; const s = SOL(), r = R('palabra'), st = {}; let h = '';

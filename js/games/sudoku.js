@@ -35,7 +35,7 @@
    }
 
    function gen() {
-      const r = rng(DAY * 17 + 3), sol = Array(T).fill(0); llenar(sol, r);
+      const r = rng(SD * 17 + 3), sol = Array(T).fill(0); llenar(sol, r);
       const giv = sol.slice(); let n = T;
       for (const i of shuf(TODAS.slice(), r)) {
          if (n <= PISTAS) break;
@@ -44,7 +44,7 @@
       }
       return { sol, giv }
    }
-   let _p; const P = () => _p = _p || gen();
+   const P = memoSD(gen); // se regenera si cambia la semilla (SD): reto del día o ronda de duelo
 
    const ini = p => { if (!p.g) p.g = P().giv.slice() };
    const choques = g => { const s = new Set(); g.forEach((v, i) => { if (v && PE[i].some(j => g[j] == v)) s.add(i) }); return s };

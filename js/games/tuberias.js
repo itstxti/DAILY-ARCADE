@@ -22,14 +22,14 @@
    }
 
    function gen() {
-      const r = rng(DAY * 41 + 9), cam = hamilton(r), L = Array(K).fill(3);
+      const r = rng(SD * 41 + 9), cam = hamilton(r), L = Array(K).fill(3);
       for (let q = T - 3 * K; q > 0; q--)L[Math.floor(r() * K)]++;           // longitudes de los tramos (mínimo 3 casillas)
       const tr = []; let i = 0;
       L.forEach(l => { tr.push(cam.slice(i, i + l)); i += l });
       shuf(tr, r); // los colores se reparten al azar entre los tramos; los extremos de cada tramo son los puntos de ese color
       return { pares: tr.map(x => [x[0], x[x.length - 1]]) }
    }
-   let _p; const P = () => _p = _p || gen();
+   const P = memoSD(gen); // se regenera si cambia la semilla (SD): reto del día o ronda de duelo
 
    /* extremo[i] = color del punto que hay en la casilla i (o -1) */
    const extremos = () => { const e = Array(T).fill(-1); P().pares.forEach(([a, b], c) => { e[a] = c; e[b] = c }); return e };

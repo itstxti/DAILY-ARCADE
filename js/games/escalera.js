@@ -18,14 +18,14 @@
   }
 
   function gen() {
-    const g = grafo(), r = rng(DAY * 29 + 13);
+    const g = grafo(), r = rng(SD * 29 + 13);
     for (let L = PASOS; L >= 2; L--)for (let t = 0; t < 40; t++) {
       const a = g.big[Math.floor(r() * g.big.length)], d = g.dist(a), c = g.big.filter(w => d.get(w) == L);
       if (c.length) { const b = c[Math.floor(r() * c.length)]; return { a, b, par: L, D: g.dist(b) } }
     }
     return null
   }
-  let _p, _ok; const P = () => { if (!_ok) { _ok = 1; _p = gen() } return _p };
+  const P = memoSD(gen); // se regenera si cambia la semilla (SD): reto del día o ronda de duelo
 
   function camino() { const Z = P(), g = grafo(), o = [Z.a]; let c = Z.a; while (c != Z.b) { c = g.vec(c).find(x => Z.D.get(x) == Z.D.get(c) - 1); o.push(c) } return o }
   const up = w => w.toUpperCase(), pl = (n, a, b) => n == 1 ? a : b;
