@@ -215,7 +215,7 @@ function ficha(g) {
 }
 function progreso() {
   const T = GAMES.length, n = GAMES.filter(g => R(g.id)).length, t = n == T;
-  return `<div class="hp"><div class="ht"><b>${t ? '¡Todo completado hoy!' : `Hoy: ${n} de ${T}`}</b><span class="hr"><span>${t ? 'Vuelve mañana' : `${T - n} por jugar`}</span>${n ? compBtn('share-dia', CAN_SHARE ? 'Compartir mi día' : 'Copiar mi día') : ''}</span></div><div class="slots" role="progressbar" aria-label="Juegos completados hoy" aria-valuemin="0" aria-valuemax="${T}" aria-valuenow="${n}">${GAMES.map(g => R(g.id) ? `<i style="background:var(${g.color})"></i>` : '<i></i>').join('')}</div></div>`
+  return `<div class="hp"><div class="ht"><b>${t ? '¡Todo completado hoy!' : `Hoy: ${n} de ${T}`}</b><span class="hr"><span>${t ? 'Vuelve mañana' : `${T - n} por jugar`}</span></span></div><div class="slots" role="progressbar" aria-label="Juegos completados hoy" aria-valuemin="0" aria-valuemax="${T}" aria-valuenow="${n}">${GAMES.map(g => R(g.id) ? `<i style="background:var(${g.color})"></i>` : '<i></i>').join('')}</div></div>`
 }
 function home() {
   const st = streak(), f = new Date(D0).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
@@ -249,11 +249,6 @@ async function enviar(t, b, pre) {
   catch (e) { if (pre) { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Texto seleccionado: cópialo') } else prompt('Copia tu resumen:', t) }
 }
 function copy() { return enviar($('#sh').textContent, $('[data-a=copy]'), $('#sh')) }
-/* Resumen del día para compartir: solo nombres y resultados, sin soluciones. */
-function resumenDia() {
-  const T = GAMES.length, n = GAMES.filter(g => R(g.id)).length, st = streak();
-  return `Daily Arcade · Reto nº ${DAY}\nHoy: ${n} de ${T}${st ? ` · racha de ${st} ${st == 1 ? 'día' : 'días'}` : ''}\n\n` + GAMES.map(g => { const r = R(g.id); return `${r ? (r.st == 'lost' ? '✗' : '✓') : estado(g) == 'en' ? '…' : '·'} ${g.name}: ${status(g)}` }).join('\n')
-}
 /* Instalar como app (PWA) */
 let dip = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); dip = e; if (V == 'ajustes') draw() });
@@ -274,7 +269,6 @@ $('#app').onclick = e => {
   if (a == 'go') { if (b.dataset.v == 'cuenta') { vp = V == 'ajustes' ? 'ajustes' : 'perfil'; cm = 'entrar'; fm = {} } V = b.dataset.v; msg = ''; fs = false; sel = null; hist = []; ask = false; eu = null; en = false; cfm = null; blq = null; fr = undefined; fq = ''; if (V == 'ranking') { RK = { tab: RK.tab, d: DAY, dia: null, rachas: null, err: '' } } draw(); if (V == 'amigos' && Nube.user) cargarAmigos(); if (V == 'ranking' && Nube.user) cargarRanking(); if (V == 'ajustes' && Nube.user) cargarBloqueados() }
   else if (a == 'set') { const k = b.dataset.k; S.set[k] = k == 'th' ? b.dataset.v : !S.set[k]; sv(); theme(); draw() }
   else if (a == 'copy') copy();
-  else if (a == 'share-dia') enviar(resumenDia(), b);
   else if (a == 'instalar') { if (dip) { dip.prompt(); dip.userChoice.catch(() => { }).then(() => { dip = null; draw() }) } }
   else if (a == 'cm') { cm = b.dataset.v; msg = ''; draw() }
   else if (a == 'entrar' || a == 'registrar') {

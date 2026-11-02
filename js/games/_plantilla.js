@@ -28,7 +28,7 @@
     const lista = p.g.map(n => `<li>${n} → ${n == secreto() ? '¡Correcto!' : n < secreto() ? 'más alto ↑' : 'más bajo ↓'}</li>`).join('');
     let b = `<ul>${lista}</ul>`;
     if (r) b += res(`¡Lo has encontrado en ${r.att} intentos!`, 'Vuelve mañana para un reto nuevo.', `Daily Arcade · Número #${DAY} · ${r.att} intentos`);
-    else b += `<div class="row"><input id="n" type="number" min="1" max="100" inputmode="numeric" aria-label="Tu número" style="font:inherit;padding:8px;border:2px solid var(--ink);border-radius:10px;background:var(--card);color:var(--ink);width:100px"><button class="btn pri" data-a="probar">Probar</button></div><p class="msg" role="status">${msg}</p>`;
+    else b += `<div class="row"><input id="n" type="number" min="1" max="100" inputmode="numeric" aria-label="Tu número" style="font:inherit;padding:8px;border:2px solid var(--ink);border-radius:var(--r-md);background:var(--card);color:var(--ink);width:100px"><button class="btn pri" data-a="probar">Probar</button></div><p class="msg" role="status">${msg}</p>`;
     return shell('Número', b)
   }
 

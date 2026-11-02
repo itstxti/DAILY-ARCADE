@@ -15,6 +15,12 @@
     --orange: #EE7B1E;
     --mut: #5B6683;
     --sh: #14213D;
+    /* Escala de radios: xs=barras/celdas diminutas, sm=teclas/casillas, md=controles/tiles/tableros, lg=tarjetas */
+    --r-xs: 4px;
+    --r-sm: 8px;
+    --r-md: 12px;
+    --r-lg: 18px;
+    --r-pill: 999px;
     box-sizing: border-box;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px)
@@ -92,7 +98,7 @@ h2 {
 
 .chip {
     border: 2px solid var(--ink);
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     padding: 4px 12px;
     background: var(--sun);
     color: #14213D;
@@ -119,7 +125,7 @@ h2 {
     text-align: left;
     background: var(--card);
     border: 2px solid var(--ink);
-    border-radius: 18px;
+    border-radius: var(--r-lg);
     padding: 14px;
     box-shadow: 4px 4px 0 var(--sh);
     margin-bottom: 16px
@@ -135,7 +141,7 @@ h2 {
     width: 64px;
     height: 64px;
     border: 2px solid var(--ink);
-    border-radius: 14px;
+    border-radius: var(--r-md);
     display: grid;
     place-items: center;
     font-weight: 800;
@@ -192,7 +198,7 @@ h2 {
 .bk {
     border: 2px solid var(--ink);
     background: var(--card);
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     padding: 4px 12px;
     font-weight: 700
 }
@@ -200,7 +206,7 @@ h2 {
 .btn {
     border: 2px solid var(--ink);
     background: var(--card);
-    border-radius: 12px;
+    border-radius: var(--r-md);
     padding: 8px 14px;
     font-weight: 700;
     box-shadow: 2px 2px 0 var(--sh)
@@ -242,7 +248,7 @@ h2 {
     width: 54px;
     height: 54px;
     border: 2px solid var(--line);
-    border-radius: 8px;
+    border-radius: var(--r-sm);
     display: grid;
     place-items: center;
     font-size: 26px;
@@ -293,7 +299,7 @@ h2 {
     max-width: 44px;
     height: 48px;
     border: 0;
-    border-radius: 8px;
+    border-radius: var(--r-sm);
     background: var(--line);
     font-weight: 700;
     text-transform: uppercase;
@@ -320,7 +326,7 @@ h2 {
 .c {
     width: 30px;
     border: 2px solid var(--line);
-    border-radius: 8px;
+    border-radius: var(--r-sm);
     background: var(--card);
     padding: 2px 0;
     display: flex;
@@ -373,7 +379,7 @@ h2 {
     margin: 12px auto;
     max-width: 440px;
     border: 3px solid var(--ink);
-    border-radius: 10px;
+    border-radius: var(--r-md);
     overflow: hidden
 }
 
@@ -404,7 +410,7 @@ h2 {
 
 .res {
     border: 2px solid var(--ink);
-    border-radius: 18px;
+    border-radius: var(--r-lg);
     background: var(--card);
     padding: 14px;
     margin-top: 16px;
@@ -413,7 +419,7 @@ h2 {
 
 pre {
     background: var(--bg);
-    border-radius: 10px;
+    border-radius: var(--r-md);
     padding: 10px;
     margin: 8px 0;
     white-space: pre-wrap;
@@ -452,7 +458,7 @@ pre {
     font: inherit;
     font-weight: 700;
     border: 2px solid var(--ink);
-    border-radius: 10px;
+    border-radius: var(--r-md);
     padding: 8px 10px;
     background: var(--card);
     color: var(--ink)
@@ -467,7 +473,7 @@ pre {
 
 .sm div {
     border: 2px solid var(--ink);
-    border-radius: 12px;
+    border-radius: var(--r-md);
     padding: 8px;
     text-align: center;
     font-size: 13px;
@@ -499,7 +505,7 @@ pre {
     display: block;
     height: 16px;
     background: var(--sky);
-    border-radius: 4px;
+    border-radius: var(--r-xs);
     min-width: 2px
 }
 
@@ -518,7 +524,7 @@ pre {
 .hm span {
     aspect-ratio: 1;
     background: var(--sky);
-    border-radius: 3px
+    border-radius: var(--r-xs)
 }
 
 .pb {
@@ -583,7 +589,7 @@ pre {
 .seg {
     display: flex;
     border: 2px solid var(--ink);
-    border-radius: 12px;
+    border-radius: var(--r-md);
     overflow: hidden;
     background: var(--card)
 }
@@ -617,7 +623,7 @@ pre {
     height: 30px;
     padding: 0;
     border: 2px solid var(--ink);
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     background: var(--card)
 }
 
@@ -713,7 +719,7 @@ pre {
     padding: 0 8px;
     box-sizing: border-box;
     border: 2px solid var(--ink);
-    border-radius: 10px;
+    border-radius: var(--r-md);
     display: grid;
     place-items: center;
     font-weight: 800;
@@ -735,7 +741,7 @@ pre {
     gap: 10px;
     padding: 10px 12px;
     border: 2px solid var(--line);
-    border-radius: 12px
+    border-radius: var(--r-md)
 }
 
 .gs div:last-child:nth-child(odd) {
@@ -781,7 +787,7 @@ pre {
     grid-template-columns: repeat(3, 1fr);
     margin: 14px 0 20px;
     border: 2px solid var(--ink);
-    border-radius: 14px;
+    border-radius: var(--r-lg);
     background: var(--card);
     overflow: hidden
 }
@@ -865,7 +871,7 @@ pre {
 .gm summary:focus-visible {
     outline: 3px solid var(--sky);
     outline-offset: 4px;
-    border-radius: 8px
+    border-radius: var(--r-sm)
 }
 
 /* Entrar con Google */
@@ -913,7 +919,7 @@ pre {
     width: 40px;
     height: 40px;
     padding: 0;
-    border-radius: 10px;
+    border-radius: var(--r-md);
     box-shadow: 1px 1px 0 var(--sh)
 }
 
@@ -950,7 +956,7 @@ pre {
     bottom: calc(20px + env(safe-area-inset-bottom, 0px));
     transform: translate(-50%, 12px);
     padding: 8px 16px;
-    border-radius: 999px;
+    border-radius: var(--r-pill);
     background: var(--ink);
     color: var(--bg);
     font-weight: 700;
@@ -979,7 +985,7 @@ pre {
     max-width: 372px;
     margin: 12px auto;
     border: 3px solid var(--ink);
-    border-radius: 10px;
+    border-radius: var(--r-md);
     overflow: hidden;
     background: var(--card)
 }
@@ -1095,7 +1101,7 @@ button.t {
 .nb {
     aspect-ratio: 2/1;
     border: 2px solid var(--ink);
-    border-radius: 14px;
+    border-radius: var(--r-lg);
     background: var(--card);
     box-shadow: 3px 3px 0 var(--sh);
     font-size: 26px;
@@ -1142,7 +1148,7 @@ button.t {
 .lg li {
     padding: 6px 10px;
     border: 2px solid var(--line);
-    border-radius: 10px;
+    border-radius: var(--r-md);
     background: var(--card)
 }
 
@@ -1164,7 +1170,7 @@ button.t {
 .tag {
     display: inline-block;
     border: 2px solid var(--ink);
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     padding: 1px 10px;
     font-size: 12px;
     font-weight: 700;
@@ -1256,7 +1262,7 @@ a.btn {
 .how {
     margin: 0 0 12px;
     border: 2px solid var(--line);
-    border-radius: 14px;
+    border-radius: var(--r-lg);
     background: var(--card);
     padding: 0 14px
 }
@@ -1295,7 +1301,7 @@ a.btn {
 .how summary:focus-visible {
     outline: 3px solid var(--sky);
     outline-offset: 2px;
-    border-radius: 8px
+    border-radius: var(--r-sm)
 }
 
 .how ol {
@@ -1338,7 +1344,7 @@ a.btn {
     gap: 8px;
     margin: 0 0 12px;
     padding: 12px;
-    border-radius: 12px;
+    border-radius: var(--r-md);
     background: var(--bg)
 }
 
@@ -1360,7 +1366,7 @@ a.btn {
     width: 40px;
     height: 40px;
     font-size: 20px;
-    border-radius: 8px
+    border-radius: var(--r-sm)
 }
 
 .dm .t i {
@@ -1375,7 +1381,7 @@ a.btn {
     height: 20px;
     margin-right: 2px;
     border: 2px solid transparent;
-    border-radius: 6px;
+    border-radius: var(--r-sm);
     font-size: 11px;
     vertical-align: middle
 }
@@ -1413,7 +1419,7 @@ a.btn {
     padding: 0 8px;
     box-sizing: border-box;
     border: 2px solid var(--ink);
-    border-radius: 10px;
+    border-radius: var(--r-md);
     background: var(--card);
     font-weight: 800;
     font-variant-numeric: tabular-nums
@@ -1443,7 +1449,7 @@ a.btn {
     justify-content: center;
     gap: 1px;
     padding: 10px 6px;
-    border-radius: 12px;
+    border-radius: var(--r-md);
     background: var(--bg);
     text-align: center
 }
@@ -1477,7 +1483,7 @@ a.btn {
     height: 20px;
     padding: 0 4px;
     box-sizing: border-box;
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     background: var(--berry);
     color: #fff;
     font-size: 11px;
@@ -1506,7 +1512,7 @@ a.btn {
     background: var(--bg);
     margin: 0 -10px;
     padding: 8px 10px;
-    border-radius: 10px;
+    border-radius: var(--r-md);
     border-top-color: transparent
 }
 
@@ -1573,7 +1579,7 @@ a.btn {
     aspect-ratio: 1;
     padding: 0;
     border: 3px solid var(--ink);
-    border-radius: 10px;
+    border-radius: var(--r-md);
     background: var(--card);
     cursor: pointer
 }
@@ -1615,7 +1621,7 @@ a.btn {
 .spw li {
     padding: 4px 10px;
     border: 2px solid var(--line);
-    border-radius: 999px;
+    border-radius: var(--r-pill);
     background: var(--card);
     color: var(--ink);
     font-size: 14px;
@@ -1678,7 +1684,7 @@ a.btn {
     flex: 1;
     height: 16px;
     border: 2px solid var(--ink);
-    border-radius: 6px;
+    border-radius: var(--r-sm);
     background: var(--card)
 }
 
@@ -1698,7 +1704,7 @@ a.btn {
     text-align: left;
     background: var(--card);
     border: 2px solid var(--ink);
-    border-radius: 18px;
+    border-radius: var(--r-lg);
     padding: 12px;
     box-shadow: 4px 4px 0 var(--sh)
 }
@@ -1712,7 +1718,7 @@ a.btn {
     position: relative;
     width: 52px;
     height: 52px;
-    border-radius: 12px;
+    border-radius: var(--r-md);
     margin-bottom: 2px
 }
 
@@ -1815,7 +1821,7 @@ a.btn {
 .gml {
     margin-top: 16px;
     border: 2px solid var(--ink);
-    border-radius: 18px;
+    border-radius: var(--r-lg);
     background: var(--card);
     box-shadow: 4px 4px 0 var(--sh);
     overflow: hidden

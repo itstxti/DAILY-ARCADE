@@ -90,7 +90,7 @@
       const Z = P();
       if (!Z) return shell('Sopa de letras', '<p class="sub">Hoy no hay sopa de letras disponible.</p>');
       const p = prog('sp'); ini(p); const r = R('sopa');
-      let b = `<div id="spb" data-b="sopa" style="${r ? '' : 'touch-action:none;'}max-width:400px;margin:12px auto;border:3px solid var(--ink);border-radius:10px;overflow:hidden;user-select:none;-webkit-user-select:none">${svgTablero(p, !!r)}</div>`
+      let b = `<div id="spb" data-b="sopa" style="${r ? '' : 'touch-action:none;'}max-width:400px;margin:12px auto;border:3px solid var(--ink);border-radius:var(--r-md);overflow:hidden;user-select:none;-webkit-user-select:none">${svgTablero(p, !!r)}</div>`
          + `<ul id="spw" class="spw">${lista(p)}</ul>`;
       if (r) b += res(`¡Las ${NP} palabras en ${mmss(r.t)}!`, r.h ? `Con ${r.h} ${pl(r.h, 'pista', 'pistas')}. Vuelve mañana para una sopa nueva.` : 'Vuelve mañana para una sopa nueva.', `Daily Arcade · Sopa #${DAY} · ${NP}/${NP} palabras${r.h ? ' · ' + r.h + pl(r.h, ' pista', ' pistas') : ''} · ${mmss(r.t)}`);
       else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="cap" id="spc" style="text-align:center;margin:0">${p.f.length} / ${NP} palabras</p><p class="msg" id="spm" role="status">${msg}</p><div class="row" style="justify-content:center"><button class="btn" data-a="pista">Pista</button></div><p class="foot" style="margin-top:8px;text-align:center">Arrastra de la primera a la última letra, o toca esas dos letras.</p>`;
@@ -169,7 +169,7 @@
       id: 'sopa', name: 'Sopa de letras', desc: 'Encuentra las 6 palabras escondidas en la cuadrícula.', color: '--pink', icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>',
       how: ["Encuentra las <b>6 palabras</b> de la lista escondidas en la cuadrícula.", "Van en <b>horizontal, vertical o diagonal</b>. Se pueden marcar en cualquier sentido.", "Arrastra de la primera a la última letra, o toca esas dos letras."],
       demo: (() => {
-         const L = ['M', 'E', 'S', 'A', 'X', 'S', 'O', 'L', 'X', 'X', 'X', 'X']; let s = `<svg viewBox="0 0 4 3" style="display:block;width:140px;margin:6px auto;border:3px solid var(--ink);border-radius:8px">`;
+         const L = ['M', 'E', 'S', 'A', 'X', 'S', 'O', 'L', 'X', 'X', 'X', 'X']; let s = `<svg viewBox="0 0 4 3" style="display:block;width:140px;margin:6px auto;border:3px solid var(--ink);border-radius:var(--r-sm)">`;
          for (let i = 0; i < 12; i++)s += `<rect x="${i % 4}" y="${i / 4 | 0}" width="1" height="1" style="fill:var(--card);stroke:var(--line);stroke-width:.03"/>`;
          s += `<line x1=".5" y1=".5" x2="3.5" y2=".5" style="stroke:var(--mint);stroke-opacity:.5;stroke-width:.78;stroke-linecap:round"/>`;
          L.forEach((c, i) => { s += `<text x="${i % 4 + .5}" y="${(i / 4 | 0) + .53}" text-anchor="middle" dominant-baseline="central" style="fill:var(--ink);font:800 .55px sans-serif">${c}</text>` });
