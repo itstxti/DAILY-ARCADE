@@ -90,7 +90,7 @@
 
    function camino() {
       const p = prog('cm'); ini(p); const r = R('camino'), Z = P();
-      let b = `<div id="cmb" class="cm" data-b="camino" style="${r ? '' : 'touch-action:none;'}max-width:372px;margin:12px auto;border:3px solid var(--ink);border-radius:10px;overflow:hidden;user-select:none;-webkit-user-select:none">${svgTablero(p.c, !!r)}</div>`;
+      let b = `<div id="cmb" class="cm" data-b="camino" style="${r ? '' : 'touch-action:none;'}max-width:372px;margin:12px auto;border:3px solid var(--ink);border-radius:var(--r-md);overflow:hidden;user-select:none;-webkit-user-select:none">${svgTablero(p.c, !!r)}</div>`;
       if (r) b += res(`¡Camino completado en ${mmss(r.t)}!`, 'Pasaste por las 36 casillas y por todos los números en orden. Vuelve mañana para un reto nuevo.', `Daily Arcade · Camino #${DAY} · 6×6 · ${mmss(r.t)}`);
       else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="cap" id="cmc" style="text-align:center;margin:0">${p.c.length} / ${T} casillas</p><p class="msg" id="cmm" role="status">${msg}</p><div class="row" style="justify-content:center"><button class="btn" data-a="undo">Deshacer</button><button class="btn" data-a="reiniciar">Reiniciar</button></div><p class="foot" style="margin-top:8px;text-align:center">Arrastra desde el 1 (o toca casillas contiguas). También puedes usar las flechas.</p>`;
       return shell('Camino', b)
@@ -163,7 +163,7 @@
       id: 'camino', name: 'Camino', desc: 'Traza una línea que pase por todas las casillas y por los números en orden.', color: '--orange', icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V9h7v8h7V5"/><circle cx="5" cy="19" r="1.8" fill="currentColor"/><circle cx="19" cy="5" r="1.8" fill="currentColor"/></svg>',
       how: ["Dibuja <b>una línea continua</b> que pase por <b>todas las casillas</b>.", "Empieza en el <b>1</b> y pasa por los números <b>en orden</b>: el último es el final.", "Arrastra el dedo o toca casillas contiguas. Para corregir, vuelve atrás sobre tu línea."],
       demo: (() => {
-         const c = [0, 1, 2, 5, 4, 3, 6, 7, 8], nm = [0, 3, 8]; let s = `<svg viewBox="0 0 3 3" style="display:block;width:120px;margin:6px auto;border:3px solid var(--ink);border-radius:8px">`;
+         const c = [0, 1, 2, 5, 4, 3, 6, 7, 8], nm = [0, 3, 8]; let s = `<svg viewBox="0 0 3 3" style="display:block;width:120px;margin:6px auto;border:3px solid var(--ink);border-radius:var(--r-sm)">`;
          for (let i = 0; i < 9; i++)s += `<rect x="${i % 3}" y="${i / 3 | 0}" width="1" height="1" style="fill:color-mix(in srgb,var(--sky) 22%,var(--card));stroke:var(--line);stroke-width:.03"/>`;
          s += `<polyline points="${c.map(i => (i % 3 + .5) + ',' + ((i / 3 | 0) + .5)).join(' ')}" fill="none" style="stroke:var(--sky);stroke-width:.3;stroke-linecap:round;stroke-linejoin:round"/>`;
          nm.forEach((i, j) => { s += `<circle cx="${i % 3 + .5}" cy="${(i / 3 | 0) + .5}" r=".3" style="fill:var(--ink)"/><text x="${i % 3 + .5}" y="${(i / 3 | 0) + .5}" text-anchor="middle" dominant-baseline="central" style="fill:var(--bg);font:800 .36px sans-serif">${j + 1}</text>` });
