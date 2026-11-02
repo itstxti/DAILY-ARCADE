@@ -930,14 +930,27 @@ pre {
 
 .pw pre {
     margin: 0;
-    padding: 10px 60px 10px 12px;
+    padding: 10px 12px;
     line-height: 1.4
 }
 
-.pw .ib {
+/* Tarjeta de resultado: botón copiar/compartir en la esquina superior derecha */
+.res.rb {
+    position: relative
+}
+
+.res.rb>.ib {
     position: absolute;
-    top: 5px;
-    right: 5px
+    top: 10px;
+    right: 10px
+}
+
+.res.rb h2 {
+    min-height: 40px;
+    margin: -4px 0 4px;
+    padding-right: 50px;
+    display: flex;
+    align-items: center
 }
 
 .ht {
