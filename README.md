@@ -8,6 +8,7 @@ Daily Arcade es una web de juegos diarios: cada día a medianoche (hora de Madri
 - Rachas, perfil con estadísticas por juego y mapa de los últimos 28 días.
 - Cuentas con correo, con @usuario o con Google; modo invitado sin cuenta.
 - Amigos, ranking del día y de rachas, y perfil público o privado.
+- Duelos entre amigos: mejor de 5 en directo, con juegos al azar (ver «Duelos»).
 - Compartir el resultado de cada juego o del día completo, sin soluciones.
 - Tema claro, oscuro o del sistema, y paleta para daltónicos.
 - App instalable (PWA) que funciona sin conexión si ya abriste la web ese día.
@@ -39,6 +40,17 @@ Entrar con Google, el modo sin conexión y la instalación como app necesitan `h
    ```
    Cierra sesión y vuelve a entrar: en Cuenta aparece el enlace al panel (`admin.html`).
 
+### Duelos entre amigos
+
+Ejecuta `supabase/duelos.sql` en el SQL Editor (después de `schema.sql`; es idempotente). Sin él, la web funciona igual pero los duelos darán error.
+
+- **Cómo se juega:** en Amigos (o en el icono de espadas del inicio) pulsa *Retar* a un amigo. Le llega un aviso flotante con *Aceptar* / *Rechazar*; si no responde en 5 minutos, la invitación caduca. Al aceptar, cuenta atrás de 15 s y empieza el duelo.
+- **Reglas:** hasta 5 rondas, cada una con un juego distinto elegido al azar por el servidor (misma semilla para los dos). Gana la ronda quien lo resuelve con menos intentos (Palabra, Escalera, Luces, Operaciones) o más rápido (el resto); el tiempo desempata. Rendirse o no resolver pierde la ronda. Gana el duelo quien llegue antes a 3 rondas, o quien tenga más tras 5. *Rendirse* en el duelo lo termina al instante; no jugar dos rondas seguidas se da por abandonado.
+- **Parámetros** (caducidad, tiempo por ronda, rondas…): función `duelo_cfg()` en `duelos.sql`. Es la única fuente: el navegador los recibe del servidor.
+- **Trampas:** el tiempo lo mide el servidor (el navegador solo puede recortar hasta `holgura`, 4 s, respecto al reloj real) y en Palabra se comprueba la lista de intentos contra la palabra de la ronda. El resto de intentos (pasos, pulsaciones, operaciones) los declara el navegador, como en el ranking: es para jugar con amigos, no una competición oficial.
+- **Tiempo real:** el navegador consulta al servidor cada 1,5–6 s (más a menudo en pleno duelo). No usa Realtime: no hay nada que activar en Supabase.
+- **Los duelos no cuentan** en tus resultados diarios, rachas ni rankings.
+
 ### Entrar con @usuario
 
 Con correo funciona sin más. Para entrar también con el @usuario:
@@ -68,5 +80,6 @@ Si cambias el día de lanzamiento, cambia a la vez `EPOCH` en `js/core.js` y la 
   1. Copia `js/games/_plantilla.js` a `js/games/tu-juego.js` y rellénalo.
   2. Añade su `<script>` en `index.html` (el orden es el del inicio).
   3. Añádelo a la lista `SHELL` de `sw.js` y sube el número de `V`.
-  4. Con Supabase, ejecuta una migración que dé de alta el juego (ejemplo: `juegos-nuevos.sql`).
+  4. Con Supabase, ejecuta una migración que dé de alta el juego (ejemplo: `juegos_nuevos.sql`).
+  5. Para que salga en los duelos: genera el puzle con `SD` (no `DAY`) y memoízalo con `memoSD(gen)`; añade el id a `duelo_juegos()` en `duelos.sql` (y a `duelo_por_tiempo()` si se puntúa por intentos). Mira `_plantilla.js`.
 - **Sin conexión:** si añades o quitas archivos de la web, actualiza `SHELL` y `V` en `sw.js`.

@@ -10,7 +10,7 @@
   const util = (o, x, y) => o == '+' || (o == '-' && x > y) || (o == '*' && y > 1) || (o == '/' && y > 1 && x > y && x % y == 0);
 
   function gen() {
-    const r = rng(DAY * 23 + 11), k = [5, 3, 3, 4, 4, 5, 5][WD];
+    const r = rng(SD * 23 + 11), k = [5, 3, 3, 4, 4, 5, 5][WD];
     for (let t = 0; t < 4000; t++) {
       const grandes = shuf([25, 50, 75, 100], r).slice(0, 2), pequeños = shuf([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], r).slice(0, 4);
       const nums = grandes.concat(pequeños).sort((a, b) => a - b);
@@ -33,7 +33,7 @@
     }
     return { nums: [2, 5, 10, 25, 50, 100], target: 192, sol: ['100 + 50 = 150', '150 + 25 = 175', '175 + 10 = 185', '185 + 5 = 190', '190 + 2 = 192'] }
   }
-  let _p; const P = () => _p = _p || gen();
+  const P = memoSD(gen); // se regenera si cambia la semilla (SD): reto del día o ronda de duelo
 
   const ini = p => { if (!p.t) { p.t = P().nums.map(v => ({ v })); p.l = []; p.u = []; p.a = null; p.o = null } };
   const pl = (n, a, b) => n == 1 ? a : b, dif = p => Math.min(...p.t.map(x => Math.abs(x.v - P().target)));

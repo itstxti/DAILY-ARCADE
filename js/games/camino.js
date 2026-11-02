@@ -22,13 +22,13 @@
    }
 
    function gen() {
-      const r = rng(DAY * 31 + 7), cam = hamilton(r), pos = [0, T - 1];
+      const r = rng(SD * 31 + 7), cam = hamilton(r), pos = [0, T - 1];
       // números repartidos a lo largo del camino, con algo de desorden pero sin amontonarse
       for (let i = 1; i < NS - 1; i++) { const base = i * (T - 1) / (NS - 1), p = Math.max(1, Math.min(T - 2, Math.round(base + (r() - .5) * 2))); if (!pos.includes(p)) pos.push(p) }
       pos.sort((a, b) => a - b);
       return { nums: pos.map(p => cam[p]) } // nums[k] = casilla del número k+1
    }
-   let _p; const P = () => _p = _p || gen();
+   const P = memoSD(gen); // se regenera si cambia la semilla (SD): reto del día o ronda de duelo
 
    const ini = p => { if (!Array.isArray(p.c)) p.c = [] };
    const num = i => P().nums.indexOf(i) + 1; // 0 si la casilla no lleva número

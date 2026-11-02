@@ -12,7 +12,7 @@
    const FREC = 'AAAAAAAAEEEEEEEEIIIIIOOOOOOUUUSSSSSRRRRNNNNLLLLDDDTTTCCCMMPPBBGFHVYQJZXÑK';
 
    function pool() {
-      const hoy = Content.palabraDe(DAY);
+      const hoy = Content.palabraDe(SD);
       const base = Content.palabras().length >= 60 ? Content.palabras() : [...Content.aceptadas()];
       return [...new Set(base)].filter(w => w != hoy && /^[a-zñ]{5}$/.test(w) && w != [...w].reverse().join('')).sort()
    }
@@ -29,7 +29,7 @@
    }
 
    function gen() {
-      const r = rng(DAY * 43 + 17), B = pool();
+      const r = rng(SD * 43 + 17), B = pool();
       for (let t = 0; t < 200; t++) {
          const ws = shuf(B.slice(), r).slice(0, NP).map(w => w.toUpperCase());
          if (new Set(ws).size < NP) continue;
@@ -56,7 +56,7 @@
       }
       return null
    }
-   let _p, _ok; const P = () => { if (!_ok) { _ok = 1; _p = gen() } return _p };
+   const P = memoSD(gen); // se regenera si cambia la semilla (SD): reto del día o ronda de duelo
 
    const ini = p => { if (!Array.isArray(p.f)) { p.f = []; p.h = 0 } };
    const pl = (n, a, b) => n == 1 ? a : b;

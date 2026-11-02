@@ -7,7 +7,9 @@
 
    Lo que te da el núcleo (core.js):
      DAY            nº de reto de hoy (cambia a medianoche, hora de Madrid)
-     rng(semilla)   generador aleatorio determinista → rng(DAY*7+1)() da el mismo número a todo el mundo
+     SD             semilla del puzle: DAY en el reto diario y, en un duelo, la semilla de la ronda. GENERA SIEMPRE CON SD, no con DAY
+     memoSD(gen)    memoriza el puzle y lo regenera si cambia SD:  const P = memoSD(gen)
+     rng(semilla)   generador aleatorio determinista → rng(SD*7+1)() da el mismo número a todo el mundo
      prog(pk)       objeto de progreso de HOY de este juego (se guarda con sv())
      R(id)          resultado final de hoy (undefined si aún no ha terminado)
      fin(id,obj)    marca el juego como terminado. obj.st='won'|'completed' cuenta como victoria
@@ -21,7 +23,7 @@
    Instrucciones: how:[…] (3 frases cortas, admite <b>) y demo:'<html>' (opcional, un ejemplo visual) se muestran como «Cómo se juega» bajo el título.
    Para el ejemplo puedes reutilizar las clases: .t .r (fichas), .c .wd (letras), .bd2 .z (tablero), .sd .sx (sudoku), .chp (números), .dot (leyenda) y .cap (pie). */
 (function () {
-  const secreto = () => 1 + Math.floor(rng(DAY * 7 + 1)() * 100);
+  const secreto = () => 1 + Math.floor(rng(SD * 7 + 1)() * 100);
 
   function render() {
     const p = prog('n'), r = R('numero'); p.g = p.g || [];

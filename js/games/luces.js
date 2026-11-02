@@ -37,7 +37,7 @@
 
    const aplica = (b, j) => b ^ EF[j];
    function gen() {
-      const r = rng(DAY * 37 + 5); let ult = null;
+      const r = rng(SD * 37 + 5); let ult = null;
       for (let t = 0; t < 600; t++) {
          const k = MIN_DIA + Math.floor(r() * 4), orden = shuf([...Array(T).keys()], r).slice(0, Math.min(T, k));
          let b = 0; orden.forEach(j => { b = aplica(b, j) });
@@ -48,7 +48,7 @@
       }
       return ult || { ini: EF[12], min: 1 }
    }
-   let _p; const P = () => _p = _p || gen();
+   const P = memoSD(gen); // se regenera si cambia la semilla (SD): reto del día o ronda de duelo
 
    /* Tablero actual: se parte del inicial y se aplican las pulsaciones (p.m). */
    const ini = p => { if (!Array.isArray(p.m)) { p.m = []; p.n = 0; p.h = 0 } };

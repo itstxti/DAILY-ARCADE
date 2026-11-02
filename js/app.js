@@ -61,7 +61,7 @@ async function cerrar(forzar) {
     try { await Nube.subirTodo(S, DAY, IDS()) } catch (e) { console.warn(e); msg = 'No se han podido guardar tus últimos resultados en tu cuenta. Comprueba la conexión e inténtalo de nuevo. Si cierras sesión igualmente, los resultados que no se hayan subido se perderán de este navegador.'; fs = true; draw(); return }
   }
   try { await Nube.salir() } catch (e) { console.warn(e) }
-  S = { res: {}, pr: {}, me: { n: 'Invitado', v: 'public' }, set: S.set, uid: null }; Nube.user = Nube.perfil = null; AM = null; BL = null; blq = null; fq = ''; fr = undefined; sv(); msg = ''; fs = false; eu = null; draw()
+  S = { res: {}, pr: {}, me: { n: 'Invitado', v: 'public' }, set: S.set, uid: null }; Nube.user = Nube.perfil = null; Duelo.reset(); AM = null; BL = null; blq = null; fq = ''; fr = undefined; sv(); msg = ''; fs = false; eu = null; draw()
 }
 
 /* ---------- Ajustes ---------- */
@@ -126,13 +126,13 @@ function amigos() {
     res = `<div style="margin-top:10px">${fila(a, j(h0(a), r == 'bloqueado' ? 'Bloqueado' : r != 'yo' && r != 'amigos' && !a.publico ? 'Perfil privado' : ''), acc)}</div>`
   }
   return `<div class="bar"><button class="bk" data-a="go" data-v="home">‹ Inicio</button><h1>Amigos</h1></div>
-<div class="row"><button class="btn pri" data-a="go" data-v="ranking" style="flex:1">Ver ranking</button></div>
+<div class="row"><button class="btn pri" data-a="go" data-v="ranking" style="flex:1">Ver ranking</button>${Duelo.disponible() ? `<button class="btn pri" data-a="go" data-v="duelos" style="flex:1">Duelos${Duelo.badge() ? ` · ${Duelo.badge()}` : ''}</button>` : ''}</div>
 <section class="res pb"><h2>Añadir amigos</h2><p>Escribe el @usuario exacto de tu amigo. Tu usuario es <b>@${esc((Nube.perfil && Nube.perfil.usuario) || '')}</b>.</p><div class="me"><span class="at">@</span><input id="fq" value="${esc(fq)}" maxlength="16" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="usuario" aria-label="Usuario de tu amigo"><button class="btn pri" data-a="am-buscar">Buscar</button></div>${res}</section>
 ${M}
 ${rec.length ? `<section class="res pb"><h2>Solicitudes recibidas</h2>${rec.map(a => blq == a.usuario
     ? fila(a, '¿Bloquear? No podrá volver a encontrarte.', `<span class="row" style="margin:0;flex:none"><button class="btn dg" data-a="bl-si" data-u="${a.usuario}">Bloquear</button><button class="btn" data-a="bl-no">No</button></span>`)
     : fila(a, j(h0(a), a.nombre ? `<button class="lnk" data-a="am-ver" data-u="${a.usuario}">Ver perfil</button>` : '', `<button class="lnk" data-a="bl-ask" data-u="${a.usuario}">Bloquear</button>`), `<span class="row" style="margin:0;flex:none"><button class="btn pri" data-a="am-ok" data-u="${a.usuario}">Aceptar</button><button class="lnk" data-a="am-no" data-u="${a.usuario}">Rechazar</button></span>`)).join('')}</section>` : ''}
-<section class="res pb"><h2>Mis amigos</h2>${AM === null ? '<p class="cap">Cargando…</p>' : ami.length ? ami.map(a => fila(a, j(h0(a), stats(a)), `<span class="row" style="margin:0;flex:none;gap:14px;align-items:center">${a.visible && cfm != a.usuario ? `<button class="lnk" data-a="am-ver" data-u="${a.usuario}">Ver perfil</button>` : ''}${quitar(a)}</span>`)).join('') : '<p class="cap">Todavía no tienes amigos añadidos.</p>'}</section>
+<section class="res pb"><h2>Mis amigos</h2>${AM === null ? '<p class="cap">Cargando…</p>' : ami.length ? ami.map(a => fila(a, j(h0(a), stats(a)), `<span class="row" style="margin:0;flex:none;gap:14px;align-items:center">${cfm != a.usuario && Duelo.disponible() ? `<button class="lnk" data-a="du-retar" data-u="${a.usuario}">Retar</button>` : ''}${a.visible && cfm != a.usuario ? `<button class="lnk" data-a="am-ver" data-u="${a.usuario}">Ver perfil</button>` : ''}${quitar(a)}</span>`)).join('') : '<p class="cap">Todavía no tienes amigos añadidos.</p>'}</section>
 ${env.length ? `<section class="res pb"><h2>Solicitudes enviadas</h2>${env.map(a => fila(a, j(h0(a), 'pendiente'), `<button class="lnk" data-a="am-can" data-u="${a.usuario}">Cancelar</button>`)).join('')}</section>` : ''}
 <p class="foot">Con el perfil Público, cualquiera que te encuentre por tu @usuario puede verlo. Con Privado, solo tus amigos (Ajustes).</p>`}
 
@@ -205,7 +205,7 @@ function status(g) {
   return r ? 'Completado' : p && p.t0 ? 'En curso' : 'Sin jugar'
 }
 const SV = d => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
-const IC = { user: SV('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>'), fr: SV('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.8 0 4.5 1.9 4.5 5"/>'), cfg: SV('<path d="M4 6h8M18 6h2M4 12h2M12 12h8M4 18h10M20 18h0"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>') };
+const IC = { user: SV('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>'), fr: SV('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.8 0 4.5 1.9 4.5 5"/>'), du: SV('<path d="M5 4l9 9M4 5l1-1 3 1 1 3-1 1-3-1z"/><path d="M19 4l-9 9M20 5l-1-1-3 1-1 3 1 1 3-1z"/><path d="M7 17l-3 3M17 17l3 3M9 15l-2 2M15 15l2 2"/>'), cfg: SV('<path d="M4 6h8M18 6h2M4 12h2M12 12h8M4 18h10M20 18h0"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>') };
 /* Estado de un juego en el inicio: ok (completado), en (empezado) o nv (sin jugar). */
 const estado = g => R(g.id) ? 'ok' : status(g) == 'Sin jugar' ? 'nv' : 'en';
 const CK = '<span class="ck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>';
@@ -219,7 +219,7 @@ function progreso() {
 }
 function home() {
   const st = streak(), f = new Date(D0).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
-  return `<header class="top"><h1>Daily Arcade</h1><span style="display:flex;gap:8px;align-items:center">${Nube.user ? `<button class="bk ic" data-a="go" data-v="amigos" aria-label="Amigos${nrec() ? ` (${nrec()} solicitudes)` : ''}" title="Amigos">${IC.fr}${nrec() ? `<span class="nbd" aria-hidden="true">${nrec()}</span>` : ''}</button>` : ''}<button class="bk ic" data-a="go" data-v="perfil" aria-label="Perfil" title="Perfil">${IC.user}</button><button class="bk ic" data-a="go" data-v="ajustes" aria-label="Ajustes" title="Ajustes">${IC.cfg}</button></span></header>
+  return `<header class="top"><h1>Daily Arcade</h1><span style="display:flex;gap:8px;align-items:center">${Nube.user ? `${Duelo.disponible() ? `<button class="bk ic" data-a="go" data-v="duelos" aria-label="Duelos${Duelo.badge() ? ` (${Duelo.badge()} pendientes)` : ''}" title="Duelos">${IC.du}${Duelo.badge() ? `<span class="nbd" aria-hidden="true">${Duelo.badge()}</span>` : ''}</button>` : ''}<button class="bk ic" data-a="go" data-v="amigos" aria-label="Amigos${nrec() ? ` (${nrec()} solicitudes)` : ''}" title="Amigos">${IC.fr}${nrec() ? `<span class="nbd" aria-hidden="true">${nrec()}</span>` : ''}</button>` : ''}<button class="bk ic" data-a="go" data-v="perfil" aria-label="Perfil" title="Perfil">${IC.user}</button><button class="bk ic" data-a="go" data-v="ajustes" aria-label="Ajustes" title="Ajustes">${IC.cfg}</button></span></header>
 <div class="hb"><div class="sn"><b>${st}</b>${st == 1 ? 'día' : 'días'} de racha</div><div><b>Reto nº ${DAY}</b>${f}</div><div><b id="cd">--:--:--</b>próximo reto</div></div>` +
     progreso() + `<div class="gg">${GAMES.map(ficha).join('')}</div>` +
     `<p class="foot">Sin cuenta: los resultados se guardan solo en este navegador. Cada día cambia el reto a medianoche, hora de Madrid.</p>`
@@ -228,11 +228,12 @@ function home() {
 /* ---------- Control ---------- */
 function draw() {
   const g = cur();
-  $('#app').innerHTML = V == 'perfil' ? perfil() : V == 'ajustes' ? ajustes() : V == 'cuenta' && Nube.activo ? cuenta() : V == 'amigos' && Nube.user ? amigos() : V == 'ranking' && Nube.user ? ranking() : V == 'amigo' && Nube.user && FP ? perfilAmigo() : g ? g.render() : (V = 'home', home());
+  const dv = Nube.user ? Duelo.vista() : null;
+  $('#app').innerHTML = dv != null ? dv : V == 'perfil' ? perfil() : V == 'ajustes' ? ajustes() : V == 'cuenta' && Nube.activo ? cuenta() : V == 'amigos' && Nube.user ? amigos() : V == 'ranking' && Nube.user ? ranking() : V == 'amigo' && Nube.user && FP ? perfilAmigo() : g ? g.render() : (V = 'home', home());
   tick()
 }
 function tick() {
-  const q = parts(); if (q.day !== P.day) return location.reload();
+  const q = parts(); if (q.day !== P.day && !Duelo.ocupado()) return location.reload();
   const rem = 86400 - (q.hour * 3600 + q.minute * 60 + q.second), c = $('#cd');
   if (c) c.textContent = [Math.floor(rem / 3600), Math.floor(rem % 3600 / 60), rem % 60].map(v => String(v).padStart(2, '0')).join(':');
   const t = $('#tm'), g = cur(), p = g && prog(g.pk);
@@ -266,7 +267,8 @@ $('#app').onclick = e => {
   const sm = e.target.closest('.how>summary'); if (sm) { const d = sm.parentNode; HW[d.dataset.g] = !d.open; return }
   const b = e.target.closest('[data-a]'); if (!b) return;
   const a = b.dataset.a, g = cur();
-  if (a == 'go') { if (b.dataset.v == 'cuenta') { vp = V == 'ajustes' ? 'ajustes' : 'perfil'; cm = 'entrar'; fm = {} } V = b.dataset.v; msg = ''; fs = false; sel = null; hist = []; ask = false; eu = null; en = false; cfm = null; blq = null; fr = undefined; fq = ''; if (V == 'ranking') { RK = { tab: RK.tab, d: DAY, dia: null, rachas: null, err: '' } } draw(); if (V == 'amigos' && Nube.user) cargarAmigos(); if (V == 'ranking' && Nube.user) cargarRanking(); if (V == 'ajustes' && Nube.user) cargarBloqueados() }
+  if (a == 'go') { if (b.dataset.v == 'cuenta') { vp = V == 'ajustes' ? 'ajustes' : 'perfil'; cm = 'entrar'; fm = {} } V = b.dataset.v; msg = ''; fs = false; sel = null; hist = []; ask = false; eu = null; en = false; cfm = null; blq = null; fr = undefined; fq = ''; if (V == 'ranking') { RK = { tab: RK.tab, d: DAY, dia: null, rachas: null, err: '' } } draw(); if (V == 'amigos' && Nube.user) cargarAmigos(); if (V == 'ranking' && Nube.user) cargarRanking(); if (V == 'ajustes' && Nube.user) cargarBloqueados(); if (V == 'duelos' && Nube.user) Duelo.abrir() }
+  else if (a.startsWith('du-')) Duelo.accion(a, b)
   else if (a == 'set') { const k = b.dataset.k; S.set[k] = k == 'th' ? b.dataset.v : !S.set[k]; sv(); theme(); draw() }
   else if (a == 'copy') copy();
   else if (a == 'instalar') { if (dip) { dip.prompt(); dip.userChoice.catch(() => { }).then(() => { dip = null; draw() }) } }
@@ -360,6 +362,6 @@ addEventListener('keydown', e => {
     catch (e) { console.error(e); $('#app').innerHTML = `<h1>Daily Arcade</h1><p class="sub">${e.message == 'sin-reto' ? 'Hoy todavía no hay reto. Vuelve en un rato.' : 'No se ha podido conectar. Inténtalo de nuevo.'}</p>${e.message == 'sin-reto' ? '' : `<p class="foot">Detalle técnico: ${esc(String(e.message || e))}</p>`}<button class="btn pri" onclick="location.reload()">Reintentar</button>`; return }
   }
   addEventListener('online', () => { Nube.subirTodo(S, DAY, IDS()).catch(() => { }) }); /* reintenta lo que no se pudo subir sin conexión */
-  setInterval(tick, 1000); theme(); draw();
+  setInterval(tick, 1000); theme(); draw(); Duelo.init();
   if (Nube.user) cargarAmigos()
 })();

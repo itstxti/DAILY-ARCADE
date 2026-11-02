@@ -21,7 +21,13 @@ let S = { res: {}, pr: {}, me: { n: 'Invitado', v: 'public' } }; try { S = Objec
 S.set = Object.assign({ cb: false, tm: true, hl: true, th: 'auto' }, S.set);
 const sv = () => { try { localStorage.setItem('da2', JSON.stringify(S)) } catch (e) { } };
 /* S.uid = cuenta a la que pertenecen los datos de este navegador (null = invitado). */
-const R = g => (S.res[DAY] || {})[g], fin = (g, o) => { (S.res[DAY] = S.res[DAY] || {})[g] = o; sv(); Nube.guardarResultado(DAY, g, o) }, prog = g => (S.pr[DAY + g] = S.pr[DAY + g] || {});
+/* Semilla del puzle (SD): el reto de hoy o, en un duelo, la semilla de la ronda (la elige el servidor). Los juegos generan con SD, no con DAY.
+   DU = ronda de duelo en juego (ver js/duelo.js): mientras exista, R/prog/fin trabajan sobre un espacio aparte y NUNCA tocan tus resultados diarios ni tus rachas. */
+let SD = DAY, DU = null;
+const memoSD = gen => { let ok, k, v; return () => { if (!ok || k !== SD) { ok = 1; k = SD; v = gen() } return v } }; /* el puzle se regenera solo si cambia la semilla */
+const R = g => DU ? DU.res[g] : (S.res[DAY] || {})[g],
+   fin = (g, o) => { if (DU) return Duelo.fin(g, o); (S.res[DAY] = S.res[DAY] || {})[g] = o; sv(); Nube.guardarResultado(DAY, g, o) },
+   prog = g => DU ? (DU.pr[g] = DU.pr[g] || {}) : (S.pr[DAY + g] = S.pr[DAY + g] || {});
 const days = (r = S.res) => Object.keys(r).map(Number).filter(d => Object.keys(r[d]).length);
 function streak() { return runs(days()).cur }
 let V = 'home', msg = '', sel = null, hist = [];
@@ -33,14 +39,14 @@ const IC_CP = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" strok
    IC_SH = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>',
    IC_OK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const compBtn = (a, l) => `<button class="btn ib" data-a="${a}" aria-label="${l}" title="${l}">${CAN_SHARE ? IC_SH : IC_CP}</button>`;
-const res = (t, d, s) => `<section class="res rb"><h2>${t}</h2>${compBtn('copy', CAN_SHARE ? 'Compartir resultado' : 'Copiar resultado')}<p>${d}</p><div class="pw"><pre id="sh">${s}</pre></div></section>`;
+const res = (t, d, s) => DU ? Duelo.res(t) : `<section class="res rb"><h2>${t}</h2>${compBtn('copy', CAN_SHARE ? 'Compartir resultado' : 'Copiar resultado')}<p>${d}</p><div class="pw"><pre id="sh">${s}</pre></div></section>`;
 /* Instrucciones del juego (propiedad "how" al registrarlo). Abiertas la primera vez; después, plegadas. Se recuerda lo que el jugador abra o cierre. */
 const HW = {};
 const how = () => {
    const g = cur(); if (!g || !g.how) return ''; const o = HW[g.id] !== undefined ? HW[g.id] : !E(g.id).length;
    return `<details class="how" data-g="${g.id}"${o ? ' open' : ''}><summary>Cómo se juega</summary>${g.demo ? `<div class="dm">${g.demo}</div>` : ''}<ol>${g.how.map(t => `<li><span>${t}</span></li>`).join('')}</ol></details>`
 };
-const shell = (t, b) => `<div class="bar"><button class="bk" data-a="go" data-v="home">‹ Inicio</button><h1>${t}</h1></div><p class="sub" style="margin:0 0 8px">Reto nº ${DAY}</p>${how()}${b}`;
+const shell = (t, b) => DU ? Duelo.shell(t, b) : `<div class="bar"><button class="bk" data-a="go" data-v="home">‹ Inicio</button><h1>${t}</h1></div><p class="sub" style="margin:0 0 8px">Reto nº ${DAY}</p>${how()}${b}`;
 
 /* Fila de cifras para el perfil: kpi([[valor,etiqueta,detalle?],…]) */
 const kpi = a => `<div class="kp">${a.map(([v, l, x]) => `<div><b>${v}</b>${x ? `<i>${x}</i>` : ''}<span>${l}</span></div>`).join('')}</div>`;

@@ -7,6 +7,7 @@ const Content = (() => {
    const lineas = t => (t || '').split('\n').map(l => l.trim()).filter(l => l && l[0] != '#');
    const problemas = [], cache = {};
    let hoy = null; // reto de hoy traído del servidor (modo Supabase); si es null se usa la lista local
+   let duelo = null; // palabra/frase de la ronda de duelo en juego ({p, f, a}); la elige el servidor
    const idx = (d, n) => (((d - 1) % n) + n) % n;
    // Longitud recomendada de la frase según el día de la semana (0 = domingo)
    const rango = [[30, 50], [70, 100], [70, 100], [55, 80], [55, 80], [40, 60], [40, 60]];
@@ -44,8 +45,9 @@ const Content = (() => {
 
    return {
       setHoy: r => { hoy = r },
-      palabraDe: d => hoy && d == DAY ? hoy.p : palabras()[idx(d, palabras().length)],
-      fraseDe: d => hoy && d == DAY ? [hoy.f, hoy.a] : frases()[idx(d, frases().length)],
+      setDuelo: c => { duelo = c && c.p && c.f ? c : null },
+      palabraDe: d => duelo ? duelo.p : hoy && d == DAY ? hoy.p : palabras()[idx(d, palabras().length)],
+      fraseDe: d => duelo ? [duelo.f, duelo.a || ''] : hoy && d == DAY ? [hoy.f, hoy.a] : frases()[idx(d, frases().length)],
       aceptadas, palabras, frases, rango,
       problemas: () => { palabras(); frases(); aceptadas(); return problemas.slice() }
    }

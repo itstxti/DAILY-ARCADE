@@ -99,5 +99,14 @@ const Nube = (() => {
    N.bloquear = async u => { const { error } = await sb.rpc('bloquear_usuario', { u }); if (error) throw error };
    N.desbloquear = async u => { const { error } = await sb.rpc('desbloquear_usuario', { u }); if (error) throw error };
    N.bloqueados = async () => { const { data, error } = await sb.rpc('mis_bloqueados'); if (error) throw error; return data || [] };
+   /* ---------- Duelos (ver supabase/duelos.sql) ---------- */
+   const rpc = async (f, a) => { const { data, error } = await sb.rpc(f, a); if (error) throw error; return data };
+   N.misDuelos = () => rpc('mis_duelos');
+   N.estadoDuelo = did => rpc('duelo_estado', { did });
+   N.retar = u => rpc('duelo_retar', { u });
+   N.responderDuelo = (did, aceptar) => rpc('duelo_responder', { did, aceptar });
+   N.cancelarDuelo = did => rpc('duelo_cancelar', { did });
+   N.enviarDuelo = (did, rn, dat) => rpc('duelo_enviar', { did, rn, dat });
+   N.rendirse = did => rpc('duelo_rendirse', { did });
    return N
 })();
