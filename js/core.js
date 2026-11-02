@@ -25,8 +25,13 @@ const sv = () => { try { localStorage.setItem('da2', JSON.stringify(S)) } catch 
    DU = ronda de duelo en juego (ver js/duelo.js): mientras exista, R/prog/fin trabajan sobre un espacio aparte y NUNCA tocan tus resultados diarios ni tus rachas. */
 let SD = DAY, DU = null;
 const memoSD = gen => { let ok, k, v; return () => { if (!ok || k !== SD) { ok = 1; k = SD; v = gen() } return v } }; /* el puzle se regenera solo si cambia la semilla */
+/* El tablero final (progreso del juego) vive solo en este navegador: al cerrar sesión se borra y no se sube. Para poder volver a verlo al entrar de nuevo,
+   se guarda una copia dentro del resultado (o.pr). Si no cabe en el límite del servidor (4000), se omite y el resultado se guarda igual. */
+const snap = (g, o) => { const gm = GAMES.find(x => x.id == g), p = gm && gm.pk && S.pr[DAY + gm.pk]; if (!p) return; try { const t = JSON.stringify(p); if (t.length <= 3000) o.pr = JSON.parse(t) } catch (e) { } };
+/* Al entrar: si hoy hay un juego terminado sin progreso local (otro navegador, o se cerró sesión), recompone el tablero final desde el resultado. */
+const restaurar = () => GAMES.forEach(g => { const r = (S.res[DAY] || {})[g.id]; if (!r || !g.pk || S.pr[DAY + g.pk]) return; if (r.pr) S.pr[DAY + g.pk] = JSON.parse(JSON.stringify(r.pr)); else if (g.id == 'palabra' && r.g) S.pr[DAY + g.pk] = { g: r.g.slice() } }); /* palabra: los resultados antiguos ya guardaban los intentos */
 const R = g => DU ? DU.res[g] : (S.res[DAY] || {})[g],
-   fin = (g, o) => { if (DU) return Duelo.fin(g, o); (S.res[DAY] = S.res[DAY] || {})[g] = o; sv(); Nube.guardarResultado(DAY, g, o) },
+   fin = (g, o) => { if (DU) return Duelo.fin(g, o); snap(g, o); (S.res[DAY] = S.res[DAY] || {})[g] = o; sv(); Nube.guardarResultado(DAY, g, o) },
    prog = g => DU ? (DU.pr[g] = DU.pr[g] || {}) : (S.pr[DAY + g] = S.pr[DAY + g] || {});
 const days = (r = S.res) => Object.keys(r).map(Number).filter(d => Object.keys(r[d]).length);
 function streak() { return runs(days()).cur }

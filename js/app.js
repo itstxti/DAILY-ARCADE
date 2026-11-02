@@ -53,7 +53,7 @@ async function alEntrar() {
   sv();
   if (navigator.onLine) try { await Nube.sincronizar(S, DAY, IDS()) }
     catch (e) { console.warn('Sincronización fallida', e); msg = 'No se han podido sincronizar tus resultados con tu cuenta. Siguen guardados en este navegador y se reintentará.' }
-  sv()
+  restaurar(); sv()
 }
 async function cerrar(forzar) {
   if (!forzar) {
