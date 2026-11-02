@@ -22,13 +22,14 @@
         }
         let b = `<div class="bd2" style="grid-template-columns:repeat(${N},1fr)">${z}</div>`;
         if (r) b += res(`¡Completado en ${mmss(r.t)}!`, `Tablero de ${N}×${N}. Vuelve mañana para un reto nuevo.`, `Daily Arcade · Coronas #${DAY} · ${N}×${N} · ${mmss(r.t)}`);
-        else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}${controles({ undo: 1 })}<p class="msg">Toca una casilla: vacía → ✕ → corona.</p>`;
+        else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}${controles({ undo: 1, reiniciar: 1 })}<p class="msg">Toca una casilla: vacía → ✕ → corona.</p>`;
         return shell('Coronas', b)
     }
     function cell(i) {
         const p = prog('o'); if (R('coronas')) return; p.b = p.b && p.b.length == N * N ? p.b : Array(N * N).fill(0); p.t0 = p.t0 || Date.now(); hist.push(p.b.slice()); p.b[i] = (p.b[i] + 1) % 3;
         const c = conf(p.b); if (c.n == N && !c.bad.size) fin('coronas', { st: 'completed', t: Date.now() - p.t0, N }); sv(); draw()
     }
+    function reiniciar() { const p = prog('o'); if (R('coronas') || !p.b || !p.b.some(x => x)) return; hist.push(p.b.slice()); p.b = Array(N * N).fill(0); sv(); draw() }   // el tiempo no se reinicia; Deshacer lo recupera
     function undo() { const p = prog('o'); if (hist.length && !R('coronas')) { p.b = hist.pop(); sv(); draw() } }
 
     DailyArcade.register({
@@ -39,7 +40,7 @@
         winLabel: 'completadas',
         winStreak: false,        // no muestra "victorias seguidas" en el perfil
         render: coronas,
-        actions: { cell: b => cell(+b.dataset.i), undo },
+        actions: { cell: b => cell(+b.dataset.i), undo, reiniciar },
         status: (r, p) => r ? `Completada · ${mmss(r.t)}` : (p && (p.g && p.g.length || p.t0) ? 'En curso' : 'Sin jugar'),
         stats: (e, w) => w.length ? kpi([[mmss(Math.min(...w.map(x => x.t))), 'mejor tiempo'], [mmss(avg(w.map(x => x.t))), 'tiempo medio']]) : ''
     });

@@ -61,7 +61,7 @@
       }
       let b = `<div class="sd" role="group" aria-label="Tablero de sudoku de 6 por 6">${z}</div>`;
       if (r) b += res(`¡Resuelto en ${mmss(r.t)}!`, 'Tablero de 6×6. Vuelve mañana para un reto nuevo.', `Daily Arcade · Sudoku #${DAY} · 6×6 · ${mmss(r.t)}${r.c ? ' · ' + r.c + pl(r.c, ' comprobación', ' comprobaciones') : ''}`);
-      else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="msg" role="status">${msg}</p>${controles({ undo: 1, comprobar: 1 })}<div class="kb np"><div class="kr">${[1, 2, 3, 4, 5, 6].map(n => `<button class="k" data-a="k" data-k="${n}">${n}</button>`).join('')}<button class="k w" data-a="k" data-k="Del" aria-label="Borrar">⌫</button></div></div>`;
+      else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, comprobar: 1 })}<div class="kb np"><div class="kr">${[1, 2, 3, 4, 5, 6].map(n => `<button class="k" data-a="k" data-k="${n}">${n}</button>`).join('')}<button class="k w" data-a="k" data-k="Del" aria-label="Borrar">⌫</button></div></div>`;
       return shell('Sudoku mini', b)
    }
 
@@ -89,6 +89,14 @@
       p.g = hist.pop(); p.bad = []; msg = ''; sv(); draw()
    }
 
+   function reiniciar() {
+      const p = prog('s'); ini(p);
+      if (R('sudoku')) return;
+      const g = p.g.map((v, i) => P().giv[i] ? v : 0);
+      if (g.every((v, i) => v == p.g[i])) return;
+      hist.push(p.g.slice()); p.g = g; p.bad = []; msg = ''; sv(); draw()   // tiempo y comprobaciones siguen contando
+   }
+
    function chk() {
       const p = prog('s'); ini(p);
       if (R('sudoku')) return;
@@ -109,7 +117,7 @@
       digits: true,           // el teclado físico también envía los números 0-9
       render: sudoku,
       onKey: tecla,
-      actions: { sc, undo, comprobar: chk },
+      actions: { sc, undo, reiniciar, comprobar: chk },
       status: (r, p) => r ? `Resuelto · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar'),
       stats: (e, w) => w.length ? kpi([[mmss(Math.min(...w.map(x => x.t))), 'mejor tiempo'], [mmss(avg(w.map(x => x.t))), 'tiempo medio']]) : ''
    });

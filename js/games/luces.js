@@ -69,7 +69,7 @@
          h += res(`¡Todas apagadas en ${r.n} ${pl(r.n, 'pulsación', 'pulsaciones')}!`, ex <= 0 && !r.h ? `Es el mínimo posible (${r.par}). Tiempo: ${mmss(r.t)}.` : `El mínimo era ${r.par}${ex > 0 ? ` (${ex} de más)` : ''}. Tiempo: ${mmss(r.t)}.`,
             `Daily Arcade · Luces #${DAY} · ${r.n}/${r.par} pulsaciones${r.h ? ' · ' + r.h + pl(r.h, ' pista', ' pistas') : ''} · ${mmss(r.t)}`)
       }
-      else h += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="cap" style="text-align:center;margin:0">${on} ${pl(on, 'luz encendida', 'luces encendidas')} · ${p.n} ${pl(p.n, 'pulsación', 'pulsaciones')}</p><p class="msg" role="status">${msg}</p>${controles({ reiniciar: 1, pista: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Al reiniciar, las pulsaciones y el tiempo siguen contando.</p>`;
+      else h += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="cap" style="text-align:center;margin:0">${on} ${pl(on, 'luz encendida', 'luces encendidas')} · ${p.n} ${pl(p.n, 'pulsación', 'pulsaciones')}</p><p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, pista: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Al deshacer o reiniciar, las pulsaciones y el tiempo siguen contando.</p>`;
       return shell('Luces', h)
    }
 
@@ -80,6 +80,13 @@
       p.m.push(j); p.n++; p.pi = null; msg = '';
       if (!estado(p)) fin('luces', { st: 'completed', n: p.n, par: P().min, h: p.h || 0, t: Date.now() - p.t0 });
       sv(); draw()
+   }
+
+   /* Deshacer = volver a pulsar la última casilla: cuenta como una pulsación más (no se regala nada). */
+   function undo() {
+      const p = prog('l'); ini(p);
+      if (R('luces') || !p.m.length) return;
+      p.m.pop(); p.n++; p.pi = null; msg = ''; sv(); draw()
    }
 
    function reiniciar() {
@@ -107,7 +114,7 @@
       winLabel: 'completadas',
       winStreak: false,       // no se puede perder: solo se completa
       render: luces,
-      actions: { lz, reiniciar, pista },
+      actions: { lz, undo, reiniciar, pista },
       status: (r, p) => r ? `Completada · ${r.n}/${r.par} pulsaciones · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar'),
       stats: (e, w) => w.length ? kpi([[mmss(Math.min(...w.map(x => x.t))), 'mejor tiempo'], [w.filter(x => x.n == x.par && !x.h).length, 'en el mínimo'], [avg(w.map(x => x.n - x.par)).toFixed(1), 'pulsaciones de más']]) : ''
    });
