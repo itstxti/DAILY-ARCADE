@@ -50,10 +50,10 @@ const Duelo = (() => {
     if (D.noDisp || Date.now() < D.hasta) return;
     if (D.lista === null) { cargar(); return }
     const a = act(), t = Date.now() - D.ult, oculto = document.hidden;
-    const cada = D.dentro && a ? 1500 : a || enviadas().length ? 2000 : oculto ? 20000 : 6000;
+    const cada = D.dentro && a ? 1500 : D.dentro || a || enviadas().length ? 2000 : oculto ? 20000 : 6000;
     if (t >= cada) { if (D.dentro && a) consultar(a.id); else cargar() }
     if (DU && DU.env && Date.now() - D.envOk > 2000) enviar(); /* reintenta un resultado que no llegó */
-    sync(); parche()
+    sync(); parche(); pintaBanner()
   }
 
   /* Llama a esto cuando cambian los datos o pasa el tiempo: decide si hay que cambiar de pantalla. */
@@ -190,7 +190,8 @@ ${env.length ? `<section class="res pb"><h2>Esperando respuesta</h2>${env.map(d 
   let el = null;
   function pintaBanner() {
     if (!el) { el = document.createElement('div'); el.id = 'dub'; el.setAttribute('role', 'alert'); el.onclick = e => { const b = e.target.closest('[data-a]'); if (b) accion(b.dataset.a, b) }; document.body.appendChild(el) }
-    const rec = D.dentro ? [] : recibidas(), a = D.dentro || DU ? null : act();
+    const dd = D.dentro && mio(D.dentro), jugando = !!DU || !!(dd && dd.estado == 'en_curso');
+    const rec = jugando ? [] : recibidas(), a = D.dentro || DU ? null : act();
     const k = rec.map(d => d.id).join() + '|' + (a ? a.id : '');
     if (k == D.ban) return; D.ban = k;
     if (rec.length) {
@@ -204,7 +205,7 @@ ${env.length ? `<section class="res pb"><h2>Esperando respuesta</h2>${env.map(d 
   function parche() {
     const t = Date.now() + D.off, set = (id, v) => { const e = document.getElementById(id); if (e && e.textContent != v) e.textContent = v };
     document.querySelectorAll('[data-exp]').forEach(e => { const v = cd(+e.dataset.exp - t); if (e.textContent != v) e.textContent = v });
-    const d = D.dentro && mio(D.dentro); if (!d || d.estado != 'en_curso') { if (D.lista && (recibidas().length + enviadas().length) != document.querySelectorAll('#dub .dub, [data-a=du-can]').length) pintaBanner(); return }
+    const d = D.dentro && mio(D.dentro); if (!d || d.estado != 'en_curso') return
     const r = ult(d);
     set('duc', String(Math.max(0, Math.ceil((r.empieza - t) / 1000)))); set('dut', cd(r.limite - t));
     const w = document.getElementById('dur'); if (w) { const v = textoEspera(d); if (w.textContent != v) w.textContent = v }
