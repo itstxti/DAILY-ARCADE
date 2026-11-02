@@ -5,8 +5,9 @@
 --   1. Un jugador reta a un amigo (duelo_retar). La invitación caduca a los 5 minutos (cfg.invitacion).
 --   2. El rival acepta o rechaza (duelo_responder). Al aceptar empieza el duelo; el retador también puede cancelarla.
 --   3. Se juegan hasta 5 rondas, cada una con un juego distinto elegido al azar por el SERVIDOR (misma semilla para los dos).
---      Gana la ronda quien lo resuelve con menos intentos (Palabra, Escalera, Luces, Operaciones) o más rápido (el resto);
---      el tiempo sirve de desempate. Quien se rinde o no resuelve pierde la ronda. Si no resuelve ninguno, la ronda queda en tablas.
+--      Gana la ronda quien lo resuelve con mejor puntuación: en Palabra, menos intentos (y el tiempo desempata); en el resto,
+--      menos tiempo, con penalización en segundos por cada paso extra (Escalera, Luces, Operaciones) y por cada pista (ver duelo_peso y duelo_clave).
+--      Quien se rinde o no resuelve pierde la ronda. Si no resuelve ninguno, la ronda queda en tablas.
 --   4. Gana el duelo quien llega primero a 3 rondas (cfg.victorias), o quien tenga más tras 5 rondas.
 --   5. duelo_rendirse termina el duelo al instante. Si alguien no juega dos rondas seguidas se da por abandonado.
 --
@@ -15,7 +16,7 @@
 -- no puede declarar un tiempo muy inferior al real. Los intentos sí los declara el navegador (igual que el ranking),
 -- salvo en Palabra, donde el servidor comprueba la lista de intentos contra la palabra de la ronda.
 --
--- Si añades un juego nuevo, añádelo también a duelo_juegos() y, si se puntúa por intentos, a duelo_por_tiempo().
+-- Si añades un juego nuevo, añádelo también a duelo_juegos() y, si cuenta pasos, dale un peso en duelo_peso().
 
 -- ───── Parámetros (única fuente de verdad: el navegador los recibe en mis_duelos().cfg) ─────
 create or replace function duelo_cfg() returns jsonb language sql immutable as
@@ -32,9 +33,14 @@ $$;
 create or replace function duelo_juegos() returns text[] language sql immutable as
 $$ select array['palabra','cifra','coronas','sudoku','escalera','operaciones','camino','luces','tuberias','sopa'] $$;
 
--- Juegos que se puntúan por intentos (menos = mejor). El resto se puntúan por tiempo.
+-- Palabra se puntúa por intentos (menos = mejor) y el tiempo desempata. El resto se puntúan con UN solo número, un "tiempo equivalente"
+-- (tiempo + penalizaciones), y gana el menor. Que sea un tiempo permite cerrar la ronda en cuanto el rival ya no puede mejorarlo.
 create or replace function duelo_por_tiempo(jg text) returns boolean language sql immutable as
-$$ select jg <> all (array['palabra','escalera','luces','operaciones']) $$;
+$$ select jg <> 'palabra' $$;
+
+-- Segundos (en ms) que cuesta cada paso, pulsación u operación en los juegos que los cuentan. Más peso = importa más ser económico que rápido.
+create or replace function duelo_peso(jg text) returns bigint language sql immutable as
+$$ select case jg when 'escalera' then 10000 when 'luces' then 5000 when 'operaciones' then 10000 else 0 end $$;
 
 -- ───── Tablas ─────
 create table if not exists duelos(
@@ -95,11 +101,11 @@ end
 $$;
 
 -- Clave de comparación de un resultado: menor = mejor; null = no ha ganado la ronda (rendido, fallado o sin enviar).
---   clave = (intentos, 0 en los juegos por tiempo) * 1e9 + tiempo en ms (+ penalizaciones por pistas/comprobaciones).
+--   clave = (intentos solo en Palabra) * 1e9 + tiempo en ms + penalizaciones (pasos, pistas, comprobaciones).
 create or replace function duelo_clave(jg text, dat jsonb, ct jsonb, empieza timestamptz, fin timestamptz) returns bigint
 language plpgsql stable as
 $$
-declare st text; el bigint; t bigint; pri bigint := 0; pen bigint := 0; ult text;
+declare st text; el bigint; t bigint; pri bigint := 0; pen bigint := 0; ult text; n bigint;
 begin
   if dat is null or jsonb_typeof(dat) <> 'object' then return null; end if;
   st := dat->>'st';
@@ -115,9 +121,9 @@ begin
     if ult is distinct from ct->>'p' then return null; end if;
     pri := jsonb_array_length(dat->'g');
   elsif jg in ('escalera','luces','operaciones') then
-    -- En Luces cada pista cuenta como 2 pulsaciones más (en Escalera la pista ya suma un paso).
-    pri := case when duelo_num(dat, 'n') = 0 then 999
-                else least(duelo_num(dat, 'n') + case when jg = 'luces' then 2 * least(duelo_num(dat, 'h'), 20) else 0 end, 999) end;
+    -- Cada paso suma duelo_peso(); en Luces cada pista suma además 15 s (en Escalera la pista ya suma un paso).
+    n := case when duelo_num(dat, 'n') = 0 then 99 else least(duelo_num(dat, 'n'), 99) end;
+    pen := n * duelo_peso(jg) + case when jg = 'luces' then least(duelo_num(dat, 'h'), 20) * 15000 else 0 end;
   elsif jg = 'cifra' then
     pen := (100 - least(duelo_num(dat, 'sc'), 100)) * 1000;      -- cada pista o comprobación resta puntos: 1 punto = 1 s
   elsif jg = 'sopa' then
@@ -409,7 +415,7 @@ $$;
 -- ───── Permisos ─────
 revoke execute on function duelo_cfg(), duelo_juegos(), duelo_por_tiempo(text), duelo_ms(timestamptz), duelo_num(jsonb, text), duelo_candado(uuid, uuid),
   duelo_clave(text, jsonb, jsonb, timestamptz, timestamptz), duelo_nueva_ronda(uuid), duelo_cerrar_ronda(uuid), duelo_avanzar(uuid), duelo_barrer(uuid),
-  duelo_json(duelos, uuid) from public, anon, authenticated;
+  duelo_json(duelos, uuid), duelo_peso(text) from public, anon, authenticated;
 revoke execute on function duelo_retar(text), duelo_responder(uuid, boolean), duelo_cancelar(uuid), duelo_enviar(uuid, int, jsonb), duelo_rendirse(uuid),
   duelo_estado(uuid), mis_duelos() from public, anon;
 grant execute on function duelo_retar(text), duelo_responder(uuid, boolean), duelo_cancelar(uuid), duelo_enviar(uuid, int, jsonb), duelo_rendirse(uuid),

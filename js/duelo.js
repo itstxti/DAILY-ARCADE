@@ -104,11 +104,13 @@ const Duelo = (() => {
   /* ---------- Piezas de pantalla ---------- */
   const marcador = d => `<div class="dus"><span><b>Tú</b><i>${d.yo}</i></span><em>–</em><span><i>${d.ellos}</i><b>${nom(d.rival)}</b></span></div>`;
   const unidad = (j, n) => (POR_INTENTOS[j] || ['', ''])[n == 1 ? 0 : 1];
+  /* Lo que se enseña de un resultado: pasos, tiempo real y, si hay penalizaciones (pasos, pistas…), el total que cuenta para ganar. */
   function fmt(j, x, tt) {
     if (!x) return 'sin enviar';
     if (x.st != 'won' && x.st != 'completed') return 'no resuelto';
-    const n = j == 'palabra' ? (x.g || []).length : x.n;
-    return (POR_INTENTOS[j] ? `${n} ${unidad(j, n)} · ` : '') + mmss(tt || 0)
+    if (j == 'palabra') { const n = (x.g || []).length; return `${n} ${unidad(j, n)} · ${mmss(tt || 0)}` }
+    const real = mmss(x.t || 0), total = mmss(tt || 0), n = x.n;
+    return (POR_INTENTOS[j] && n ? `${n} ${unidad(j, n)} · ` : '') + (real == total ? real : `${real} · total ${total}`)
   }
   function ronda(r, d) {
     const q = nom(d.rival), v = r.ganador == 'yo' ? 'Ganaste' : r.ganador == 'rival' ? 'Ganó ' + q : 'Tablas';
@@ -171,7 +173,7 @@ ${d.rondas.length ? `<section class="res pb"><h2>Rondas</h2>${d.rondas.filter(r 
     const fila = (u, sub, acc) => `<div class="st"><span class="av">${esc(((u.nombre || u.usuario || '?')[0] || '?').toUpperCase())}</span><span style="flex:1;min-width:0"><b>${nom(u)}</b><small>${sub}</small></span>${acc}</div>`;
     const lab = d => d.estado == 'terminado' ? (d.ganador == 'yo' ? 'Ganaste' : d.ganador == 'rival' ? 'Perdiste' : 'Empate') + ` ${d.yo}–${d.ellos}` : { rechazado: d.soy == 'retador' ? 'Lo rechazó' : 'Rechazado', cancelado: 'Cancelado', expirado: 'Caducó' }[d.estado] || d.estado;
     return `<div class="bar"><button class="bk" data-a="go" data-v="amigos">‹ Amigos</button><h1>Duelos</h1></div>
-<p class="sub" style="margin:0 0 8px">${pasos({})}. Hasta 5 juegos al azar: gana la ronda quien lo resuelva con menos intentos o más rápido. Las invitaciones caducan a los ${Math.round((D.cfg.invitacion || 300) / 60)} minutos.</p>${M}
+<p class="sub" style="margin:0 0 8px">${pasos({})}. Hasta 5 juegos al azar: gana la ronda quien lo resuelva mejor, es decir, más rápido y con menos pasos o pistas (en Palabra, con menos intentos). Las invitaciones caducan a los ${Math.round((D.cfg.invitacion || 300) / 60)} minutos.</p>${M}
 ${a ? `<section class="res pb"><h2>En curso</h2>${fila(a.rival, `${a.yo}–${a.ellos} · ronda ${a.ronda}`, '<button class="btn pri" data-a="du-ir" data-id="' + a.id + '">Volver al duelo</button>')}</section>` : ''}
 ${rec.length ? `<section class="res pb"><h2>Te han retado</h2>${rec.map(d => fila(d.rival, `Caduca en <span data-exp="${d.expira}">${cd(d.expira - now())}</span>`, `<span class="row" style="margin:0;flex:none"><button class="btn pri" data-a="du-ok" data-id="${d.id}">Aceptar</button><button class="lnk" data-a="du-no" data-id="${d.id}">Rechazar</button></span>`)).join('')}</section>` : ''}
 ${env.length ? `<section class="res pb"><h2>Esperando respuesta</h2>${env.map(d => fila(d.rival, `Caduca en <span data-exp="${d.expira}">${cd(d.expira - now())}</span>`, `<button class="lnk" data-a="du-can" data-id="${d.id}">Cancelar</button>`)).join('')}</section>` : ''}
