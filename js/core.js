@@ -33,7 +33,7 @@ const IC_CP = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" strok
    IC_SH = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>',
    IC_OK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const compBtn = (a, l) => `<button class="btn ib" data-a="${a}" aria-label="${l}" title="${l}">${CAN_SHARE ? IC_SH : IC_CP}</button>`;
-const res = (t, d, s) => `<section class="res"><h2>${t}</h2><p>${d}</p><div class="pw"><pre id="sh">${s}</pre>${compBtn('copy', CAN_SHARE ? 'Compartir resultado' : 'Copiar resultado')}</div></section>`;
+const res = (t, d, s) => `<section class="res rb"><h2>${t}</h2>${compBtn('copy', CAN_SHARE ? 'Compartir resultado' : 'Copiar resultado')}<p>${d}</p><div class="pw"><pre id="sh">${s}</pre></div></section>`;
 /* Instrucciones del juego (propiedad "how" al registrarlo). Abiertas la primera vez; después, plegadas. Se recuerda lo que el jugador abra o cierre. */
 const HW = {};
 const how = () => {
