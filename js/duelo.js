@@ -6,7 +6,7 @@
    Fases de un duelo, vistas desde aquí:  cuenta (cuenta atrás) → juego → espera (ya enviaste, falta el rival) → cuenta … → fin.
    Mientras estás dentro (D.dentro), V = 'duelo' en las pantallas de cuenta atrás y resultado, y V = id del juego durante la ronda. */
 const Duelo = (() => {
-  const D = { lista: null, cfg: { invitacion: 300, rondas: 5, victorias: 3 }, off: 0, dentro: null, key: '', conf: false, cargando: false, ult: 0, envOk: 0, ban: '' };
+  const D = { lista: null, cfg: { invitacion: 300, rondas: 5, victorias: 3 }, off: 0, dentro: null, key: '', conf: false, cargando: false, ult: 0, envOk: 0, ban: '', fallos: 0, hasta: 0, noDisp: false };
   const now = () => Date.now() + D.off; /* hora del servidor */
   const POR_INTENTOS = { palabra: ['intento', 'intentos'], escalera: ['paso', 'pasos'], luces: ['pulsación', 'pulsaciones'], operaciones: ['operación', 'operaciones'] };
   const gj = id => GAMES.find(g => g.id == id);
@@ -26,21 +26,28 @@ const Duelo = (() => {
   function uno(d) { /* un duelo que llega suelto (enviar, rendirse, estado) sustituye al que teníamos */
     const l = D.lista || (D.lista = []), i = l.findIndex(x => x.id == d.id); if (i < 0) l.unshift(d); else l[i] = d; cambio()
   }
+  /* Si el servidor falla, esperamos más cada vez (hasta 30 s). Si ni siquiera existen las funciones (falta ejecutar duelos.sql), se desactiva todo en silencio. */
+  function fallo(e) {
+    D.fallos++; D.hasta = Date.now() + Math.min(30000, 1000 * 2 ** D.fallos);
+    if (e && (e.code == 'PGRST202' || e.code == '42883')) { D.noDisp = true; console.info('Duelos desactivados: falta ejecutar supabase/duelos.sql en Supabase.'); if (['home', 'amigos', 'duelos', 'duelo'].includes(V)) { if (V.startsWith('duelo')) V = 'home'; draw() } } else console.warn('duelos', e)
+  }
+  const bien = () => { D.fallos = 0; D.hasta = 0 };
   function cargar() {
-    if (D.cargando || !Nube.user || !navigator.onLine) return Promise.resolve();
+    if (D.cargando || D.noDisp || !Nube.user || !navigator.onLine) return Promise.resolve();
     D.cargando = true;
-    return Nube.misDuelos().then(lista).catch(e => console.warn('duelos', e)).then(() => { D.cargando = false })
+    return Nube.misDuelos().then(r => { bien(); lista(r) }).catch(fallo).then(() => { D.cargando = false })
   }
   function consultar(id) { /* consulta ligera de un duelo en juego */
     if (D.cargando || !navigator.onLine) return Promise.resolve();
     D.cargando = true;
-    return Nube.estadoDuelo(id).then(r => { D.off = r.ahora - Date.now(); D.ult = Date.now(); uno(r.duelo) }).catch(e => console.warn('duelo', e)).then(() => { D.cargando = false })
+    return Nube.estadoDuelo(id).then(r => { bien(); D.off = r.ahora - Date.now(); D.ult = Date.now(); uno(r.duelo) }).catch(fallo).then(() => { D.cargando = false })
   }
   function reset() { if (DU) salirRonda(); D.lista = null; D.dentro = null; D.key = ''; D.conf = false; pintaBanner() }
 
   /* ---------- Bucle: consulta al servidor y detecta cambios de fase ---------- */
   function bucle() {
     if (!Nube.user) { if (D.lista || D.dentro) reset(); return }
+    if (D.noDisp || Date.now() < D.hasta) return;
     if (D.lista === null) { cargar(); return }
     const a = act(), t = Date.now() - D.ult, oculto = document.hidden;
     const cada = D.dentro && a ? 1500 : a || enviadas().length ? 2000 : oculto ? 20000 : 6000;
@@ -232,5 +239,5 @@ ${env.length ? `<section class="res pb"><h2>Esperando respuesta</h2>${env.map(d 
   function abrir() { cargar().then(() => { if (V == 'duelos') draw() }); if (AM === null && Nube.user) cargarAmigos() }
   function init() { setInterval(bucle, 500); addEventListener('visibilitychange', () => { if (!document.hidden) D.ult = 0 }); addEventListener('online', () => { D.ult = 0 }) }
 
-  return { init, vista, shell, res, fin, accion, abrir, badge, reset, ocupado: () => !!(DU || D.dentro), cargar }
+  return { disponible: () => !D.noDisp, init, vista, shell, res, fin, accion, abrir, badge, reset, ocupado: () => !!(DU || D.dentro), cargar }
 })();

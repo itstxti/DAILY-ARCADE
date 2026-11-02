@@ -412,3 +412,6 @@ revoke execute on function duelo_retar(text), duelo_responder(uuid, boolean), du
   duelo_estado(uuid), mis_duelos() from public, anon;
 grant execute on function duelo_retar(text), duelo_responder(uuid, boolean), duelo_cancelar(uuid), duelo_enviar(uuid, int, jsonb), duelo_rendirse(uuid),
   duelo_estado(uuid), mis_duelos() to authenticated;
+
+-- Que la API REST de Supabase vea las funciones nuevas sin esperar.
+notify pgrst, 'reload schema';
