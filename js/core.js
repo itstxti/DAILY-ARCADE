@@ -53,6 +53,20 @@ const how = () => {
 };
 const shell = (t, b) => DU ? Duelo.shell(t, b) : `<div class="bar"><button class="bk" data-a="go" data-v="home">‹ Inicio</button><h1>${t}</h1></div><p class="sub" style="margin:0 0 8px">Reto nº ${DAY}</p>${how()}${b}`;
 
+/* Barra de controles común a todos los juegos: Deshacer · Reiniciar · Comprobar · Pista · Rendirme.
+   controles({undo:1, reiniciar:1, comprobar:'(−4)', pista:'(−12)', rendirme:1}) — cada juego pide solo los que tienen sentido,
+   siempre en este orden y con estos nombres de acción: undo, reiniciar, comprobar, pista, rendirme.
+   Un valor de texto se pinta como coste junto a la etiqueta. "Rendirme" pide confirmación con un segundo toque (confirma(fn)),
+   y en un duelo se llama «Abandonar ronda» (solo pierde esa ronda; rendirse del duelo está en la cabecera). */
+let CFT = 0;
+const confirma = fn => () => { if (CFT) { clearTimeout(CFT); CFT = 0; fn() } else { CFT = setTimeout(() => { CFT = 0; draw() }, 3000); draw() } };
+const controles = o => {
+   const b = (a, t, c, x = '') => `<button class="btn${x}" data-a="${a}">${t}${typeof c == 'string' ? ' ' + c : ''}</button>`;
+   return `<div class="row ctl">${o.undo ? b('undo', 'Deshacer') : ''}${o.reiniciar ? b('reiniciar', 'Reiniciar') : ''}${o.comprobar ? b('comprobar', 'Comprobar', o.comprobar) : ''}${o.pista ? b('pista', 'Pista', o.pista) : ''}${o.rendirme ? (CFT ? b('rendirme', '¿Seguro? Sí', '', ' dg') : b('rendirme', DU ? 'Abandonar ronda' : 'Rendirme')) : ''}</div>`
+};
+/* Tarjeta de resultado de una partida rendida (igual en todos los juegos). */
+const resRendida = (nombre, detalle) => res('Rendida', detalle || 'Vuelve mañana para un reto nuevo.', `Daily Arcade · ${nombre} #${DAY} · rendida`);
+
 /* Fila de cifras para el perfil: kpi([[valor,etiqueta,detalle?],…]) */
 const kpi = a => `<div class="kp">${a.map(([v, l, x]) => `<div><b>${v}</b>${x ? `<i>${x}</i>` : ''}<span>${l}</span></div>`).join('')}</div>`;
 const E = (g, r = S.res) => Object.entries(r).filter(([d, o]) => o[g]).map(([d, o]) => ({ d: +d, ...o[g] }));
