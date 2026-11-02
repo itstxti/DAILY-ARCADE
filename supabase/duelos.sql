@@ -115,7 +115,9 @@ begin
     if ult is distinct from ct->>'p' then return null; end if;
     pri := jsonb_array_length(dat->'g');
   elsif jg in ('escalera','luces','operaciones') then
-    pri := case when duelo_num(dat, 'n') = 0 then 999 else least(duelo_num(dat, 'n'), 999) end;
+    -- En Luces cada pista cuenta como 2 pulsaciones más (en Escalera la pista ya suma un paso).
+    pri := case when duelo_num(dat, 'n') = 0 then 999
+                else least(duelo_num(dat, 'n') + case when jg = 'luces' then 2 * least(duelo_num(dat, 'h'), 20) else 0 end, 999) end;
   elsif jg = 'cifra' then
     pen := (100 - least(duelo_num(dat, 'sc'), 100)) * 1000;      -- cada pista o comprobación resta puntos: 1 punto = 1 s
   elsif jg = 'sopa' then
