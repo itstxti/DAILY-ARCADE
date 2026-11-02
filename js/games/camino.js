@@ -92,7 +92,7 @@
       const p = prog('cm'); ini(p); const r = R('camino'), Z = P();
       let b = `<div id="cmb" class="cm" data-b="camino" style="${r ? '' : 'touch-action:none;'}max-width:372px;margin:12px auto;border:3px solid var(--ink);border-radius:var(--r-md);overflow:hidden;user-select:none;-webkit-user-select:none">${svgTablero(p.c, !!r)}</div>`;
       if (r) b += res(`¡Camino completado en ${mmss(r.t)}!`, 'Pasaste por las 36 casillas y por todos los números en orden. Vuelve mañana para un reto nuevo.', `Daily Arcade · Camino #${DAY} · 6×6 · ${mmss(r.t)}`);
-      else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="cap" id="cmc" style="text-align:center;margin:0">${p.c.length} / ${T} casillas</p><p class="msg" id="cmm" role="status">${msg}</p><div class="row" style="justify-content:center"><button class="btn" data-a="undo">Deshacer</button><button class="btn" data-a="reiniciar">Reiniciar</button></div><p class="foot" style="margin-top:8px;text-align:center">Arrastra desde el 1 (o toca casillas contiguas). También puedes usar las flechas.</p>`;
+      else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="cap" id="cmc" style="text-align:center;margin:0">${p.c.length} / ${T} casillas</p><p class="msg" id="cmm" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Arrastra desde el 1 (o toca casillas contiguas). También puedes usar las flechas.</p>`;
       return shell('Camino', b)
    }
 

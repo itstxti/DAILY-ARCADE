@@ -22,7 +22,7 @@
         }
         let b = `<div class="bd2" style="grid-template-columns:repeat(${N},1fr)">${z}</div>`;
         if (r) b += res(`¡Completado en ${mmss(r.t)}!`, `Tablero de ${N}×${N}. Vuelve mañana para un reto nuevo.`, `Daily Arcade · Coronas #${DAY} · ${N}×${N} · ${mmss(r.t)}`);
-        else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<div class="row" style="justify-content:center"><button class="btn" data-a="undo">Deshacer</button></div><p class="msg">Toca una casilla: vacía → ✕ → corona.</p>`;
+        else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}${controles({ undo: 1 })}<p class="msg">Toca una casilla: vacía → ✕ → corona.</p>`;
         return shell('Coronas', b)
     }
     function cell(i) {
