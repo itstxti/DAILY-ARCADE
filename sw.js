@@ -3,7 +3,7 @@
    - Librería de Supabase y tipografías: se guardan la primera vez y se reutilizan.
    - Todo lo demás (la API de Supabase, POST…) pasa directo a la red y nunca se guarda.
    Al cambiar la lista de archivos, sube el número de V para limpiar copias antiguas. */
-const V = 'da-v7';
+const V = 'da-v9';
 const SHELL = ['./', 'index.html', 'css/styles.css', 'js/config.js', 'js/core.js', 'js/nube.js', 'js/content.js', 'content/aceptadas.js',
    'js/games/palabra.js', 'js/games/cifra.js', 'js/games/coronas.js', 'js/games/sudoku.js', 'js/games/escalera.js', 'js/games/operaciones.js',
    'js/games/camino.js', 'js/games/luces.js', 'js/games/tuberias.js', 'js/games/sopa.js', 'js/duelo.js', 'js/app.js',

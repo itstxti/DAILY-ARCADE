@@ -5,8 +5,9 @@
 --   1. Un jugador reta a un amigo (duelo_retar). La invitación caduca a los 5 minutos (cfg.invitacion).
 --   2. El rival acepta o rechaza (duelo_responder). Al aceptar empieza el duelo; el retador también puede cancelarla.
 --   3. Se juegan hasta 5 rondas, cada una con un juego distinto elegido al azar por el SERVIDOR (misma semilla para los dos).
---      Gana la ronda quien lo resuelve con menos intentos (Palabra, Escalera, Luces, Operaciones) o más rápido (el resto);
---      el tiempo sirve de desempate. Quien se rinde o no resuelve pierde la ronda. Si no resuelve ninguno, la ronda queda en tablas.
+--      Gana la ronda quien lo resuelve con mejor puntuación: en Palabra, menos intentos (y el tiempo desempata); en el resto,
+--      menos tiempo, con penalización en segundos por cada paso extra (Escalera, Luces, Operaciones) y por cada pista (ver duelo_peso y duelo_clave).
+--      Quien se rinde o no resuelve pierde la ronda. Si no resuelve ninguno, la ronda queda en tablas.
 --   4. Gana el duelo quien llega primero a 3 rondas (cfg.victorias), o quien tenga más tras 5 rondas.
 --   5. duelo_rendirse termina el duelo al instante. Si alguien no juega dos rondas seguidas se da por abandonado.
 --
@@ -15,7 +16,7 @@
 -- no puede declarar un tiempo muy inferior al real. Los intentos sí los declara el navegador (igual que el ranking),
 -- salvo en Palabra, donde el servidor comprueba la lista de intentos contra la palabra de la ronda.
 --
--- Si añades un juego nuevo, añádelo también a duelo_juegos() y, si se puntúa por intentos, a duelo_por_tiempo().
+-- Si añades un juego nuevo, añádelo también a duelo_juegos() y, si cuenta pasos, dale un peso en duelo_peso().
 
 -- ───── Parámetros (única fuente de verdad: el navegador los recibe en mis_duelos().cfg) ─────
 create or replace function duelo_cfg() returns jsonb language sql immutable as
@@ -32,9 +33,14 @@ $$;
 create or replace function duelo_juegos() returns text[] language sql immutable as
 $$ select array['palabra','cifra','coronas','sudoku','escalera','operaciones','camino','luces','tuberias','sopa'] $$;
 
--- Juegos que se puntúan por intentos (menos = mejor). El resto se puntúan por tiempo.
+-- Palabra se puntúa por intentos (menos = mejor) y el tiempo desempata. El resto se puntúan con UN solo número, un "tiempo equivalente"
+-- (tiempo + penalizaciones), y gana el menor. Que sea un tiempo permite cerrar la ronda en cuanto el rival ya no puede mejorarlo.
 create or replace function duelo_por_tiempo(jg text) returns boolean language sql immutable as
-$$ select jg <> all (array['palabra','escalera','luces','operaciones']) $$;
+$$ select jg <> 'palabra' $$;
+
+-- Segundos (en ms) que cuesta cada paso, pulsación u operación en los juegos que los cuentan. Más peso = importa más ser económico que rápido.
+create or replace function duelo_peso(jg text) returns bigint language sql immutable as
+$$ select case jg when 'escalera' then 10000 when 'luces' then 5000 when 'operaciones' then 10000 else 0 end $$;
 
 -- ───── Tablas ─────
 create table if not exists duelos(
@@ -95,11 +101,11 @@ end
 $$;
 
 -- Clave de comparación de un resultado: menor = mejor; null = no ha ganado la ronda (rendido, fallado o sin enviar).
---   clave = (intentos, 0 en los juegos por tiempo) * 1e9 + tiempo en ms (+ penalizaciones por pistas/comprobaciones).
+--   clave = (intentos solo en Palabra) * 1e9 + tiempo en ms + penalizaciones (pasos, pistas, comprobaciones).
 create or replace function duelo_clave(jg text, dat jsonb, ct jsonb, empieza timestamptz, fin timestamptz) returns bigint
 language plpgsql stable as
 $$
-declare st text; el bigint; t bigint; pri bigint := 0; pen bigint := 0; ult text;
+declare st text; el bigint; t bigint; pri bigint := 0; pen bigint := 0; ult text; n bigint;
 begin
   if dat is null or jsonb_typeof(dat) <> 'object' then return null; end if;
   st := dat->>'st';
@@ -115,7 +121,9 @@ begin
     if ult is distinct from ct->>'p' then return null; end if;
     pri := jsonb_array_length(dat->'g');
   elsif jg in ('escalera','luces','operaciones') then
-    pri := case when duelo_num(dat, 'n') = 0 then 999 else least(duelo_num(dat, 'n'), 999) end;
+    -- Cada paso suma duelo_peso(); en Luces cada pista suma además 15 s (en Escalera la pista ya suma un paso).
+    n := case when duelo_num(dat, 'n') = 0 then 99 else least(duelo_num(dat, 'n'), 99) end;
+    pen := n * duelo_peso(jg) + case when jg = 'luces' then least(duelo_num(dat, 'h'), 20) * 15000 else 0 end;
   elsif jg = 'cifra' then
     pen := (100 - least(duelo_num(dat, 'sc'), 100)) * 1000;      -- cada pista o comprobación resta puntos: 1 punto = 1 s
   elsif jg = 'sopa' then
@@ -125,8 +133,8 @@ begin
 end
 $$;
 
--- Crea la siguiente ronda: juego distinto a los ya jugados, semilla al azar y contenido de un reto YA PASADO
--- (así no se desvela ningún reto diario futuro; si todavía no hay pasados, se usa cualquiera hasta hoy).
+-- Crea la siguiente ronda: juego distinto a los ya jugados, semilla al azar y palabra/frase de la lista propia de los duelos
+-- (así nadie conoce ya la solución por haber jugado un reto diario, ni se desvela ningún reto futuro).
 create or replace function duelo_nueva_ronda(did uuid) returns void
 language plpgsql set search_path = public as
 $$
@@ -135,7 +143,11 @@ begin
   select * into d from duelos where id = did;
   ini := clock_timestamp() + make_interval(secs => (case when d.ronda = 0 then cfg->>'inicio' else cfg->>'pausa' end)::int);
   select j into jg from unnest(duelo_juegos()) j where j not in (select juego from duelo_rondas where duelo = did) order by random() limit 1;
-  select jsonb_build_object('p', palabra, 'f', frase, 'a', autor) into ct from retos where dia < reto_hoy() order by random() limit 1;
+  -- Palabra y frase de la lista propia de los duelos (más abajo), distinta de la de los retos diarios.
+  select jsonb_build_object('p', p.palabra, 'f', f.frase, 'a', f.autor) into ct
+    from (select palabra from duelo_palabras order by random() limit 1) p, (select frase, autor from duelo_frases order by random() limit 1) f;
+  -- Si esas listas estuvieran vacías, se usa un reto ya pasado (y, si aún no hay, cualquiera hasta hoy).
+  if ct is null then select jsonb_build_object('p', palabra, 'f', frase, 'a', autor) into ct from retos where dia < reto_hoy() order by random() limit 1; end if;
   if ct is null then select jsonb_build_object('p', palabra, 'f', frase, 'a', autor) into ct from retos where dia <= reto_hoy() order by random() limit 1; end if;
   update duelos set ronda = d.ronda + 1 where id = did;
   insert into duelo_rondas(duelo, n, juego, semilla, contenido, empieza, limite)
@@ -404,10 +416,162 @@ begin
 end
 $$;
 
+-- ───── Contenido propio de los duelos ─────
+-- Palabras y frases SOLO para duelos, distintas de las de los retos diarios: así nadie se ha topado ya con la solución al jugar el reto de un día.
+-- Cada ronda de Palabra, Cifrado y Sopa elige una al azar. Puedes añadir más (mismas reglas que retos: palabra de 5 letras sin tildes, frase de 25 a 110 caracteres).
+create table if not exists duelo_palabras(palabra text primary key check (palabra ~ '^[a-zñ]{5}$'));
+create table if not exists duelo_frases(
+  frase text primary key check (length(frase) between 25 and 110),
+  autor text not null default 'Refrán popular'
+);
+alter table duelo_palabras enable row level security;
+alter table duelo_frases enable row level security;
+revoke all on duelo_palabras, duelo_frases from anon, authenticated;
+
+insert into duelo_palabras(palabra) values
+('nubes'),
+('coser'),
+('creer'),
+('deber'),
+('dedos'),
+('falda'),
+('globo'),
+('hojas'),
+('lagos'),
+('listo'),
+('lobos'),
+('manos'),
+('mares'),
+('mesas'),
+('moler'),
+('monos'),
+('notas'),
+('obras'),
+('ondas'),
+('panes'),
+('papel'),
+('paseo'),
+('pelos'),
+('picar'),
+('poeta'),
+('preso'),
+('primo'),
+('rayos'),
+('recto'),
+('redes'),
+('renta'),
+('rocas'),
+('ropas'),
+('rosas'),
+('saber'),
+('salud'),
+('sedas'),
+('sonar'),
+('sopas'),
+('tacos'),
+('tapas'),
+('temas'),
+('tocar'),
+('todos'),
+('trago'),
+('unida'),
+('urnas'),
+('vacas'),
+('vasos'),
+('veces'),
+('vejez'),
+('velas'),
+('vidas'),
+('votar'),
+('zonas'),
+('astro'),
+('autor'),
+('besos'),
+('cesta'),
+('citas'),
+('copas'),
+('dados'),
+('datos'),
+('droga')
+on conflict do nothing;
+
+insert into duelo_frases(frase, autor) values
+('El que a buen árbol se arrima, buena sombra le cobija','Refrán popular'),
+('Quien mucho abarca poco aprieta','Refrán popular'),
+('Antes que te cases, mira lo que haces','Refrán popular'),
+('Donde hay patrón no manda marinero','Refrán popular'),
+('Tanto va el cántaro a la fuente que al final se rompe','Refrán popular'),
+('Con paciencia y calma se sube una palma','Refrán popular'),
+('Mientras hay vida hay esperanza','Refrán popular'),
+('Haz bien y no mires a quién','Refrán popular'),
+('Caminante, no hay camino, se hace camino al andar','Antonio Machado'),
+('Quien hace un cesto hace ciento','Refrán popular'),
+('No se ganó Zamora en una hora','Refrán popular'),
+('El pez grande se come al chico','Refrán popular'),
+('Primero es la obligación que la devoción','Refrán popular'),
+('Cada cual sabe dónde le aprieta el zapato','Refrán popular'),
+('Es de sabios cambiar de opinión','Refrán popular'),
+('Quien a hierro mata, a hierro muere','Refrán popular'),
+('El que ríe el último ríe mejor','Refrán popular'),
+('A mal viento, buena barca','Refrán popular'),
+('Más vale una vez colorado que ciento amarillo','Refrán popular'),
+('Perro que ladra no muerde','Refrán popular'),
+('Dios los cría y ellos se juntan','Refrán popular'),
+('Los árboles no dejan ver el bosque','Refrán popular'),
+('Cada uno es hijo de sus obras','Refrán popular'),
+('Quien con lobos anda, a aullar se enseña','Refrán popular'),
+('Más vale ser cabeza de ratón que cola de león','Refrán popular'),
+('Quien da pan a perro ajeno pierde el pan y pierde el perro','Refrán popular'),
+('Es mejor prevenir que lamentar','Refrán popular'),
+('Los amigos de verdad se ven en la dificultad','Refrán popular'),
+('Siempre hay un roto para un descosido','Refrán popular'),
+('Las penas con pan son menos','Refrán popular'),
+('Con la verdad no te ofendo ni te engaño','Refrán popular'),
+('La mejor palabra es la que no se dice','Refrán popular'),
+('Al que madruga, Dios le ayuda','Refrán popular'),
+('Cuando el diablo no tiene qué hacer, con el rabo mata moscas','Refrán popular'),
+('Dos que duermen en un colchón se vuelven de la misma opinión','Refrán popular'),
+('El que mal anda, mal acaba','Refrán popular'),
+('Hasta el mejor escribano echa un borrón','Refrán popular'),
+('A quien Dios no le da hijos, el diablo le da sobrinos','Refrán popular'),
+('Cada gallo canta en su gallinero','Refrán popular'),
+('Del árbol caído todos hacen leña','Refrán popular'),
+('No hay mal que cien años dure ni cuerpo que lo resista','Refrán popular'),
+('La letra con sangre entra','Refrán popular'),
+('Quien no oye consejo no llega a viejo','Refrán popular'),
+('Nadie sabe lo que tiene hasta que lo pierde','Refrán popular'),
+('Quien no se aventura no pasa la mar','Refrán popular'),
+('El que tiene boca se equivoca','Refrán popular'),
+('Ande o no ande, caballo grande','Refrán popular'),
+('A donde fueres, haz lo que vieres','Refrán popular'),
+('Obra empezada, medio acabada','Refrán popular'),
+('Más vale llegar a tiempo que rondar un año','Refrán popular'),
+('Casa con dos puertas, mala es de guardar','Refrán popular'),
+('El que mucho duerme poco aprende','Refrán popular'),
+('Ojo por ojo, diente por diente','Refrán popular'),
+('Siempre llueve sobre mojado','Refrán popular'),
+('Hombre prevenido vale por dos','Refrán popular'),
+('Las cuentas claras y el chocolate espeso','Refrán popular'),
+('En el país de los ciegos, el tuerto es el rey','Refrán popular'),
+('Que cada palo aguante su vela','Refrán popular'),
+('De músico, poeta y loco, todos tenemos un poco','Refrán popular'),
+('Quien con niños se acuesta, mojado se levanta','Refrán popular'),
+('Cuando las barbas de tu vecino veas cortar, pon las tuyas a remojar','Refrán popular'),
+('Vísteme despacio, que tengo prisa','Refrán popular'),
+('Ni contigo ni sin ti tienen mis males remedio','Refrán popular'),
+('Antes se coge al mentiroso que al cojo','Refrán popular'),
+('Una cosa es predicar y otra dar trigo','Refrán popular'),
+('Las desgracias nunca vienen solas','Refrán popular'),
+('Quien no tiene cabeza, tiene que tener piernas','Refrán popular'),
+('Muerto el perro, se acabó la rabia','Refrán popular'),
+('No eches margaritas a los cerdos','Refrán popular'),
+('Después de la tempestad viene la calma','Refrán popular')
+on conflict do nothing;
+
 -- ───── Permisos ─────
 revoke execute on function duelo_cfg(), duelo_juegos(), duelo_por_tiempo(text), duelo_ms(timestamptz), duelo_num(jsonb, text), duelo_candado(uuid, uuid),
   duelo_clave(text, jsonb, jsonb, timestamptz, timestamptz), duelo_nueva_ronda(uuid), duelo_cerrar_ronda(uuid), duelo_avanzar(uuid), duelo_barrer(uuid),
-  duelo_json(duelos, uuid) from public, anon, authenticated;
+  duelo_json(duelos, uuid), duelo_peso(text) from public, anon, authenticated;
 revoke execute on function duelo_retar(text), duelo_responder(uuid, boolean), duelo_cancelar(uuid), duelo_enviar(uuid, int, jsonb), duelo_rendirse(uuid),
   duelo_estado(uuid), mis_duelos() from public, anon;
 grant execute on function duelo_retar(text), duelo_responder(uuid, boolean), duelo_cancelar(uuid), duelo_enviar(uuid, int, jsonb), duelo_rendirse(uuid),
