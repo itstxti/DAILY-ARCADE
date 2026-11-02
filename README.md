@@ -68,5 +68,5 @@ Si cambias el día de lanzamiento, cambia a la vez `EPOCH` en `js/core.js` y la 
   1. Copia `js/games/_plantilla.js` a `js/games/tu-juego.js` y rellénalo.
   2. Añade su `<script>` en `index.html` (el orden es el del inicio).
   3. Añádelo a la lista `SHELL` de `sw.js` y sube el número de `V`.
-  4. Con Supabase, ejecuta una migración que dé de alta el juego (ejemplo: `migracion-07-juegos-nuevos.sql`).
+  4. Con Supabase, ejecuta una migración que dé de alta el juego (ejemplo: `juegos-nuevos.sql`).
 - **Sin conexión:** si añades o quitas archivos de la web, actualiza `SHELL` y `V` en `sw.js`.
