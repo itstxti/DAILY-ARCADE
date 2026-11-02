@@ -16,6 +16,7 @@
      sv()  draw()   guardar estado / volver a pintar la pantalla
      shell(titulo,html)  cabecera con botón de volver + nº de reto
      res(titulo,texto,textoParaCompartir)  tarjeta de resultado con botón "Copiar resultado"
+     controles({undo,reiniciar,comprobar,pista,rendirme})  barra de botones común (acciones undo, reiniciar, comprobar, pista, rendirme: confirma(fn)); resRendida(nombre) para la tarjeta de partida rendida (st:'lost')
      kb(estado,enter)    teclado en pantalla (botones data-a="k") — solo si usas onKey
      mmss(ms)  avg(array)  utilidades
    Botones: cualquier elemento con data-a="nombre" llama a actions.nombre(elemento).
