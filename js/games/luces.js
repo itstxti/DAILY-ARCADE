@@ -64,12 +64,13 @@
          z += `<button class="lz${e ? ' on' : ''}${!r && p.pi === i ? ' pista' : ''}" data-a="lz" data-i="${i}"${r ? ' disabled' : ''} aria-pressed="${!!e}" aria-label="Fila ${y + 1}, columna ${x + 1}, ${e ? 'encendida' : 'apagada'}"></button>`
       }
       let h = `<div class="lzb" role="group" aria-label="Tablero de luces de 5 por 5">${z}</div>`;
-      if (r) {
+      if (r && r.st == 'lost') h += resRendida('Luces');
+      else if (r) {
          const ex = r.n - r.par;
          h += res(`¡Todas apagadas en ${r.n} ${pl(r.n, 'pulsación', 'pulsaciones')}!`, ex <= 0 && !r.h ? `Es el mínimo posible (${r.par}). Tiempo: ${mmss(r.t)}.` : `El mínimo era ${r.par}${ex > 0 ? ` (${ex} de más)` : ''}. Tiempo: ${mmss(r.t)}.`,
             `Daily Arcade · Luces #${DAY} · ${r.n}/${r.par} pulsaciones${r.h ? ' · ' + r.h + pl(r.h, ' pista', ' pistas') : ''} · ${mmss(r.t)}`)
       }
-      else h += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="cap" style="text-align:center;margin:0">${on} ${pl(on, 'luz encendida', 'luces encendidas')} · ${p.n} ${pl(p.n, 'pulsación', 'pulsaciones')}</p><p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, pista: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Al deshacer o reiniciar, las pulsaciones y el tiempo siguen contando.</p>`;
+      else h += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="cap" style="text-align:center;margin:0">${on} ${pl(on, 'luz encendida', 'luces encendidas')} · ${p.n} ${pl(p.n, 'pulsación', 'pulsaciones')}</p><p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, pista: 1, rendirme: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Al deshacer o reiniciar, las pulsaciones y el tiempo siguen contando.</p>`;
       return shell('Luces', h)
    }
 
@@ -106,6 +107,11 @@
       sv(); draw()
    }
 
+   function rendirse() {
+      if (R('luces')) return;
+      const p = prog('l'); fin('luces', { st: 'lost', t: Date.now() - (p.t0 || Date.now()) }); sv(); draw()
+   }
+
    DailyArcade.register({
       id: 'luces', name: 'Luces', desc: 'Apaga todas las luces con las menos pulsaciones posibles.', color: '--lime', icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17v-1.2c0-1-.5-1.6-1.3-2.4A6 6 0 1 1 16.3 13.4c-.8.8-1.3 1.4-1.3 2.4V17z"/><path d="M10 20.5h4"/></svg>',
       how: ["Apaga <b>todas las luces</b> del tablero.", "Al pulsar una casilla se invierten <b>ella y sus vecinas</b> (arriba, abajo, izquierda y derecha).", "Cuenta cada pulsación: intenta acercarte al <b>mínimo</b>. Pulsar dos veces la misma casilla la deja como estaba."],
@@ -114,8 +120,8 @@
       winLabel: 'completadas',
       winStreak: false,       // no se puede perder: solo se completa
       render: luces,
-      actions: { lz, undo, reiniciar, pista },
-      status: (r, p) => r ? `Completada · ${r.n}/${r.par} pulsaciones · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar'),
+      actions: { lz, undo, reiniciar, pista, rendirme: confirma(rendirse) },
+      status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Completada · ${r.n}/${r.par} pulsaciones · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar'),
       stats: (e, w) => w.length ? kpi([[mmss(Math.min(...w.map(x => x.t))), 'mejor tiempo'], [w.filter(x => x.n == x.par && !x.h).length, 'en el mínimo'], [avg(w.map(x => x.n - x.par)).toFixed(1), 'pulsaciones de más']]) : ''
    });
 })();

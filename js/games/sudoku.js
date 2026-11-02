@@ -60,8 +60,8 @@
          z += `<button class="${c}" data-a="sc" data-i="${i}"${r ? ' disabled' : ''} aria-label="Fila ${y + 1}, columna ${x + 1}, ${giv[i] ? 'número dado ' + v : v ? 'número ' + v : 'vacía'}">${v || ''}</button>`
       }
       let b = `<div class="sd" role="group" aria-label="Tablero de sudoku de 6 por 6">${z}</div>`;
-      if (r) b += res(`¡Resuelto en ${mmss(r.t)}!`, 'Tablero de 6×6. Vuelve mañana para un reto nuevo.', `Daily Arcade · Sudoku #${DAY} · 6×6 · ${mmss(r.t)}${r.c ? ' · ' + r.c + pl(r.c, ' comprobación', ' comprobaciones') : ''}`);
-      else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, comprobar: 1 })}<div class="kb np"><div class="kr">${[1, 2, 3, 4, 5, 6].map(n => `<button class="k" data-a="k" data-k="${n}">${n}</button>`).join('')}<button class="k w" data-a="k" data-k="Del" aria-label="Borrar">⌫</button></div></div>`;
+      if (r && r.st == 'lost') b += resRendida('Sudoku'); else if (r) b += res(`¡Resuelto en ${mmss(r.t)}!`, 'Tablero de 6×6. Vuelve mañana para un reto nuevo.', `Daily Arcade · Sudoku #${DAY} · 6×6 · ${mmss(r.t)}${r.c ? ' · ' + r.c + pl(r.c, ' comprobación', ' comprobaciones') : ''}`);
+      else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, comprobar: 1, rendirme: 1 })}<div class="kb np"><div class="kr">${[1, 2, 3, 4, 5, 6].map(n => `<button class="k" data-a="k" data-k="${n}">${n}</button>`).join('')}<button class="k w" data-a="k" data-k="Del" aria-label="Borrar">⌫</button></div></div>`;
       return shell('Sudoku mini', b)
    }
 
@@ -107,6 +107,11 @@
       sv(); draw()
    }
 
+   function rendirse() {
+      if (R('sudoku')) return;
+      const p = prog('s'); fin('sudoku', { st: 'lost', t: Date.now() - (p.t0 || Date.now()) }); sv(); draw()
+   }
+
    DailyArcade.register({
       id: 'sudoku', name: 'Sudoku mini', desc: 'Rellena el tablero 6×6 sin repetir números.', color: '--mint', icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>',
       how: ["Rellena el tablero con los números del <b>1 al 6</b>.", "No repitas número en ninguna <b>fila</b>, <b>columna</b> ni <b>caja de 2×3</b>.", "Los números fijos no se cambian. Toca una casilla y elige un número."],
@@ -117,8 +122,8 @@
       digits: true,           // el teclado físico también envía los números 0-9
       render: sudoku,
       onKey: tecla,
-      actions: { sc, undo, reiniciar, comprobar: chk },
-      status: (r, p) => r ? `Resuelto · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar'),
+      actions: { sc, undo, reiniciar, comprobar: chk, rendirme: confirma(rendirse) },
+      status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Resuelto · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar'),
       stats: (e, w) => w.length ? kpi([[mmss(Math.min(...w.map(x => x.t))), 'mejor tiempo'], [mmss(avg(w.map(x => x.t))), 'tiempo medio']]) : ''
    });
 })();
