@@ -56,13 +56,16 @@ const shell = (t, b) => DU ? Duelo.shell(t, b) : `<div class="bar"><button class
 /* Barra de controles común a todos los juegos: Deshacer · Reiniciar · Comprobar · Pista · Rendirme.
    controles({undo:1, reiniciar:1, comprobar:'(−4)', pista:'(−12)', rendirme:1}) — cada juego pide solo los que tienen sentido,
    siempre en este orden y con estos nombres de acción: undo, reiniciar, comprobar, pista, rendirme.
-   Un valor de texto se pinta como coste junto a la etiqueta. "Rendirme" pide confirmación con un segundo toque (confirma(fn)),
+   Un valor de texto se pinta como coste en puntos junto a la etiqueta (solo en el reto diario; en duelo el coste sale siempre en segundos, de duelo_cfg()). "Rendirme" pide confirmación con un segundo toque (confirma(fn)),
    y en un duelo se llama «Abandonar ronda» (solo pierde esa ronda; rendirse del duelo está en la cabecera). */
 let CFT = 0;
 const confirma = fn => () => { if (CFT) { clearTimeout(CFT); CFT = 0; fn() } else { CFT = setTimeout(() => { CFT = 0; draw() }, 3000); draw() } };
 const controles = o => {
-   const b = (a, t, c, x = '') => `<button class="btn${x}" data-a="${a}">${t}${typeof c == 'string' ? ' ' + c : ''}</button>`;
-   return `<div class="row ctl">${o.undo ? b('undo', 'Deshacer') : ''}${o.reiniciar ? b('reiniciar', 'Reiniciar') : ''}${o.comprobar ? b('comprobar', 'Comprobar', o.comprobar) : ''}${o.pista ? b('pista', 'Pista', o.pista) : ''}${o.rendirme ? (CFT ? b('rendirme', '¿Seguro? Sí', '', ' dg') : b('rendirme', DU ? 'Abandonar ronda' : 'Rendirme')) : ''}</div>`
+   /* En duelo las ayudas enseñan su penalización en segundos (⏱15 s); en el reto diario solo se enseña el coste en puntos que pase el juego (Cifrado). */
+   const c = (k, v) => DU ? ` ⏱${Duelo.coste(k)} s` : typeof v == 'string' ? ' ' + v : '';
+   const b = (a, t, x = '') => `<button class="btn${x}" data-a="${a}">${t}</button>`;
+   const ley = DU && (o.pista || o.comprobar) ? '<p class="cap" style="text-align:center;margin:0">⏱ = segundos que se suman a tu tiempo</p>' : '';
+   return `<div class="row ctl">${o.undo ? b('undo', 'Deshacer') : ''}${o.reiniciar ? b('reiniciar', 'Reiniciar') : ''}${o.comprobar ? b('comprobar', 'Comprobar' + c('comprobar', o.comprobar)) : ''}${o.pista ? b('pista', 'Pista' + c('pista', o.pista)) : ''}${o.rendirme ? (CFT ? b('rendirme', '¿Seguro? Sí', ' dg') : b('rendirme', DU ? 'Abandonar ronda' : 'Rendirme')) : ''}</div>${ley}`
 };
 /* Tarjeta de resultado de una partida rendida (igual en todos los juegos). */
 const resRendida = (nombre, detalle) => res('Rendida', detalle || 'Vuelve mañana para un reto nuevo.', `Daily Arcade · ${nombre} #${DAY} · rendida`);
