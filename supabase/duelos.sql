@@ -133,8 +133,8 @@ begin
 end
 $$;
 
--- Crea la siguiente ronda: juego distinto a los ya jugados, semilla al azar y contenido de un reto YA PASADO
--- (así no se desvela ningún reto diario futuro; si todavía no hay pasados, se usa cualquiera hasta hoy).
+-- Crea la siguiente ronda: juego distinto a los ya jugados, semilla al azar y palabra/frase de la lista propia de los duelos
+-- (así nadie conoce ya la solución por haber jugado un reto diario, ni se desvela ningún reto futuro).
 create or replace function duelo_nueva_ronda(did uuid) returns void
 language plpgsql set search_path = public as
 $$
@@ -143,7 +143,11 @@ begin
   select * into d from duelos where id = did;
   ini := clock_timestamp() + make_interval(secs => (case when d.ronda = 0 then cfg->>'inicio' else cfg->>'pausa' end)::int);
   select j into jg from unnest(duelo_juegos()) j where j not in (select juego from duelo_rondas where duelo = did) order by random() limit 1;
-  select jsonb_build_object('p', palabra, 'f', frase, 'a', autor) into ct from retos where dia < reto_hoy() order by random() limit 1;
+  -- Palabra y frase de la lista propia de los duelos (más abajo), distinta de la de los retos diarios.
+  select jsonb_build_object('p', p.palabra, 'f', f.frase, 'a', f.autor) into ct
+    from (select palabra from duelo_palabras order by random() limit 1) p, (select frase, autor from duelo_frases order by random() limit 1) f;
+  -- Si esas listas estuvieran vacías, se usa un reto ya pasado (y, si aún no hay, cualquiera hasta hoy).
+  if ct is null then select jsonb_build_object('p', palabra, 'f', frase, 'a', autor) into ct from retos where dia < reto_hoy() order by random() limit 1; end if;
   if ct is null then select jsonb_build_object('p', palabra, 'f', frase, 'a', autor) into ct from retos where dia <= reto_hoy() order by random() limit 1; end if;
   update duelos set ronda = d.ronda + 1 where id = did;
   insert into duelo_rondas(duelo, n, juego, semilla, contenido, empieza, limite)
@@ -411,6 +415,158 @@ begin
   return jsonb_build_object('ahora', duelo_ms(clock_timestamp()), 'cfg', duelo_cfg(), 'duelos', l);
 end
 $$;
+
+-- ───── Contenido propio de los duelos ─────
+-- Palabras y frases SOLO para duelos, distintas de las de los retos diarios: así nadie se ha topado ya con la solución al jugar el reto de un día.
+-- Cada ronda de Palabra, Cifrado y Sopa elige una al azar. Puedes añadir más (mismas reglas que retos: palabra de 5 letras sin tildes, frase de 25 a 110 caracteres).
+create table if not exists duelo_palabras(palabra text primary key check (palabra ~ '^[a-zñ]{5}$'));
+create table if not exists duelo_frases(
+  frase text primary key check (length(frase) between 25 and 110),
+  autor text not null default 'Refrán popular'
+);
+alter table duelo_palabras enable row level security;
+alter table duelo_frases enable row level security;
+revoke all on duelo_palabras, duelo_frases from anon, authenticated;
+
+insert into duelo_palabras(palabra) values
+('nubes'),
+('coser'),
+('creer'),
+('deber'),
+('dedos'),
+('falda'),
+('globo'),
+('hojas'),
+('lagos'),
+('listo'),
+('lobos'),
+('manos'),
+('mares'),
+('mesas'),
+('moler'),
+('monos'),
+('notas'),
+('obras'),
+('ondas'),
+('panes'),
+('papel'),
+('paseo'),
+('pelos'),
+('picar'),
+('poeta'),
+('preso'),
+('primo'),
+('rayos'),
+('recto'),
+('redes'),
+('renta'),
+('rocas'),
+('ropas'),
+('rosas'),
+('saber'),
+('salud'),
+('sedas'),
+('sonar'),
+('sopas'),
+('tacos'),
+('tapas'),
+('temas'),
+('tocar'),
+('todos'),
+('trago'),
+('unida'),
+('urnas'),
+('vacas'),
+('vasos'),
+('veces'),
+('vejez'),
+('velas'),
+('vidas'),
+('votar'),
+('zonas'),
+('astro'),
+('autor'),
+('besos'),
+('cesta'),
+('citas'),
+('copas'),
+('dados'),
+('datos'),
+('droga')
+on conflict do nothing;
+
+insert into duelo_frases(frase, autor) values
+('El que a buen árbol se arrima, buena sombra le cobija','Refrán popular'),
+('Quien mucho abarca poco aprieta','Refrán popular'),
+('Antes que te cases, mira lo que haces','Refrán popular'),
+('Donde hay patrón no manda marinero','Refrán popular'),
+('Tanto va el cántaro a la fuente que al final se rompe','Refrán popular'),
+('Con paciencia y calma se sube una palma','Refrán popular'),
+('Mientras hay vida hay esperanza','Refrán popular'),
+('Haz bien y no mires a quién','Refrán popular'),
+('Caminante, no hay camino, se hace camino al andar','Antonio Machado'),
+('Quien hace un cesto hace ciento','Refrán popular'),
+('No se ganó Zamora en una hora','Refrán popular'),
+('El pez grande se come al chico','Refrán popular'),
+('Primero es la obligación que la devoción','Refrán popular'),
+('Cada cual sabe dónde le aprieta el zapato','Refrán popular'),
+('Es de sabios cambiar de opinión','Refrán popular'),
+('Quien a hierro mata, a hierro muere','Refrán popular'),
+('El que ríe el último ríe mejor','Refrán popular'),
+('A mal viento, buena barca','Refrán popular'),
+('Más vale una vez colorado que ciento amarillo','Refrán popular'),
+('Perro que ladra no muerde','Refrán popular'),
+('Dios los cría y ellos se juntan','Refrán popular'),
+('Los árboles no dejan ver el bosque','Refrán popular'),
+('Cada uno es hijo de sus obras','Refrán popular'),
+('Quien con lobos anda, a aullar se enseña','Refrán popular'),
+('Más vale ser cabeza de ratón que cola de león','Refrán popular'),
+('Quien da pan a perro ajeno pierde el pan y pierde el perro','Refrán popular'),
+('Es mejor prevenir que lamentar','Refrán popular'),
+('Los amigos de verdad se ven en la dificultad','Refrán popular'),
+('Siempre hay un roto para un descosido','Refrán popular'),
+('Las penas con pan son menos','Refrán popular'),
+('Con la verdad no te ofendo ni te engaño','Refrán popular'),
+('La mejor palabra es la que no se dice','Refrán popular'),
+('Al que madruga, Dios le ayuda','Refrán popular'),
+('Cuando el diablo no tiene qué hacer, con el rabo mata moscas','Refrán popular'),
+('Dos que duermen en un colchón se vuelven de la misma opinión','Refrán popular'),
+('El que mal anda, mal acaba','Refrán popular'),
+('Hasta el mejor escribano echa un borrón','Refrán popular'),
+('A quien Dios no le da hijos, el diablo le da sobrinos','Refrán popular'),
+('Cada gallo canta en su gallinero','Refrán popular'),
+('Del árbol caído todos hacen leña','Refrán popular'),
+('No hay mal que cien años dure ni cuerpo que lo resista','Refrán popular'),
+('La letra con sangre entra','Refrán popular'),
+('Quien no oye consejo no llega a viejo','Refrán popular'),
+('Nadie sabe lo que tiene hasta que lo pierde','Refrán popular'),
+('Quien no se aventura no pasa la mar','Refrán popular'),
+('El que tiene boca se equivoca','Refrán popular'),
+('Ande o no ande, caballo grande','Refrán popular'),
+('A donde fueres, haz lo que vieres','Refrán popular'),
+('Obra empezada, medio acabada','Refrán popular'),
+('Más vale llegar a tiempo que rondar un año','Refrán popular'),
+('Casa con dos puertas, mala es de guardar','Refrán popular'),
+('El que mucho duerme poco aprende','Refrán popular'),
+('Ojo por ojo, diente por diente','Refrán popular'),
+('Siempre llueve sobre mojado','Refrán popular'),
+('Hombre prevenido vale por dos','Refrán popular'),
+('Las cuentas claras y el chocolate espeso','Refrán popular'),
+('En el país de los ciegos, el tuerto es el rey','Refrán popular'),
+('Que cada palo aguante su vela','Refrán popular'),
+('De músico, poeta y loco, todos tenemos un poco','Refrán popular'),
+('Quien con niños se acuesta, mojado se levanta','Refrán popular'),
+('Cuando las barbas de tu vecino veas cortar, pon las tuyas a remojar','Refrán popular'),
+('Vísteme despacio, que tengo prisa','Refrán popular'),
+('Ni contigo ni sin ti tienen mis males remedio','Refrán popular'),
+('Antes se coge al mentiroso que al cojo','Refrán popular'),
+('Una cosa es predicar y otra dar trigo','Refrán popular'),
+('Las desgracias nunca vienen solas','Refrán popular'),
+('Quien no tiene cabeza, tiene que tener piernas','Refrán popular'),
+('Muerto el perro, se acabó la rabia','Refrán popular'),
+('No eches margaritas a los cerdos','Refrán popular'),
+('Después de la tempestad viene la calma','Refrán popular')
+on conflict do nothing;
 
 -- ───── Permisos ─────
 revoke execute on function duelo_cfg(), duelo_juegos(), duelo_por_tiempo(text), duelo_ms(timestamptz), duelo_num(jsonb, text), duelo_candado(uuid, uuid),
