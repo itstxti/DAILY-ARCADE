@@ -119,7 +119,7 @@ begin
   if jg = 'palabra' then
     -- Se comprueba la lista de intentos: el último debe ser la palabra de la ronda.
     if ct is null or coalesce(jsonb_typeof(dat->'g'), '') <> 'array' then return null; end if;
-    if jsonb_array_length(dat->'g') not between 1 and 6 then return null; end if;
+    if jsonb_array_length(dat->'g') not between 1 and 5 then return null; end if;
     ult := dat->'g'->>(jsonb_array_length(dat->'g') - 1);
     if ult is distinct from ct->>'p' then return null; end if;
     pri := jsonb_array_length(dat->'g');
