@@ -31,7 +31,7 @@ Entrar con Google, el modo sin conexión y la instalación como app necesitan `h
 ### Con Supabase
 
 1. Crea un proyecto en supabase.com.
-2. En **SQL Editor** ejecuta `supabase/schema.sql` y después `supabase/seed.sql` (510 retos desde el 31-10-2026). 
+2. En **SQL Editor** ejecuta `supabase/schema.sql` y después `supabase/seed.sql` (510 retos desde el 31-10-2026). Si ya tenías la base creada de antes y se añadieron juegos, ejecuta también `supabase/juegos_nuevos.sql`: sin ella el servidor rechaza los resultados de Camino, Luces, Tuberías y Sopa y no salen en el ranking (la web avisa con un mensaje). 
 3. Copia la *Project URL* y la clave *publishable/anon* en `js/config.js`. Nunca la `service_role`.
 4. Abre la web, crea tu cuenta y hazte administrador:
    ```sql

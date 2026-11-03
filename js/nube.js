@@ -55,16 +55,31 @@ const Nube = (() => {
    const eq = (a, b) => a === b || (a && b && typeof a == 'object' && typeof b == 'object' && Array.isArray(a) == Array.isArray(b) && Object.keys(a).length == Object.keys(b).length && Object.keys(a).every(k => eq(a[k], b[k]))); /* jsonb no conserva el orden de las claves */
    const JOK = /^[a-z0-9_]{1,20}$/, fila = (dia, juego, datos) => ({ user_id: N.user.id, dia: +dia, juego, datos });
    const valida = (dia, juego, datos, hoy, ids) => Number.isInteger(+dia) && +dia >= 1 && +dia <= hoy && JOK.test(juego) && (!ids || ids.includes(juego)) && datos && typeof datos == 'object' && !Array.isArray(datos) && JSON.stringify(datos).length <= 4000;
+   /* Sube las filas. Un error SIN código (red caída) se lanza para reintentar más tarde. Un error CON código es el servidor rechazando
+      (p. ej. la restricción de juegos permitidos de una base sin migrar): se reintenta fila a fila para que una mala no bloquee a las demás,
+      se avisa una vez al jugador y se devuelve la lista de filas rechazadas (siguen en local y se reintentan en la próxima sincronización). */
+   const up = rows => sb.from('resultados').upsert(rows, { onConflict: 'user_id,dia,juego', ignoreDuplicates: true });
+   let avisado = false;
+   const avisoRechazo = juegos => {
+      console.warn('El servidor ha rechazado resultados de:', juegos.join(', '));
+      if (avisado) return; avisado = true;
+      if (typeof toast == 'function') toast('El servidor no ha aceptado algunos resultados (' + [...new Set(juegos)].join(', ') + '), así que no cuentan en el ranking. Falta actualizar la base de datos: ejecuta supabase/juegos_nuevos.sql. Siguen guardados en este navegador.')
+   };
    const subirFilas = async rows => {
+      const malas = [];
       for (let i = 0; i < rows.length; i += 200) {
-         const { error } = await sb.from('resultados').upsert(rows.slice(i, i + 200), { onConflict: 'user_id,dia,juego', ignoreDuplicates: true }); if (error) throw error
+         const lote = rows.slice(i, i + 200), { error } = await up(lote); if (!error) continue;
+         if (!error.code) throw error;
+         for (const f of lote) { const r = await up([f]); if (r.error) { if (!r.error.code) throw r.error; malas.push(f) } }
       }
+      if (malas.length) avisoRechazo(malas.map(f => f.juego));
+      return malas
    };
    const locales = (est, hoy, ids) => { const o = []; Object.entries(est.res).forEach(([d, js]) => Object.entries(js || {}).forEach(([j, x]) => { if (valida(d, j, x, hoy, ids)) o.push(fila(d, j, x)) })); return o };
    /* Un resultado recién terminado. Si falla (sin conexión), se queda en local y se sube en la próxima sincronización. */
    N.guardarResultado = (dia, juego, datos) => {
       if (!N.user || !sb || !valida(dia, juego, datos, 1 / 0)) return Promise.resolve();
-      return subirFilas([fila(dia, juego, datos)]).catch(e => console.warn('No se pudo guardar el resultado en el servidor; se reintentará.', e))
+      return subirFilas([fila(dia, juego, datos)]).then(() => { }).catch(e => console.warn('No se pudo guardar el resultado en el servidor; se reintentará.', e))
    };
    /* Descarga todos los resultados propios (de 1000 en 1000). */
    N.bajarResultados = async () => {
@@ -85,7 +100,7 @@ const Nube = (() => {
       return cambio
    };
    /* Antes de cerrar sesión: sube todo lo local sin descargar nada. Lanza error si no puede. */
-   N.subirTodo = (est, hoy, ids) => N.user ? subirFilas(locales(est, hoy, ids)) : Promise.resolve();
+   N.subirTodo = (est, hoy, ids) => N.user ? subirFilas(locales(est, hoy, ids)).then(m => { if (m.length) throw new Error('El servidor rechazó ' + m.length + ' resultados.') }) : Promise.resolve();
    N.borrarResultados = async () => { const { error } = await sb.from('resultados').delete().eq('user_id', N.user.id); if (error) throw error };
    /* ---------- Amigos (todo pasa por funciones del servidor; ver supabase/migracion-02-amigos.sql) ---------- */
    N.buscarUsuario = async u => { const { data, error } = await sb.rpc('buscar_usuario', { u }); if (error) throw error; return data && data[0] || null };
