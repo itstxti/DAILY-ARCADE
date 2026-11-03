@@ -175,12 +175,9 @@
          return `<p class="cap">Ejemplo en 3×3: pasa por las 9 casillas y por el 1, el 2 y el 3 en orden.</p>${s}</svg>`
       })(),
       pk: 'cm',
-      winLabel: 'completados',
-      winStreak: false,       // no se puede perder: solo se completa
       render: camino,
       onKey: tecla,
       actions: { undo, reiniciar, rendirme: confirma(rendirse) },
-      status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Completado · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar'),
-      stats: (e, w) => w.length ? kpi([[mmss(Math.min(...w.map(x => x.t))), 'mejor tiempo'], [mmss(avg(w.map(x => x.t))), 'tiempo medio']]) : ''
+      status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Completado · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar')
    });
 })();

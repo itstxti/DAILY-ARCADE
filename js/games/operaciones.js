@@ -103,10 +103,8 @@
     how: ["Llega al <b>número objetivo</b> combinando los números.", "Elige <b>número, operación y otro número</b>: el resultado es un número nuevo.", "Cada número se usa una vez. Restas positivas y divisiones exactas."],
     demo: `<p class="cap">Objetivo <b>106</b> con 4, 6 y 25:</p><div class="eq1"><span class="chp">25</span><b>×</b><span class="chp">4</span><b>=</b><span class="chp rs">100</span></div><div class="eq1"><span class="chp rs">100</span><b>+</b><span class="chp">6</span><b>=</b><span class="chp rs">106</span></div><p class="cap">El resultado (en amarillo) pasa a ser un número nuevo.</p>`,
     pk: 'x',
-    winLabel: 'exactas',
     render: operaciones,
     actions: { num, op, undo, reiniciar: reset, rendirme: confirma(giveup) },
-    status: (r, p) => r ? (r.st == 'won' ? `Exacta · ${r.n} ${pl(r.n, 'operación', 'operaciones')}` : `A ${r.gap} del objetivo`) : (p && p.t0 ? 'En curso' : 'Sin jugar'),
-    stats: (e, w) => w.length ? kpi([[mmss(Math.min(...w.map(x => x.t))), 'mejor tiempo'], [mmss(avg(w.map(x => x.t))), 'tiempo medio']]) : ''
+    status: (r, p) => r ? (r.st == 'won' ? `Exacta · ${r.n} ${pl(r.n, 'operación', 'operaciones')}` : `A ${r.gap} del objetivo`) : (p && p.t0 ? 'En curso' : 'Sin jugar')
   });
 })();

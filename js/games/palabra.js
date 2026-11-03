@@ -33,10 +33,9 @@
         how: ["Adivina la palabra de <b>5 letras</b> en <b>6 intentos</b>.", "Escribe una palabra que exista y pulsa <b>Enter</b>.", "Cada letra te dice cuánto te acercas: mira el ejemplo."],
         demo: `<p class="cap">Si la palabra fuera <b>CAMPO</b> y escribes <b>COPAS</b>:</p><div class="r"><span class="t s2">C<i>✓</i></span><span class="t s1">O<i>●</i></span><span class="t s1">P<i>●</i></span><span class="t s1">A<i>●</i></span><span class="t s0">S<i>–</i></span></div><p class="cap"><b class="dot s2">✓</b> en su sitio &nbsp; <b class="dot s1">●</b> en otro sitio &nbsp; <b class="dot s0">–</b> no está</p>`,
         pk: 'p',                 // clave donde se guarda el progreso del día
-        winLabel: 'ganadas',
         render: palabra,
         onKey: pk,               // teclado físico y en pantalla
         status: (r, p) => r ? (r.st == 'won' ? `Acertada en ${r.att}/6${r.t ? ' · ' + mmss(r.t) : ''}` : 'Fallada') : (p && (p.g && p.g.length || p.t0) ? 'En curso' : 'Sin jugar'),
-        stats: (e, w) => { const d = [1, 2, 3, 4, 5, 6].map(i => w.filter(x => x.att == i).length), l = e.length - w.length, m = Math.max(1, l, ...d); return [...d, l].map((n, i) => `<div class="br"><span>${i < 6 ? i + 1 : 'X'}</span><u><i style="width:${n / m * 100}%"></i></u><b>${n}</b></div>`).join('') + (w.length ? kpi([[avg(w.map(x => x.att)).toFixed(1), 'intentos de media'], ...(w.some(x => x.t) ? [[mmss(Math.min(...w.filter(x => x.t).map(x => x.t))), 'mejor tiempo']] : [])]) : '') }
+        stats: (e, w) => { const d = [1, 2, 3, 4, 5, 6].map(i => w.filter(x => x.att == i).length), l = e.length - w.length, m = Math.max(1, l, ...d); return [...d, l].map((n, i) => `<div class="br"><span>${i < 6 ? i + 1 : 'X'}</span><u><i style="width:${n / m * 100}%"></i></u><b>${n}</b></div>`).join('') + (w.length ? kpi([[avg(w.map(x => x.att)).toFixed(1), 'intentos de media'], ...kTiempos(w)]) : '') }
     });
 })();

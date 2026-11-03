@@ -173,11 +173,8 @@
          return `<p class="cap">Ejemplo en 3×3: tres parejas unidas y ninguna casilla vacía.</p>${s}</svg>`
       })(),
       pk: 't',
-      winLabel: 'completadas',
-      winStreak: false,       // no se puede perder: solo se completa
       render: tuberias,
       actions: { undo, reiniciar, rendirme: confirma(rendirse) },
-      status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Completada · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar'),
-      stats: (e, w) => w.length ? kpi([[mmss(Math.min(...w.map(x => x.t))), 'mejor tiempo'], [mmss(avg(w.map(x => x.t))), 'tiempo medio']]) : ''
+      status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Completada · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar')
    });
 })();

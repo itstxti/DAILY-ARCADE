@@ -38,11 +38,9 @@
         how: ["Cada letra de la frase está <b>cambiada por otra</b>, y siempre por la misma.", "Toca una letra cifrada y <b>escribe la que crees</b> que es.", "Revelar letra y Comprobar <b>restan puntos</b>."],
         demo: `<p class="cap">Si descubres que la <b>K</b> es una <b>A</b>, todas las K son A:</p><div class="wd"><div class="c"><small>X</small><b>C</b></div><div class="c sel"><small>K</small><b>A</b></div><div class="c"><small>M</small><b>S</b></div><div class="c sel"><small>K</small><b>A</b></div></div>`,
         pk: 'c',
-        winLabel: 'descifradas',
         render: cifra,
         onKey: ck,
         actions: { sel: csel, pista: hint, comprobar: chk, rendirme: confirma(giveup) },   // data-a="..." de los botones del juego
-        status: (r, p) => r ? (r.st == 'completed' ? `Descifrada · ${r.sc} puntos` : 'Rendida') : (p && (p.g && p.g.length || p.t0) ? 'En curso' : 'Sin jugar'),
-        stats: (e, w) => { if (!w.length) return ''; const m = Math.max(...w.map(x => x.sc)), n = est(m); return kpi([[m, 'mejor puntuación', '★'.repeat(n) + '☆'.repeat(5 - n)], [Math.round(avg(w.map(x => x.sc))), 'media'], [mmss(Math.min(...w.map(x => x.t))), 'mejor tiempo']]) }
+        status: (r, p) => r ? (r.st == 'completed' ? `Descifrada · ${r.sc} puntos` : 'Rendida') : (p && (p.g && p.g.length || p.t0) ? 'En curso' : 'Sin jugar')
     });
 })();

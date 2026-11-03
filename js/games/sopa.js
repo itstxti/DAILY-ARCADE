@@ -181,11 +181,8 @@
          return `<p class="cap">Ejemplo: <b>MESA</b> está marcada en horizontal.</p>${s}</svg>`
       })(),
       pk: 'sp',
-      winLabel: 'completadas',
-      winStreak: false,       // no se puede perder: solo se completa
       render: sopa,
       actions: { pista, rendirme: confirma(rendirse) },
-      status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Completada · ${mmss(r.t)}` : (p && (p.t0 || (p.f && p.f.length)) ? (p.f && p.f.length ? `${p.f.length}/${NP} palabras` : 'En curso') : 'Sin jugar'),
-      stats: (e, w) => w.length ? kpi([[mmss(Math.min(...w.map(x => x.t))), 'mejor tiempo'], [mmss(avg(w.map(x => x.t))), 'tiempo medio']]) : ''
+      status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Completada · ${mmss(r.t)}` : (p && (p.t0 || (p.f && p.f.length)) ? (p.f && p.f.length ? `${p.f.length}/${NP} palabras` : 'En curso') : 'Sin jugar')
    });
 })();
