@@ -550,6 +550,12 @@ pre {
     font-size: 13px
 }
 
+.br span.es {
+    color: var(--sun);
+    letter-spacing: 1px;
+    white-space: nowrap
+}
+
 .br u {
     flex: 1;
     display: block
