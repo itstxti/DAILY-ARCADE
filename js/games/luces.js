@@ -70,7 +70,7 @@
          h += res(`¡Todas apagadas en ${r.n} ${pl(r.n, 'pulsación', 'pulsaciones')}!`, ex <= 0 && !r.h ? `Es el mínimo posible (${r.par}). Tiempo: ${mmss(r.t)}.` : `El mínimo era ${r.par}${ex > 0 ? ` (${ex} de más)` : ''}. Tiempo: ${mmss(r.t)}.`,
             `Daily Arcade · Luces #${DAY} · ${r.n}/${r.par} pulsaciones${r.h ? ' · ' + r.h + pl(r.h, ' pista', ' pistas') : ''} · ${mmss(r.t)}`)
       }
-      else h += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="cap" style="text-align:center;margin:0">${on} ${pl(on, 'luz encendida', 'luces encendidas')} · ${p.n} ${pl(p.n, 'pulsación', 'pulsaciones')}</p><p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, pista: 1, rendirme: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Al deshacer o reiniciar, las pulsaciones y el tiempo siguen contando.</p>`;
+      else h += `${S.set.tm ? tmHtml(p) : ''}<p class="cap" style="text-align:center;margin:0">${on} ${pl(on, 'luz encendida', 'luces encendidas')} · ${p.n} ${pl(p.n, 'pulsación', 'pulsaciones')}</p><p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, pista: 1, rendirme: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Al deshacer o reiniciar, las pulsaciones y el tiempo siguen contando.</p>`;
       return shell('Luces', h)
    }
 

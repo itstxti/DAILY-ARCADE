@@ -12,7 +12,7 @@
             for (let j = 0; j < 5; j++)t += `<span class="t ${e ? 's' + e[j] : ''}">${g ? g[j] : cur[j] || ''}<i>${e ? ['–', '●', '✓'][e[j]] : ''}</i></span>`;
             h += `<div class="r" role="group" aria-label="Intento ${i + 1}">${t}</div>`
         }
-        let b = `<div>${h}</div>${S.set.tm && !r ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="msg" role="status">${msg}</p>`;
+        let b = `<div>${h}</div>${S.set.tm && !r ? tmHtml(p) : ''}<p class="msg" role="status">${msg}</p>`;
         if (r) b += res(r.st == 'won' ? `¡Acertada en ${r.att}/6${r.t ? ' · ' + mmss(r.t) : ''}!` : 'No ha podido ser', r.st == 'won' ? 'Vuelve mañana para un reto nuevo.' : `La palabra era <b>${s.toUpperCase()}</b>.`, pshare(r)); else b += kb(st, true);
         return shell('Palabra', b)
     }

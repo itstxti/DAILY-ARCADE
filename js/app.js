@@ -236,13 +236,13 @@ function tick() {
   const q = parts(); if (q.day !== P.day && !Duelo.ocupado()) return location.reload();
   const rem = 86400 - (q.hour * 3600 + q.minute * 60 + q.second), c = $('#cd');
   if (c) c.textContent = [Math.floor(rem / 3600), Math.floor(rem % 3600 / 60), rem % 60].map(v => String(v).padStart(2, '0')).join(':');
-  const t = $('#tm'), g = cur(), p = g && prog(g.pk);
-  if (t && p && p.t0 && !R(V)) t.textContent = mmss(Date.now() - p.t0)
+  const t = $('#tmv'), g = cur(), p = g && prog(g.pk);
+  if (t && p && p.t0 && !R(V)) { t.textContent = mmss(Date.now() - p.t0 + penP(p) * 1000); const e = $('#tmp'); if (e) e.textContent = penP(p) ? `${mmss(Date.now() - p.t0)} + ${penP(p)} s de ayudas` : '' }
 }
 /* Compartir un texto: menú del sistema en móvil; si no, portapapeles. */
-function toast(m) {
+function toast(m, ms = 1800) {
   let e = $('#toast'); if (!e) { e = document.createElement('div'); e.id = 'toast'; e.setAttribute('role', 'status'); document.body.appendChild(e) }
-  e.textContent = m; e.className = 'on'; clearTimeout(toast.t); toast.t = setTimeout(() => { e.className = '' }, 1800)
+  e.textContent = m; e.className = 'on'; clearTimeout(toast.t); toast.t = setTimeout(() => { e.className = '' }, ms)
 }
 async function enviar(t, b, pre) {
   if (CAN_SHARE) { try { await navigator.share({ text: t }); return } catch (e) { if (e && e.name == 'AbortError') return } }
@@ -334,7 +334,7 @@ $('#app').onclick = e => {
       Nube.guardarPrivacidad(v).catch(e => { console.warn(e); S.me.v = o; sv(); msg = 'No se ha podido guardar la privacidad. Inténtalo de nuevo.'; draw() })
     } else draw()
   }
-  else if (g) { if (a == 'k') { g.onKey && g.onKey(b.dataset.k) } else if (g.actions && g.actions[a]) g.actions[a](b) }
+  else if (g) { if (a == 'k') { g.onKey && g.onKey(b.dataset.k) } else if (g.actions && g.actions[a]) { const p0 = penP(prog(g.pk)); g.actions[a](b); const d = penP(prog(g.pk)) - p0, t = $('#tm'); if (d > 0 && t) { const s = document.createElement('span'); s.className = 'tb'; s.textContent = '+' + d + ' s'; t.appendChild(s); setTimeout(() => s.remove(), 1400) } } }
 };
 $('#app').oninput = e => { if (e.target.id == 'fq') fq = e.target.value };
 $('#app').onkeydown = e => {

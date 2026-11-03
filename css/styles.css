@@ -441,7 +441,49 @@ pre {
 .tm {
     font-variant-numeric: tabular-nums;
     font-weight: 700;
-    text-align: center
+    text-align: center;
+    position: relative
+}
+
+/* Desglose del cronómetro cuando hay penalización por ayudas, y destello +N s al pulsar una */
+.tm .tp {
+    display: block;
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--berry)
+}
+
+.tm .tp:empty {
+    display: none
+}
+
+.tm .tb {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    margin-left: 42px;
+    color: var(--berry);
+    font-weight: 800;
+    pointer-events: none;
+    animation: tmb 1.3s ease-out forwards
+}
+
+@keyframes tmb {
+    from {
+        opacity: 1;
+        transform: translateY(0)
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-14px)
+    }
+}
+
+@media (prefers-reduced-motion:reduce) {
+    .tm .tb {
+        animation: none
+    }
 }
 
 .av {

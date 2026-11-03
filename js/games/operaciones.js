@@ -50,7 +50,7 @@
         ? res(`¡Exacto en ${r.n} ${pl(r.n, 'operación', 'operaciones')}!`, `Tiempo: ${mmss(r.t)}.`, `Daily Arcade · Operaciones #${DAY} · ${Z.target} · ${r.n} ${pl(r.n, 'operación', 'operaciones')} · ${mmss(r.t)}`)
         : res(`Te quedaste a ${r.gap} del objetivo`, `Una solución:<br>${Z.sol.join('<br>')}`, `Daily Arcade · Operaciones #${DAY} · ${Z.target} · a ${r.gap}`)
     }
-    else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="msg" role="status">${msg || (cerca ? `Lo más cerca: ${mejor} (a ${cerca}).` : '')}</p>${controles({ undo: 1, reiniciar: 1, rendirme: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Elige un número, una operación y otro número.</p>`;
+    else b += `${S.set.tm ? tmHtml(p) : ''}<p class="msg" role="status">${msg || (cerca ? `Lo más cerca: ${mejor} (a ${cerca}).` : '')}</p>${controles({ undo: 1, reiniciar: 1, rendirme: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Elige un número, una operación y otro número.</p>`;
     return shell('Operaciones', b)
   }
 

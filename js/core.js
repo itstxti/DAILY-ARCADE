@@ -44,6 +44,10 @@ const penaliza = o => {
    const pen = (+o.h || 0) * Duelo.coste('pista') * 1000 + (+o.c || 0) * Duelo.coste('comprobar') * 1000;
    return pen > 0 ? Object.assign({}, o, { tr: o.t, t: o.t + pen, pen }) : o
 };
+/* Cronómetro de la partida: tiempo transcurrido + segundos de penalización por ayudas (pista/comprobar), con el desglose a la vista. */
+const penP = p => p ? ((+p.h || 0) * Duelo.coste('pista') + (typeof p.c == 'number' ? p.c : 0) * Duelo.coste('comprobar')) : 0;
+const tmTxt = p => { const e = p && p.t0 ? Date.now() - p.t0 : 0, pn = penP(p) * 1000; return mmss(e + pn) + (pn ? `<span class="tp">${mmss(e)} + ${Math.round(pn / 1000)} s de ayudas</span>` : '') };
+const tmHtml = p => `<p class="tm" id="tm"><span id="tmv">${p && p.t0 ? mmss(Date.now() - p.t0 + penP(p) * 1000) : '0:00'}</span><span class="tp" id="tmp">${p && p.t0 && penP(p) ? `${mmss(Date.now() - p.t0)} + ${penP(p)} s de ayudas` : ''}</span></p>`;
 const kb = (st, en) => `<div class="kb">${KR.map((r, i) => `<div class="kr">${i == 2 && en ? '<button class="k w" data-a="k" data-k="Enter">Enter</button>' : ''}${[...r].map(l => `<button class="k ${st && st[l] != null ? 's' + st[l] : ''}" data-a="k" data-k="${l}"${st && st[l] != null ? ` aria-label="${l}, ${['no está en la palabra', 'está en otro sitio', 'en su sitio'][st[l]]}"` : ''}>${l}</button>`).join('')}${i == 2 ? '<button class="k w" data-a="k" data-k="Del" aria-label="Borrar">⌫</button>' : ''}</div>`).join('')}</div>`;
 /* Botón de compartir solo con icono (compartir en móvil, copiar en ordenador). El texto lo lee enviar() de app.js. */
 const IC_CP = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/></svg>',
