@@ -10,7 +10,7 @@
     };
     const _c = memoSD(mkC), C = new Proxy({}, { get: (_, k) => _c()[k] });
     function cini(p) { if (p.ph !== C.ph) { Object.keys(p).forEach(k => delete p[k]); p.ph = C.ph } if (!p.a) { p.a = {}; p.lk = []; p.h = 0; p.c = 0; p.bad = []; C.rev.forEach(l => { p.a[C.enc[l]] = l; p.lk.push(C.enc[l]) }) } }
-    function cdone(p) { if (C.ord.every(l => p.a[l] === C.dec[l])) fin('cifra', { st: 'completed', sc: Math.max(20, 100 - 12 * p.h - 4 * p.c), t: Date.now() - p.t0 }) }
+    function cdone(p) { if (C.ord.every(l => p.a[l] === C.dec[l])) fin('cifra', { st: 'completed', sc: Math.max(20, 100 - 12 * p.h - 4 * p.c), h: p.h, c: p.c, t: Date.now() - p.t0 }) }
     const est = sc => sc >= 90 ? 5 : sc >= 75 ? 4 : sc >= 55 ? 3 : sc >= 35 ? 2 : 1;
     function cifra() {
         const p = prog('c'); cini(p); const r = R('cifra'), cnt = {}; Object.values(p.a).forEach(v => cnt[v] = (cnt[v] || 0) + 1);
@@ -30,7 +30,7 @@
     }
     function hint() { const p = prog('c'); cini(p); const l = C.ord.find(l => p.a[l] !== C.dec[l]); if (!l) return; p.t0 = p.t0 || Date.now(); p.a[l] = C.dec[l]; p.lk.push(l); p.h++; msg = ''; cdone(p); sv(); draw() }
     function chk() { const p = prog('c'); cini(p); p.t0 = p.t0 || Date.now(); p.c++; p.bad = C.ord.filter(l => p.a[l] && p.a[l] !== C.dec[l]); msg = p.bad.length ? `${p.bad.length} letra(s) incorrecta(s)` : 'Todo lo asignado es correcto'; sv(); draw() }
-    function giveup() { const p = prog('c'); fin('cifra', { st: 'lost', sc: 0, t: Date.now() - (p.t0 || Date.now()) }); draw() }
+    function giveup() { const p = prog('c'); fin('cifra', { st: 'lost', sc: 0, h: p.h, c: p.c, t: Date.now() - (p.t0 || Date.now()) }); draw() }
     function csel(b) { if (R('cifra')) return; prog('c').t0 = prog('c').t0 || Date.now(); sel = b.dataset.l; draw() }
 
     DailyArcade.register({

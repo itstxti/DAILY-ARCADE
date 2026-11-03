@@ -27,7 +27,9 @@ $$ select jsonb_build_object(
      'pausa', 8,          -- segundos entre el final de una ronda y el comienzo de la siguiente
      'rondas', 5,         -- rondas máximas
      'victorias', 3,      -- rondas para ganar antes de tiempo
-     'holgura', 4000)     -- ms que se le perdonan a cada jugador por latencia al empezar la ronda
+     'holgura', 4000,     -- ms que se le perdonan a cada jugador por latencia al empezar la ronda
+     'pista_ms', 15000,   -- penalización por cada pista (Escalera, Luces, Cifrado, Sopa); el navegador la enseña en el botón
+     'comprobar_ms', 5000) -- penalización por cada comprobación (Cifrado, Sudoku)
 $$;
 
 create or replace function duelo_juegos() returns text[] language sql immutable as
@@ -106,6 +108,7 @@ create or replace function duelo_clave(jg text, dat jsonb, ct jsonb, empieza tim
 language plpgsql stable as
 $$
 declare st text; el bigint; t bigint; pri bigint := 0; pen bigint := 0; ult text; n bigint;
+        vp bigint := (duelo_cfg()->>'pista_ms')::bigint; vc bigint := (duelo_cfg()->>'comprobar_ms')::bigint;
 begin
   if dat is null or jsonb_typeof(dat) <> 'object' then return null; end if;
   st := dat->>'st';
@@ -121,13 +124,18 @@ begin
     if ult is distinct from ct->>'p' then return null; end if;
     pri := jsonb_array_length(dat->'g');
   elsif jg in ('escalera','luces','operaciones') then
-    -- Cada paso suma duelo_peso(); en Luces cada pista suma además 15 s (en Escalera la pista ya suma un paso).
+    -- Cada paso suma duelo_peso(). Una pista cuesta pista_ms: en Luces se suma entera; en Escalera la pista ya cuenta como un paso, así que se añade solo la diferencia.
     n := case when duelo_num(dat, 'n') = 0 then 99 else least(duelo_num(dat, 'n'), 99) end;
-    pen := n * duelo_peso(jg) + case when jg = 'luces' then least(duelo_num(dat, 'h'), 20) * 15000 else 0 end;
+    pen := n * duelo_peso(jg) + case when jg = 'luces' then least(duelo_num(dat, 'h'), 20) * vp
+                                     when jg = 'escalera' then least(duelo_num(dat, 'h'), 20) * greatest(vp - duelo_peso('escalera'), 0) else 0 end;
   elsif jg = 'cifra' then
-    pen := (100 - least(duelo_num(dat, 'sc'), 100)) * 1000;      -- cada pista o comprobación resta puntos: 1 punto = 1 s
+    -- pistas y comprobaciones declaradas por el navegador (h, c); si no vienen (cliente antiguo), 1 punto perdido = 1 s
+    if dat ? 'h' or dat ? 'c' then pen := least(duelo_num(dat, 'h'), 50) * vp + least(duelo_num(dat, 'c'), 100) * vc;
+    else pen := (100 - least(duelo_num(dat, 'sc'), 100)) * 1000; end if;
   elsif jg = 'sopa' then
-    pen := least(duelo_num(dat, 'h'), 20) * 15000;               -- 15 s por pista
+    pen := least(duelo_num(dat, 'h'), 20) * vp;
+  elsif jg = 'sudoku' then
+    pen := least(duelo_num(dat, 'c'), 100) * vc;                 -- cada comprobación suma comprobar_ms
   end if;
   return pri * 1000000000 + least(t + pen, 999999999);
 end
