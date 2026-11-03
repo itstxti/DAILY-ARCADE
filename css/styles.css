@@ -546,7 +546,8 @@ pre {
 }
 
 .br span {
-    width: 14px
+    width: 86px;
+    font-size: 13px
 }
 
 .br u {
