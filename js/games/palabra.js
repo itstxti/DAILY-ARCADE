@@ -36,6 +36,6 @@
         render: palabra,
         onKey: pk,               // teclado físico y en pantalla
         status: (r, p) => r ? (r.st == 'won' ? `Acertada en ${r.att}/6${r.t ? ' · ' + mmss(r.t) : ''}` : 'Fallada') : (p && (p.g && p.g.length || p.t0) ? 'En curso' : 'Sin jugar'),
-        stats: (e, w) => { const d = [1, 2, 3, 4, 5, 6].map(i => w.filter(x => x.att == i).length), l = e.length - w.length, m = Math.max(1, l, ...d); return [...d, l].map((n, i) => `<div class="br"><span>${i < 6 ? i + 1 : 'X'}</span><u><i style="width:${n / m * 100}%"></i></u><b>${n}</b></div>`).join('') + (w.length ? kpi([[avg(w.map(x => x.att)).toFixed(1), 'intentos de media'], ...kTiempos(w)]) : '') }
+        stats: (e, w, k) => { const d = [1, 2, 3, 4, 5, 6].map(i => w.filter(x => x.att == i).length), l = e.length - w.length, m = Math.max(1, l, ...d); return [...d, l].map((n, i) => `<div class="br"><span>${i < 6 ? i + 1 : 'X'}</span><u><i style="width:${n / m * 100}%"></i></u><b>${n}</b></div>`).join('') + (w.length ? kpi([[avg(w.map(x => x.att)).toFixed(1), 'intentos de media'], ...kTiempos(w), ...(k || [])]) : '') }
     });
 })();
