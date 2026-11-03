@@ -31,20 +31,27 @@ const snap = (g, o) => { const gm = GAMES.find(x => x.id == g), p = gm && gm.pk 
 /* Al entrar: si hoy hay un juego terminado sin progreso local (otro navegador, o se cerró sesión), recompone el tablero final desde el resultado. */
 const restaurar = () => GAMES.forEach(g => { const r = (S.res[DAY] || {})[g.id]; if (!r || !g.pk || S.pr[DAY + g.pk]) return; if (r.pr) S.pr[DAY + g.pk] = JSON.parse(JSON.stringify(r.pr)); else if (g.id == 'palabra' && r.g) S.pr[DAY + g.pk] = { g: r.g.slice() } }); /* palabra: los resultados antiguos ya guardaban los intentos */
 const R = g => DU ? DU.res[g] : (S.res[DAY] || {})[g],
-   fin = (g, o) => { if (DU) return Duelo.fin(g, o); snap(g, o); (S.res[DAY] = S.res[DAY] || {})[g] = o; sv(); Nube.guardarResultado(DAY, g, o) },
+   fin = (g, o) => { if (DU) return Duelo.fin(g, o); o = penaliza(o); snap(g, o); (S.res[DAY] = S.res[DAY] || {})[g] = o; sv(); Nube.guardarResultado(DAY, g, o) },
    prog = g => DU ? (DU.pr[g] = DU.pr[g] || {}) : (S.pr[DAY + g] = S.pr[DAY + g] || {});
 const days = (r = S.res) => Object.keys(r).map(Number).filter(d => Object.keys(r[d]).length);
 function streak() { return runs(days()).cur }
 let V = 'home', msg = '', sel = null, hist = [];
 const theme = () => { const r = document.documentElement; if (S.set.th == 'auto') r.removeAttribute('data-theme'); else r.dataset.theme = S.set.th; document.body.classList.toggle('cb', S.set.cb) };
 const KR = ['qwertyuiop', 'asdfghjklñ', 'zxcvbnm'];
+/* Las ayudas suman segundos al tiempo del reto diario, igual que en un duelo (pista_ms / comprobar_ms). Se guardan la penalización (pen) y el tiempo real (tr). */
+const penaliza = o => {
+   if (!o || (o.st != 'won' && o.st != 'completed') || typeof o.t != 'number' || o.pen) return o;
+   const pen = (+o.h || 0) * Duelo.coste('pista') * 1000 + (+o.c || 0) * Duelo.coste('comprobar') * 1000;
+   return pen > 0 ? Object.assign({}, o, { tr: o.t, t: o.t + pen, pen }) : o
+};
 const kb = (st, en) => `<div class="kb">${KR.map((r, i) => `<div class="kr">${i == 2 && en ? '<button class="k w" data-a="k" data-k="Enter">Enter</button>' : ''}${[...r].map(l => `<button class="k ${st && st[l] != null ? 's' + st[l] : ''}" data-a="k" data-k="${l}"${st && st[l] != null ? ` aria-label="${l}, ${['no está en la palabra', 'está en otro sitio', 'en su sitio'][st[l]]}"` : ''}>${l}</button>`).join('')}${i == 2 ? '<button class="k w" data-a="k" data-k="Del" aria-label="Borrar">⌫</button>' : ''}</div>`).join('')}</div>`;
 /* Botón de compartir solo con icono (compartir en móvil, copiar en ordenador). El texto lo lee enviar() de app.js. */
 const IC_CP = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/></svg>',
    IC_SH = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>',
    IC_OK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const compBtn = (a, l) => `<button class="btn ib" data-a="${a}" aria-label="${l}" title="${l}">${CAN_SHARE ? IC_SH : IC_CP}</button>`;
-const res = (t, d, s) => DU ? Duelo.res(t) : `<section class="res rb"><h2>${t}</h2>${compBtn('copy', CAN_SHARE ? 'Compartir resultado' : 'Copiar resultado')}<p>${d}</p><div class="pw"><pre id="sh">${s}</pre></div></section>`;
+const penNota = () => { const g = cur(), r = g && R(g.id); return r && r.pen ? ` Tu tiempo incluye ${Math.round(r.pen / 1000)} s de penalización por ayudas (real: ${mmss(r.tr)}).` : '' };
+const res = (t, d, s) => DU ? Duelo.res(t) : `<section class="res rb"><h2>${t}</h2>${compBtn('copy', CAN_SHARE ? 'Compartir resultado' : 'Copiar resultado')}<p>${d}${penNota()}</p><div class="pw"><pre id="sh">${s}</pre></div></section>`;
 /* Instrucciones del juego (propiedad "how" al registrarlo). Abiertas la primera vez; después, plegadas. Se recuerda lo que el jugador abra o cierre. */
 const HW = {};
 const how = () => {
@@ -54,17 +61,17 @@ const how = () => {
 const shell = (t, b) => DU ? Duelo.shell(t, b) : `<div class="bar"><button class="bk" data-a="go" data-v="home">‹ Inicio</button><h1>${t}</h1></div><p class="sub" style="margin:0 0 8px">Reto nº ${DAY}</p>${how()}${b}`;
 
 /* Barra de controles común a todos los juegos: Deshacer · Reiniciar · Comprobar · Pista · Rendirme.
-   controles({undo:1, reiniciar:1, comprobar:'(−4)', pista:'(−12)', rendirme:1}) — cada juego pide solo los que tienen sentido,
+   controles({undo:1, reiniciar:1, comprobar:1, pista:1, rendirme:1}) — cada juego pide solo los que tienen sentido,
    siempre en este orden y con estos nombres de acción: undo, reiniciar, comprobar, pista, rendirme.
-   Un valor de texto se pinta como coste en puntos junto a la etiqueta (solo en el reto diario; en duelo el coste sale siempre en segundos, de duelo_cfg()). "Rendirme" pide confirmación con un segundo toque (confirma(fn)),
+   pista y comprobar enseñan su coste en segundos (de duelo_cfg(); mismo valor en el reto diario y en duelo). "Rendirme" pide confirmación con un segundo toque (confirma(fn)),
    y en un duelo se llama «Abandonar ronda» (solo pierde esa ronda; rendirse del duelo está en la cabecera). */
 let CFT = 0;
 const confirma = fn => () => { if (CFT) { clearTimeout(CFT); CFT = 0; fn() } else { CFT = setTimeout(() => { CFT = 0; draw() }, 3000); draw() } };
 const controles = o => {
-   /* En duelo las ayudas enseñan su penalización en segundos (⏱15 s); en el reto diario solo se enseña el coste en puntos que pase el juego (Cifrado). */
-   const c = (k, v) => DU ? ` ⏱${Duelo.coste(k)} s` : typeof v == 'string' ? ' ' + v : '';
+   /* Las ayudas enseñan su penalización en segundos (⏱15 s), en el reto diario y en duelo: en los dos se suma al tiempo. */
+   const c = k => ` ⏱${Duelo.coste(k)} s`;
    const b = (a, t, x = '') => `<button class="btn${x}" data-a="${a}">${t}</button>`;
-   const ley = DU && (o.pista || o.comprobar) ? '<p class="cap" style="text-align:center;margin:0">⏱ = segundos que se suman a tu tiempo</p>' : '';
+   const ley = (o.pista || o.comprobar) ? '<p class="cap" style="text-align:center;margin:0">⏱ = segundos que se suman a tu tiempo</p>' : '';
    return `<div class="row ctl">${o.undo ? b('undo', 'Deshacer') : ''}${o.reiniciar ? b('reiniciar', 'Reiniciar') : ''}${o.comprobar ? b('comprobar', 'Comprobar' + c('comprobar', o.comprobar)) : ''}${o.pista ? b('pista', 'Pista' + c('pista', o.pista)) : ''}${o.rendirme ? (CFT ? b('rendirme', '¿Seguro? Sí', ' dg') : b('rendirme', DU ? 'Abandonar ronda' : 'Rendirme')) : ''}</div>${ley}`
 };
 /* Tarjeta de resultado de una partida rendida (igual en todos los juegos). */
