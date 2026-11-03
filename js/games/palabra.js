@@ -39,6 +39,6 @@
         render: palabra,
         onKey: pk,               // teclado físico y en pantalla
         status: (r, p) => r ? (r.st == 'won' ? `Acertada en ${ratt(r)}${r.t ? ' · ' + mmss(r.t) : ''}` : 'Fallada') : (p && (p.g && p.g.length || p.t0) ? 'En curso' : 'Sin jugar'),
-        stats: (e, w, k) => { const d = [1, 2, 3, 4, 5].map(i => w.filter(x => i < 5 ? x.att == i : x.att >= 5).length), l = e.length - w.length, m = Math.max(1, l, ...d); return [...d, l].map((n, i) => `<div class="br"><span>${i < 5 ? i + 1 : 'X'}</span><u><i style="width:${n / m * 100}%"></i></u><b>${n}</b></div>`).join('') + (w.length ? kpi([...kTiempos(w), ...(k || [])]) : '') }
+        stats: (e, w, k) => { const d = [1, 2, 3, 4, 5].map(i => w.filter(x => i < 5 ? x.att == i : x.att >= 5).length), l = e.length - w.length, m = Math.max(1, l, ...d); return '<p class="cap" style="margin:0 0 6px">Partidas según los intentos que usaste</p>' + [...d, l].map((n, i) => `<div class="br"><span>${i < 5 ? i + 1 + (i ? ' intentos' : ' intento') : 'Sin acertar'}</span><u><i style="width:${n / m * 100}%"></i></u><b>${n}</b></div>`).join('') + (w.length ? kpi([...kTiempos(w), ...(k || [])]) : '') }
     });
 })();
