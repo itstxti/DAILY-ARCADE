@@ -47,7 +47,7 @@
     else {
       b += `<div class="r">${[...cur].map((l, i) => `<button class="t ${l != ult[i] ? 's1' : ''} ${p.i === i ? 'sel' : ''}" data-a="pos" data-i="${i}" aria-label="Letra ${i + 1}: ${l}">${l}</button>`).join('')}</div>`
         + fila(Z.b, null, 's2') + `<p class="cap" style="text-align:center;margin:0">Meta</p>`
-        + `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="msg" role="status">${msg || 'Toca una letra, elige la nueva y pulsa Enter.'}</p>`
+        + `${S.set.tm ? tmHtml(p) : ''}<p class="msg" role="status">${msg || 'Toca una letra, elige la nueva y pulsa Enter.'}</p>`
         + `${controles({ undo: 1, pista: 1, rendirme: 1 })}` + kb(null, true)
     }
     return shell('Escalera', b)

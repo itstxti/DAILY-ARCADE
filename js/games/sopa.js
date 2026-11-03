@@ -93,7 +93,7 @@
       let b = `<div id="spb" data-b="sopa" style="${r ? '' : 'touch-action:none;'}max-width:400px;margin:12px auto;border:3px solid var(--ink);border-radius:var(--r-md);overflow:hidden;user-select:none;-webkit-user-select:none">${svgTablero(p, !!r)}</div>`
          + `<ul id="spw" class="spw">${lista(p)}</ul>`;
       if (r && r.st == 'lost') b += resRendida('Sopa'); else if (r) b += res(`¡Las ${NP} palabras en ${mmss(r.t)}!`, r.h ? `Con ${r.h} ${pl(r.h, 'pista', 'pistas')}. Vuelve mañana para una sopa nueva.` : 'Vuelve mañana para una sopa nueva.', `Daily Arcade · Sopa #${DAY} · ${NP}/${NP} palabras${r.h ? ' · ' + r.h + pl(r.h, ' pista', ' pistas') : ''} · ${mmss(r.t)}`);
-      else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="cap" id="spc" style="text-align:center;margin:0">${p.f.length} / ${NP} palabras</p><p class="msg" id="spm" role="status">${msg}</p>${controles({ pista: 1, rendirme: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Arrastra de la primera a la última letra, o toca esas dos letras.</p>`;
+      else b += `${S.set.tm ? tmHtml(p) : ''}<p class="cap" id="spc" style="text-align:center;margin:0">${p.f.length} / ${NP} palabras</p><p class="msg" id="spm" role="status">${msg}</p>${controles({ pista: 1, rendirme: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Arrastra de la primera a la última letra, o toca esas dos letras.</p>`;
       return shell('Sopa de letras', b)
    }
 

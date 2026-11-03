@@ -61,7 +61,7 @@
       }
       let b = `<div class="sd" role="group" aria-label="Tablero de sudoku de 6 por 6">${z}</div>`;
       if (r && r.st == 'lost') b += resRendida('Sudoku'); else if (r) b += res(`¡Resuelto en ${mmss(r.t)}!`, 'Tablero de 6×6. Vuelve mañana para un reto nuevo.', `Daily Arcade · Sudoku #${DAY} · 6×6 · ${mmss(r.t)}${r.c ? ' · ' + r.c + pl(r.c, ' comprobación', ' comprobaciones') : ''}`);
-      else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, comprobar: 1, rendirme: 1 })}<div class="kb np"><div class="kr">${[1, 2, 3, 4, 5, 6].map(n => `<button class="k" data-a="k" data-k="${n}">${n}</button>`).join('')}<button class="k w" data-a="k" data-k="Del" aria-label="Borrar">⌫</button></div></div>`;
+      else b += `${S.set.tm ? tmHtml(p) : ''}<p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, comprobar: 1, rendirme: 1 })}<div class="kb np"><div class="kr">${[1, 2, 3, 4, 5, 6].map(n => `<button class="k" data-a="k" data-k="${n}">${n}</button>`).join('')}<button class="k w" data-a="k" data-k="Del" aria-label="Borrar">⌫</button></div></div>`;
       return shell('Sudoku mini', b)
    }
 

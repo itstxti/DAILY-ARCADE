@@ -20,7 +20,7 @@
             const n = est(r.sc);
             b += res(r.st == 'completed' ? `¡Descifrada! ${r.sc} puntos` : 'Rendida', `“${C.ph}” — ${C.au}`, `Daily Arcade · Cifrado #${DAY} ${r.st == 'completed' ? '⭐'.repeat(n) + '☆'.repeat(5 - n) + ' · ' + mmss(r.t) : 'rendida'}`)
         }
-        else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="msg" role="status">${msg}</p>${controles({ comprobar: 1, pista: 1, rendirme: 1 })}` + kb(null, false);
+        else b += `${S.set.tm ? tmHtml(p) : ''}<p class="msg" role="status">${msg}</p>${controles({ comprobar: 1, pista: 1, rendirme: 1 })}` + kb(null, false);
         return shell('Cifrado', b)
     }
     function ck(m) {

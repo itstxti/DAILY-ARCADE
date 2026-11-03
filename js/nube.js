@@ -63,7 +63,7 @@ const Nube = (() => {
    const avisoRechazo = juegos => {
       console.warn('El servidor ha rechazado resultados de:', juegos.join(', '));
       if (avisado) return; avisado = true;
-      if (typeof toast == 'function') toast('El servidor no ha aceptado algunos resultados (' + [...new Set(juegos)].join(', ') + '), así que no cuentan en el ranking. Falta actualizar la base de datos: ejecuta supabase/juegos_nuevos.sql. Siguen guardados en este navegador.')
+      if (typeof toast == 'function') toast('El servidor no ha aceptado algunos resultados (' + [...new Set(juegos)].join(', ') + '), así que no cuentan en el ranking. Falta actualizar la base de datos: ejecuta supabase/juegos_nuevos.sql. Siguen guardados en este navegador.', 10000)
    };
    const subirFilas = async rows => {
       const malas = [];
