@@ -83,8 +83,8 @@ ${secInstalar()}
 }
 
 /* ---------- Perfil ---------- */
-/* Estrellas de media de todas las partidas (rendida = 0) como tarjeta del perfil. */
-const ke = (e, g) => { const s = e.map(x => estrellas(g.id, x)).filter(x => x != null); return s.length ? [[avg(s).toFixed(1) + ' ★', 'estrellas de media']] : [] };
+/* Puntuación media (en estrellas, sobre 5) de todas las partidas (rendida = 0), como tarjeta del perfil. */
+const ke = (e, g) => { const s = e.map(x => estrellas(g.id, x)).filter(x => x != null); return s.length ? [[avg(s).toFixed(1) + ' / 5', 'puntuación media']] : [] };
 function blk(g, e, am) {
   e = e || E(g.id); const w = e.filter(x => x.st == 'won' || x.st == 'completed'), a = runs(e.map(x => x.d)), v = runs(w.map(x => x.d)), vs = true,
     c = (n, l, s) => `<div><b>${n}</b><span>${l}${s ? `<small>${s}</small>` : ''}</span></div>`, sg = (n, l) => n == 1 ? l.replace(/s\b/g, '') : l;
