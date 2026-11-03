@@ -110,11 +110,9 @@
     how: ["Llega de la palabra de <b>inicio</b> a la <b>meta</b>.", "Cambia <b>una sola letra</b> en cada paso, y la palabra tiene que existir.", "Toca la letra, escribe la nueva y pulsa <b>Enter</b>."],
     demo: `<p class="cap">De <b>MESA</b> a <b>MIRA</b> en 2 pasos:</p><div class="r"><span class="t s0">M</span><span class="t s0">E</span><span class="t s0">S</span><span class="t s0">A</span></div><div class="r"><span class="t">M</span><span class="t s1">I</span><span class="t">S</span><span class="t">A</span></div><div class="r"><span class="t s2">M</span><span class="t s2">I</span><span class="t s2">R</span><span class="t s2">A</span></div><p class="cap"><b class="dot s0"></b> inicio &nbsp; <b class="dot s1"></b> letra cambiada &nbsp; <b class="dot s2"></b> meta</p>`,
     pk: 'e',
-    winLabel: 'completadas',
     render: escalera,
     onKey: tecla,
     actions: { pos, undo, pista: hint, rendirme: confirma(giveup) },
-    status: (r, p) => r ? (r.st == 'won' ? `Completada · ${r.n} ${pl(r.n, 'paso', 'pasos')}` : 'Rendida') : (p && p.t0 ? 'En curso' : 'Sin jugar'),
-    stats: (e, w) => w.length ? kpi([[avg(w.map(x => x.n)).toFixed(1), 'pasos de media'], [w.filter(x => x.n == x.par && !x.h).length, 'en el mínimo']]) : ''
+    status: (r, p) => r ? (r.st == 'won' ? `Completada · ${r.n} ${pl(r.n, 'paso', 'pasos')}` : 'Rendida') : (p && p.t0 ? 'En curso' : 'Sin jugar')
   });
 })();

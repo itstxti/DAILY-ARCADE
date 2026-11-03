@@ -117,11 +117,8 @@
       how: ["Apaga <b>todas las luces</b> del tablero.", "Al pulsar una casilla se invierten <b>ella y sus vecinas</b> (arriba, abajo, izquierda y derecha).", "Cuenta cada pulsación: intenta acercarte al <b>mínimo</b>. Pulsar dos veces la misma casilla la deja como estaba."],
       demo: (() => { const e = [0, 1, 0, 1, 1, 1, 0, 1, 0]; return `<p class="cap">Al pulsar la casilla del centro se invierten las casillas en amarillo:</p><div class="lzb" style="grid-template-columns:repeat(3,1fr);width:120px;gap:3px">${e.map(v => `<span class="lz${v ? ' on' : ''}"></span>`).join('')}</div>` })(),
       pk: 'l',
-      winLabel: 'completadas',
-      winStreak: false,       // no se puede perder: solo se completa
       render: luces,
       actions: { lz, undo, reiniciar, pista, rendirme: confirma(rendirse) },
-      status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Completada · ${r.n}/${r.par} pulsaciones · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar'),
-      stats: (e, w) => w.length ? kpi([[mmss(Math.min(...w.map(x => x.t))), 'mejor tiempo'], [w.filter(x => x.n == x.par && !x.h).length, 'en el mínimo'], [avg(w.map(x => x.n - x.par)).toFixed(1), 'pulsaciones de más']]) : ''
+      status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Completada · ${r.n}/${r.par} pulsaciones · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar')
    });
 })();

@@ -84,10 +84,10 @@ ${secInstalar()}
 
 /* ---------- Perfil ---------- */
 function blk(g, e, am) {
-  e = e || E(g.id); const w = e.filter(x => x.st == 'won' || x.st == 'completed'), a = runs(e.map(x => x.d)), v = runs(w.map(x => x.d)), vs = g.winStreak !== false,
+  e = e || E(g.id); const w = e.filter(x => x.st == 'won' || x.st == 'completed'), a = runs(e.map(x => x.d)), v = runs(w.map(x => x.d)), vs = true,
     c = (n, l, s) => `<div><b>${n}</b><span>${l}${s ? `<small>${s}</small>` : ''}</span></div>`, sg = (n, l) => n == 1 ? l.replace(/s\b/g, '') : l;
   return `<details class="res pb gm"${GAMES.length <= 3 ? ' open' : ''}><summary><span class="gi" style="background:var(${g.color})">${g.icon}</span><h2>${g.name}</h2><small>${e.length ? a.cur + (a.cur == 1 ? ' día' : ' días') + ' de racha' : 'Sin jugar'}</small></summary>` +
-    (e.length ? `<div class="gs">${c(e.length, sg(e.length, 'partidas'))}${c(w.length, sg(w.length, g.winLabel), pct(w.length, e.length) + ' %')}${c(a.cur, 'días de racha', 'mejor ' + a.best)}${vs ? c(v.cur, sg(v.cur, 'victorias seguidas'), 'mejor ' + v.best) : ''}</div>${g.stats ? `<div class="gx">${(() => { try { return g.stats(e, w) } catch (x) { return '' } })()}</div>` : ''}`
+    (e.length ? `<div class="gs">${c(e.length, sg(e.length, 'partidas'))}${c(w.length, sg(w.length, 'ganadas'), pct(w.length, e.length) + ' %')}${c(a.cur, 'días de racha', 'mejor ' + a.best)}${vs ? c(v.cur, sg(v.cur, 'victorias seguidas'), 'mejor ' + v.best) : ''}</div><div class="gx">${(() => { try { return g.stats ? g.stats(e, w) : (w.length ? kpi(kTiempos(w)) : '') } catch (x) { return '' } })()}</div>`
       : (am ? '<p>Todavía no ha jugado este juego.</p>' : `<p>Todavía no has jugado este reto.</p><div class="row"><button class="btn" data-a="go" data-v="${g.id}">Jugar ahora</button></div>`)) + `</details>`
 }
 function resumen(res) {

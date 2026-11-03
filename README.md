@@ -5,7 +5,7 @@ Daily Arcade es una web de juegos diarios: cada día a medianoche (hora de Madri
 ## Características
 
 - 10 juegos diarios: Palabra, Cifrado, Coronas, Sudoku mini, Escalera, Operaciones, Camino, Luces, Tuberías y Sopa de letras.
-- Rachas, perfil con estadísticas por juego y mapa de los últimos 28 días.
+- Rachas, perfil con las mismas estadísticas en todos los juegos (partidas, ganadas, días de racha, victorias seguidas, mejor tiempo y tiempo medio; Palabra añade su histograma) y mapa de los últimos 28 días.
 - Cuentas con correo, con @usuario o con Google; modo invitado sin cuenta.
 - Amigos, ranking del día y de rachas, y perfil público o privado.
 - Duelos entre amigos: mejor de 5 en directo, con juegos al azar (ver «Duelos»).

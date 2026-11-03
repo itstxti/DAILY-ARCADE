@@ -5,7 +5,7 @@ const EPOCH = Date.UTC(2026, 9, 31); // día del reto nº 1 (año, mes-1, día).
 
 /* ---------- Registro de juegos ---------- */
 const GAMES = [];
-const DailyArcade = { register(g) { g.winLabel = g.winLabel || 'ganadas'; GAMES.push(g) } };
+const DailyArcade = { register(g) { GAMES.push(g) } };
 const cur = () => GAMES.find(g => g.id == V);
 
 /* En móvil se abre el menú de compartir del sistema; en ordenador se copia al portapapeles. */
@@ -82,6 +82,8 @@ const controles = o => {
 const resRendida = (nombre, detalle) => res('Rendida', detalle || 'Vuelve mañana para un reto nuevo.', `Daily Arcade · ${nombre} #${DAY} · rendida`);
 
 /* Fila de cifras para el perfil: kpi([[valor,etiqueta,detalle?],…]) */
+/* Pares [valor, etiqueta] de mejor tiempo y tiempo medio de las partidas ganadas (w); vacío si ninguna tiene tiempo. */
+const kTiempos = w => { const t = w.map(x => x.t).filter(x => typeof x == 'number' && x > 0); return t.length ? [[mmss(Math.min(...t)), 'mejor tiempo'], [mmss(avg(t)), 'tiempo medio']] : [] };
 const kpi = a => `<div class="kp">${a.map(([v, l, x]) => `<div><b>${v}</b>${x ? `<i>${x}</i>` : ''}<span>${l}</span></div>`).join('')}</div>`;
 const E = (g, r = S.res) => Object.entries(r).filter(([d, o]) => o[g]).map(([d, o]) => ({ d: +d, ...o[g] }));
 function runs(ds) { const q = new Set(ds); let best = 0, n = 0;[...ds].sort((a, b) => a - b).forEach(d => { n = q.has(d - 1) ? n + 1 : 1; best = Math.max(best, n) }); let d = q.has(DAY) ? DAY : DAY - 1, cur = 0; while (q.has(d)) { cur++; d-- } return { cur, best } }

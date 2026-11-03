@@ -42,11 +42,8 @@
         how: ["Una corona ♛ en cada <b>fila</b>, <b>columna</b> y <b>color</b>.", "Las coronas <b>no pueden tocarse</b>, ni en diagonal.", "Toca una casilla: vacía → ✕ → ♛."],
         demo: (() => { const g = [0, 0, 1, 1, 0, 3, 3, 1, 2, 2, 3, 3, 2, 2, 3, 3], c = [1, 7, 8, 14]; return `<p class="cap">Ejemplo resuelto:</p><div class="bd2" style="grid-template-columns:repeat(4,1fr)">${g.map((r, i) => `<span class="z" style="background:${REG[r]}">${c.includes(i) ? '♛' : ''}</span>`).join('')}</div>` })(),
         pk: 'o',
-        winLabel: 'completadas',
-        winStreak: false,        // no muestra "victorias seguidas" en el perfil
         render: coronas,
         actions: { cell: b => cell(+b.dataset.i), undo, reiniciar, rendirme: confirma(rendirse) },
-        status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Completada · ${mmss(r.t)}` : (p && (p.g && p.g.length || p.t0) ? 'En curso' : 'Sin jugar'),
-        stats: (e, w) => w.length ? kpi([[mmss(Math.min(...w.map(x => x.t))), 'mejor tiempo'], [mmss(avg(w.map(x => x.t))), 'tiempo medio']]) : ''
+        status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Completada · ${mmss(r.t)}` : (p && (p.g && p.g.length || p.t0) ? 'En curso' : 'Sin jugar')
     });
 })();

@@ -21,6 +21,7 @@
      mmss(ms)  avg(array)  utilidades
    Botones: cualquier elemento con data-a="nombre" llama a actions.nombre(elemento).
    Ojo: no uses como nombre de acción go, set, copy, k, entrar, registrar, salir, reset, reset-si, reset-no, vis ni usr-*: los usa la app.
+   Perfil: todos los juegos enseñan lo mismo (partidas, ganadas, días de racha, victorias seguidas, mejor tiempo y tiempo medio, calculados de lo que guardes con fin(): st y t). Solo si necesitas algo propio, añade stats:(e,w)=>html al registrar (como Palabra con su histograma).
    Instrucciones: how:[…] (3 frases cortas, admite <b>) y demo:'<html>' (opcional, un ejemplo visual) se muestran como «Cómo se juega» bajo el título.
    Para el ejemplo puedes reutilizar las clases: .t .r (fichas), .c .wd (letras), .bd2 .z (tablero), .sd .sx (sudoku), .chp (números), .dot (leyenda) y .cap (pie). */
 (function () {
@@ -48,11 +49,9 @@
     id: 'numero', name: 'Número', desc: 'Encuentra el número secreto del 1 al 100.', color: '--mint', icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 7 20M17 4l-2 16M4 9h17M3 15h17"/></svg>',
     pk: 'n',                 // clave de progreso, única por juego
     how: ['Adivina el número secreto del 1 al 100.', 'Tras cada intento te dice si es más alto o más bajo.'],
-    winLabel: 'ganadas',
     render,
     actions: { probar },
     // onKey:(tecla)=>{…}   ← solo si el juego usa teclado (tecla = 'a'…'z', 'ñ', 'Enter', 'Del')
-    status: (r, p) => r ? `Resuelto en ${r.att} intentos` : (p && p.g && p.g.length ? 'En curso' : 'Sin jugar'),
-    stats: (e, w) => w.length ? `<p>Media: ${avg(w.map(x => x.att)).toFixed(1)} intentos</p>` : ''
+    status: (r, p) => r ? `Resuelto en ${r.att} intentos` : (p && p.g && p.g.length ? 'En curso' : 'Sin jugar')
   });
 })();

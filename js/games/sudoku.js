@@ -117,13 +117,10 @@
       how: ["Rellena el tablero con los números del <b>1 al 6</b>.", "No repitas número en ninguna <b>fila</b>, <b>columna</b> ni <b>caja de 2×3</b>.", "Los números fijos no se cambian. Toca una casilla y elige un número."],
       demo: (() => { let z = ''; for (let i = 0; i < 36; i++) { const x = i % 6, y = i / 6 | 0, cj = y < 2 && x < 3; z += `<span class="sx${x == 2 ? ' vr' : ''}${y % 2 && y < 5 ? ' hr' : ''}${cj ? ' eq' : ''}">${cj ? y * 3 + x + 1 : ''}</span>` } return `<p class="cap">Cada caja de 2×3 (en azul) lleva del 1 al 6:</p><div class="sd">${z}</div>` })(),
       pk: 's',
-      winLabel: 'resueltos',
-      winStreak: false,       // no se puede perder: solo se resuelve
       digits: true,           // el teclado físico también envía los números 0-9
       render: sudoku,
       onKey: tecla,
       actions: { sc, undo, reiniciar, comprobar: chk, rendirme: confirma(rendirse) },
-      status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Resuelto · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar'),
-      stats: (e, w) => w.length ? kpi([[mmss(Math.min(...w.map(x => x.t))), 'mejor tiempo'], [mmss(avg(w.map(x => x.t))), 'tiempo medio']]) : ''
+      status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Resuelto · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar')
    });
 })();
