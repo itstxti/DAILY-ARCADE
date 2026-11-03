@@ -72,7 +72,7 @@ Si cambias el día de lanzamiento, cambia a la vez `EPOCH` en `js/core.js` y la 
 
 ## Uso
 
-- **Controles:** todos los juegos usan la misma barra (Deshacer · Reiniciar · Comprobar · Pista · Rendirme), mostrando solo los que tienen sentido en cada uno. Las ayudas con penalización enseñan su coste en segundos, p. ej. *Pista ⏱15 s*, y esos segundos se suman a tu tiempo (el cronómetro los incluye, muestra el desglose «1:00 + 5 s de ayudas» y hace un destello «+5 s» al pulsar la ayuda) tanto en el reto diario (y en su ranking; el tiempo real queda guardado como `tr`) como en los duelos. En Cifrado, además, las ayudas bajan los puntos y las estrellas. Rendirse cuenta como partida jugada, no como victoria.
+- **Controles:** todos los juegos usan la misma barra (Deshacer · Reiniciar · Comprobar · Pista · Rendirme), mostrando solo los que tienen sentido en cada uno. Las ayudas con penalización enseñan su coste en segundos, p. ej. *Pista ⏱15 s*, y esos segundos se suman a tu tiempo (el cronómetro los incluye, muestra el desglose «1:00 + 5 s de ayudas» y hace un destello «+5 s» al pulsar la ayuda) tanto en el reto diario (y en su ranking; el tiempo real queda guardado como `tr`) como en los duelos. Rendirse cuenta como partida jugada, no como victoria.
 - **Jugar:** elige un juego en el inicio. Cada uno tiene su «Cómo se juega». Los resultados se guardan en el navegador y, con cuenta, también en el servidor.
 - **Cuenta:** en Perfil o Ajustes, «Entrar o crear cuenta». Se puede entrar con correo o con @usuario, y lo jugado como invitado se sube al entrar.
 - **Amigos y ranking:** con sesión iniciada, busca a un amigo por su @usuario exacto. El ranking solo muestra a ti y a tus amigos.
