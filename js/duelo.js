@@ -242,5 +242,7 @@ ${env.length ? `<section class="res pb"><h2>Esperando respuesta</h2>${env.map(d 
   function abrir() { cargar().then(() => { if (V == 'duelos') draw() }); if (AM === null && Nube.user) cargarAmigos() }
   function init() { setInterval(bucle, 500); addEventListener('visibilitychange', () => { if (!document.hidden) D.ult = 0 }); addEventListener('online', () => { D.ult = 0 }) }
 
-  return { disponible: () => !D.noDisp, init, vista, shell, res, fin, accion, abrir, badge, reset, ocupado: () => !!(DU || D.dentro), cargar }
+  /* Segundos de penalización de una ayuda en duelo (k = 'pista' | 'comprobar'); los pesos viven en duelo_cfg() del SQL. */
+  const coste = k => Math.round((D.cfg[k + '_ms'] || { pista: 15000, comprobar: 5000 }[k]) / 1000);
+  return { coste, disponible: () => !D.noDisp, init, vista, shell, res, fin, accion, abrir, badge, reset, ocupado: () => !!(DU || D.dentro), cargar }
 })();
