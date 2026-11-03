@@ -85,11 +85,17 @@ ${secInstalar()}
 /* ---------- Perfil ---------- */
 /* Puntuación media (en estrellas, sobre 5) de todas las partidas (rendida = 0), como tarjeta del perfil. */
 const ke = (e, g) => { const s = e.map(x => estrellas(g.id, x)).filter(x => x != null); return s.length ? [[avg(s).toFixed(1) + ' / 5', 'puntuación media']] : [] };
+/* Histograma de puntuaciones: cuántas partidas han acabado con 5, 4… 0 estrellas (0 = rendida). Igual en todos los juegos. */
+const histo = (e, g) => {
+  const n = [0, 0, 0, 0, 0, 0]; let t = 0; e.forEach(x => { const s = estrellas(g.id, x); if (s != null) { n[s]++; t++ } });
+  if (!t) return ''; const m = Math.max(...n);
+  return '<p class="cap" style="margin:0 0 6px">Partidas según su puntuación</p>' + [5, 4, 3, 2, 1, 0].map(s => `<div class="br"><span class="es" aria-label="${s} de 5 estrellas">${estTxt(s)}</span><u><i style="width:${n[s] / m * 100}%"></i></u><b>${n[s]}</b></div>`).join('')
+};
 function blk(g, e, am) {
   e = e || E(g.id); const w = e.filter(x => x.st == 'won' || x.st == 'completed'), a = runs(e.map(x => x.d)), v = runs(w.map(x => x.d)), vs = true,
     c = (n, l, s) => `<div><b>${n}</b><span>${l}${s ? `<small>${s}</small>` : ''}</span></div>`, sg = (n, l) => n == 1 ? l.replace(/s\b/g, '') : l;
   return `<details class="res pb gm"${GAMES.length <= 3 ? ' open' : ''}><summary><span class="gi" style="background:var(${g.color})">${g.icon}</span><h2>${g.name}</h2><small>${e.length ? a.cur + (a.cur == 1 ? ' día' : ' días') + ' de racha' : 'Sin jugar'}</small></summary>` +
-    (e.length ? `<div class="gs">${c(e.length, sg(e.length, 'partidas'))}${c(w.length, sg(w.length, 'ganadas'), pct(w.length, e.length) + ' %')}${c(a.cur, 'días de racha', 'mejor ' + a.best)}${vs ? c(v.cur, sg(v.cur, 'victorias seguidas'), 'mejor ' + v.best) : ''}</div><div class="gx">${(() => { try { return g.stats ? g.stats(e, w, ke(e, g)) : (w.length ? kpi([...kTiempos(w), ...ke(e, g)]) : '') } catch (x) { return '' } })()}</div>`
+    (e.length ? `<div class="gs">${c(e.length, sg(e.length, 'partidas'))}${c(w.length, sg(w.length, 'ganadas'), pct(w.length, e.length) + ' %')}${c(a.cur, 'días de racha', 'mejor ' + a.best)}${vs ? c(v.cur, sg(v.cur, 'victorias seguidas'), 'mejor ' + v.best) : ''}</div><div class="gx">${(() => { try { return histo(e, g) + (g.stats ? g.stats(e, w, ke(e, g)) : (w.length ? kpi([...kTiempos(w), ...ke(e, g)]) : '')) } catch (x) { return '' } })()}</div>`
       : (am ? '<p>Todavía no ha jugado este juego.</p>' : `<p>Todavía no has jugado este reto.</p><div class="row"><button class="btn" data-a="go" data-v="${g.id}">Jugar ahora</button></div>`)) + `</details>`
 }
 function resumen(res) {
