@@ -55,7 +55,8 @@ const IC_CP = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" strok
    IC_OK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const compBtn = (a, l) => `<button class="btn ib" data-a="${a}" aria-label="${l}" title="${l}">${CAN_SHARE ? IC_SH : IC_CP}</button>`;
 const penNota = () => { const g = cur(), r = g && R(g.id); return r && r.pen ? ` Tu tiempo incluye ${Math.round(r.pen / 1000)} s de penalización por ayudas (real: ${mmss(r.tr)}).` : '' };
-const res = (t, d, s) => DU ? Duelo.res(t) : `<section class="res rb"><h2>${t}</h2>${compBtn('copy', CAN_SHARE ? 'Compartir resultado' : 'Copiar resultado')}<p>${d}${penNota()}</p><div class="pw"><pre id="sh">${s}</pre></div></section>`;
+const res = (t, d, s) => { if (DU) return Duelo.res(t); const g = cur(), n = g && estrellas(g.id, R(g.id)), e = n ? estTxt(n) : '';
+   return `<section class="res rb"><h2>${t}</h2>${compBtn('copy', CAN_SHARE ? 'Compartir resultado' : 'Copiar resultado')}${n == null ? '' : `<p class="est" aria-label="${n} de 5 estrellas">${estTxt(n)}</p>`}<p>${d}${penNota()}</p><div class="pw"><pre id="sh">${s}${e ? ' · ' + e : ''}</pre></div></section>` };
 /* Instrucciones del juego (propiedad "how" al registrarlo). Abiertas la primera vez; después, plegadas. Se recuerda lo que el jugador abra o cierre. */
 const HW = {};
 const how = () => {
@@ -84,6 +85,18 @@ const resRendida = (nombre, detalle) => res('Rendida', detalle || 'Vuelve mañan
 /* Fila de cifras para el perfil: kpi([[valor,etiqueta,detalle?],…]) */
 /* Pares [valor, etiqueta] de mejor tiempo y tiempo medio de las partidas ganadas (w); vacío si ninguna tiene tiempo. */
 const kTiempos = w => { const t = w.map(x => x.t).filter(x => typeof x == 'number' && x > 0); return t.length ? [[mmss(Math.min(...t)), 'mejor tiempo'], [mmss(avg(t)), 'tiempo medio']] : [] };
+/* ---------- Estrellas (0–5), iguales en todos los juegos ----------
+   0 = rendida. Resuelta: de 1 a 5 según el tiempo (ya con la penalización de ayudas) frente al tiempo de referencia del juego (segundos, REF):
+   hasta 1×REF → 5, 1,5× → 4, 2× → 3, 3× → 2, más → 1. Palabra se mide por intentos: 1 → 5, 2 → 4, 3 → 3, 4 → 2, 5 o 6 → 1.
+   Los tiempos de referencia son un punto de partida: ajústalos aquí, en un único sitio. */
+const REF = { cifra: 120, coronas: 30, sudoku: 100, escalera: 20, operaciones: 15, camino: 20, luces: 40, tuberias: 15, sopa: 30 };
+const estrellas = (id, r) => {
+   if (!r) return null; if (r.st != 'won' && r.st != 'completed') return 0;
+   if (id == 'palabra') return typeof r.att == 'number' && r.att >= 1 ? [5, 4, 3, 2, 1, 1][Math.min(r.att, 6) - 1] : null;
+   if (typeof r.t != 'number' || r.t <= 0 || !REF[id]) return null;
+   const x = r.t / (REF[id] * 1000); return x <= 1 ? 5 : x <= 1.5 ? 4 : x <= 2 ? 3 : x <= 3 ? 2 : 1
+};
+const estTxt = n => n == null ? '' : '★'.repeat(n) + '☆'.repeat(5 - n);
 const kpi = a => `<div class="kp">${a.map(([v, l, x]) => `<div><b>${v}</b>${x ? `<i>${x}</i>` : ''}<span>${l}</span></div>`).join('')}</div>`;
 const E = (g, r = S.res) => Object.entries(r).filter(([d, o]) => o[g]).map(([d, o]) => ({ d: +d, ...o[g] }));
 function runs(ds) { const q = new Set(ds); let best = 0, n = 0;[...ds].sort((a, b) => a - b).forEach(d => { n = q.has(d - 1) ? n + 1 : 1; best = Math.max(best, n) }); let d = q.has(DAY) ? DAY : DAY - 1, cur = 0; while (q.has(d)) { cur++; d-- } return { cur, best } }

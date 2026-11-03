@@ -998,6 +998,13 @@ pre {
     right: 10px
 }
 
+.res .est {
+    margin: 2px 0 6px;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    color: var(--sun)
+}
+
 .res.rb h2 {
     min-height: 40px;
     margin: -4px 0 4px;

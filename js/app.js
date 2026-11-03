@@ -83,11 +83,13 @@ ${secInstalar()}
 }
 
 /* ---------- Perfil ---------- */
+/* Estrellas de media de todas las partidas (rendida = 0) como tarjeta del perfil. */
+const ke = (e, g) => { const s = e.map(x => estrellas(g.id, x)).filter(x => x != null); return s.length ? [[avg(s).toFixed(1) + ' ★', 'estrellas de media']] : [] };
 function blk(g, e, am) {
   e = e || E(g.id); const w = e.filter(x => x.st == 'won' || x.st == 'completed'), a = runs(e.map(x => x.d)), v = runs(w.map(x => x.d)), vs = true,
     c = (n, l, s) => `<div><b>${n}</b><span>${l}${s ? `<small>${s}</small>` : ''}</span></div>`, sg = (n, l) => n == 1 ? l.replace(/s\b/g, '') : l;
   return `<details class="res pb gm"${GAMES.length <= 3 ? ' open' : ''}><summary><span class="gi" style="background:var(${g.color})">${g.icon}</span><h2>${g.name}</h2><small>${e.length ? a.cur + (a.cur == 1 ? ' día' : ' días') + ' de racha' : 'Sin jugar'}</small></summary>` +
-    (e.length ? `<div class="gs">${c(e.length, sg(e.length, 'partidas'))}${c(w.length, sg(w.length, 'ganadas'), pct(w.length, e.length) + ' %')}${c(a.cur, 'días de racha', 'mejor ' + a.best)}${vs ? c(v.cur, sg(v.cur, 'victorias seguidas'), 'mejor ' + v.best) : ''}</div><div class="gx">${(() => { try { return g.stats ? g.stats(e, w) : (w.length ? kpi(kTiempos(w)) : '') } catch (x) { return '' } })()}</div>`
+    (e.length ? `<div class="gs">${c(e.length, sg(e.length, 'partidas'))}${c(w.length, sg(w.length, 'ganadas'), pct(w.length, e.length) + ' %')}${c(a.cur, 'días de racha', 'mejor ' + a.best)}${vs ? c(v.cur, sg(v.cur, 'victorias seguidas'), 'mejor ' + v.best) : ''}</div><div class="gx">${(() => { try { return g.stats ? g.stats(e, w, ke(e, g)) : (w.length ? kpi([...kTiempos(w), ...ke(e, g)]) : '') } catch (x) { return '' } })()}</div>`
       : (am ? '<p>Todavía no ha jugado este juego.</p>' : `<p>Todavía no has jugado este reto.</p><div class="row"><button class="btn" data-a="go" data-v="${g.id}">Jugar ahora</button></div>`)) + `</details>`
 }
 function resumen(res) {
@@ -201,7 +203,7 @@ ${fs ? '<div class="row"><button class="btn" style="flex:1" data-a="salir">Reint
 /* ---------- Inicio ---------- */
 function status(g) {
   const r = R(g.id), p = S.pr[DAY + g.pk];
-  if (g.status) return g.status(r, p);
+  if (g.status) { const s = g.status(r, p), n = estrellas(g.id, r); return n ? s + ' · ' + estTxt(n) : s }
   return r ? 'Completado' : p && p.t0 ? 'En curso' : 'Sin jugar'
 }
 const SV = d => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
