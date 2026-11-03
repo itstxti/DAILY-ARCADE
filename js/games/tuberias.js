@@ -99,8 +99,8 @@
    function tuberias() {
       const p = prog('t'); ini(p); const r = R('tuberias');
       let b = `<div id="tbb" class="cm" data-b="tuberias" style="${r ? '' : 'touch-action:none;'}max-width:372px;margin:12px auto;border:3px solid var(--ink);border-radius:var(--r-md);overflow:hidden;user-select:none;-webkit-user-select:none">${svgTablero(p.t, !!r)}</div>`;
-      if (r) b += res(`¡Tuberías unidas en ${mmss(r.t)}!`, `Las ${K} parejas están unidas y el tablero está lleno. Vuelve mañana para un reto nuevo.`, `Daily Arcade · Tuberías #${DAY} · 6×6 · ${K} colores · ${mmss(r.t)}`);
-      else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="cap" id="tbc" style="text-align:center;margin:0">${info(p.t)}</p><p class="msg" role="status">${msg}</p><div class="row" style="justify-content:center"><button class="btn" data-a="undo">Deshacer</button><button class="btn" data-a="reiniciar">Reiniciar</button></div><p class="foot" style="margin-top:8px;text-align:center">Arrastra desde un punto. Si cruzas otro camino, lo cortas.</p>`;
+      if (r && r.st == 'lost') b += resRendida('Tuberías'); else if (r) b += res(`¡Tuberías unidas en ${mmss(r.t)}!`, `Las ${K} parejas están unidas y el tablero está lleno. Vuelve mañana para un reto nuevo.`, `Daily Arcade · Tuberías #${DAY} · 6×6 · ${K} colores · ${mmss(r.t)}`);
+      else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="cap" id="tbc" style="text-align:center;margin:0">${info(p.t)}</p><p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, rendirme: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Arrastra desde un punto. Si cruzas otro camino, lo cortas.</p>`;
       return shell('Tuberías', b)
    }
 
@@ -157,6 +157,11 @@
       p.t = Array.from({ length: K }, () => []); act = null; msg = ''; sv(); draw()
    }
 
+   function rendirse() {
+      if (R('tuberias')) return;
+      const p = prog('t'); fin('tuberias', { st: 'lost', t: Date.now() - (p.t0 || Date.now()) }); sv(); draw()
+   }
+
    DailyArcade.register({
       id: 'tuberias', name: 'Tuberías', desc: 'Une las parejas de puntos del mismo color y rellena todo el tablero.', color: '--aqua', icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h7a5 5 0 0 1 5 5v7"/><path d="M4 4.5v7M12.5 20h7"/></svg>',
       how: ["Une cada pareja de puntos del <b>mismo color</b> con un camino.", "Los caminos <b>no pueden cruzarse</b> y entre todos tienen que <b>rellenar el tablero</b>.", "Arrastra desde un punto. Si pasas por otro camino, lo cortas. Las letras ayudan a distinguir los colores."],
@@ -171,8 +176,8 @@
       winLabel: 'completadas',
       winStreak: false,       // no se puede perder: solo se completa
       render: tuberias,
-      actions: { undo, reiniciar },
-      status: (r, p) => r ? `Completada · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar'),
+      actions: { undo, reiniciar, rendirme: confirma(rendirse) },
+      status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Completada · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar'),
       stats: (e, w) => w.length ? kpi([[mmss(Math.min(...w.map(x => x.t))), 'mejor tiempo'], [mmss(avg(w.map(x => x.t))), 'tiempo medio']]) : ''
    });
 })();

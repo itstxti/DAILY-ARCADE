@@ -20,7 +20,7 @@
             const n = est(r.sc);
             b += res(r.st == 'completed' ? `¡Descifrada! ${r.sc} puntos` : 'Rendida', `“${C.ph}” — ${C.au}`, `Daily Arcade · Cifrado #${DAY} ${r.st == 'completed' ? '⭐'.repeat(n) + '☆'.repeat(5 - n) + ' · ' + mmss(r.t) : 'rendida'}`)
         }
-        else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="msg" role="status">${msg}</p><div class="row" style="justify-content:center"><button class="btn" data-a="hint">Revelar letra (−12)</button><button class="btn" data-a="chk">Comprobar (−4)</button><button class="btn" data-a="giveup">Rendirme</button></div>` + kb(null, false);
+        else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="msg" role="status">${msg}</p>${controles({ comprobar: '(−4)', pista: '(−12)', rendirme: 1 })}` + kb(null, false);
         return shell('Cifrado', b)
     }
     function ck(m) {
@@ -41,7 +41,7 @@
         winLabel: 'descifradas',
         render: cifra,
         onKey: ck,
-        actions: { sel: csel, hint, chk, giveup },   // data-a="..." de los botones del juego
+        actions: { sel: csel, pista: hint, comprobar: chk, rendirme: confirma(giveup) },   // data-a="..." de los botones del juego
         status: (r, p) => r ? (r.st == 'completed' ? `Descifrada · ${r.sc} puntos` : 'Rendida') : (p && (p.g && p.g.length || p.t0) ? 'En curso' : 'Sin jugar'),
         stats: (e, w) => { if (!w.length) return ''; const m = Math.max(...w.map(x => x.sc)), n = est(m); return kpi([[m, 'mejor puntuación', '★'.repeat(n) + '☆'.repeat(5 - n)], [Math.round(avg(w.map(x => x.sc))), 'media'], [mmss(Math.min(...w.map(x => x.t))), 'mejor tiempo']]) }
     });

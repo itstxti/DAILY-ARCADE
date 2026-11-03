@@ -21,15 +21,21 @@
             z += `<button class="z ${S.set.hl && bad.has(i) ? 'cf' : ''}" style="background:${REG[G[i]]};border-width:${d(x, y - 1)}px ${d(x + 1, y)}px ${d(x, y + 1)}px ${d(x - 1, y)}px" data-a="cell" data-i="${i}" aria-label="Fila ${y + 1}, columna ${x + 1}, región ${'ABCDEFGHI'[G[i]]}, ${['vacía', 'marcada', 'corona'][p.b[i]]}"><small>${'ABCDEFGHI'[G[i]]}</small>${['', '✕', '♛'][p.b[i]]}</button>`
         }
         let b = `<div class="bd2" style="grid-template-columns:repeat(${N},1fr)">${z}</div>`;
-        if (r) b += res(`¡Completado en ${mmss(r.t)}!`, `Tablero de ${N}×${N}. Vuelve mañana para un reto nuevo.`, `Daily Arcade · Coronas #${DAY} · ${N}×${N} · ${mmss(r.t)}`);
-        else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<div class="row" style="justify-content:center"><button class="btn" data-a="undo">Deshacer</button></div><p class="msg">Toca una casilla: vacía → ✕ → corona.</p>`;
+        if (r && r.st == 'lost') b += resRendida('Coronas'); else if (r) b += res(`¡Completado en ${mmss(r.t)}!`, `Tablero de ${N}×${N}. Vuelve mañana para un reto nuevo.`, `Daily Arcade · Coronas #${DAY} · ${N}×${N} · ${mmss(r.t)}`);
+        else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}${controles({ undo: 1, reiniciar: 1, rendirme: 1 })}<p class="msg">Toca una casilla: vacía → ✕ → corona.</p>`;
         return shell('Coronas', b)
     }
     function cell(i) {
         const p = prog('o'); if (R('coronas')) return; p.b = p.b && p.b.length == N * N ? p.b : Array(N * N).fill(0); p.t0 = p.t0 || Date.now(); hist.push(p.b.slice()); p.b[i] = (p.b[i] + 1) % 3;
         const c = conf(p.b); if (c.n == N && !c.bad.size) fin('coronas', { st: 'completed', t: Date.now() - p.t0, N }); sv(); draw()
     }
+    function reiniciar() { const p = prog('o'); if (R('coronas') || !p.b || !p.b.some(x => x)) return; hist.push(p.b.slice()); p.b = Array(N * N).fill(0); sv(); draw() }   // el tiempo no se reinicia; Deshacer lo recupera
     function undo() { const p = prog('o'); if (hist.length && !R('coronas')) { p.b = hist.pop(); sv(); draw() } }
+
+   function rendirse() {
+      if (R('coronas')) return;
+      const p = prog('o'); fin('coronas', { st: 'lost', t: Date.now() - (p.t0 || Date.now()) }); sv(); draw()
+   }
 
     DailyArcade.register({
         id: 'coronas', name: 'Coronas', desc: 'Una corona por fila, columna y color, sin tocarse.', color: '--sun', icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5z"/><path d="M5 21h14"/></svg>',
@@ -39,8 +45,8 @@
         winLabel: 'completadas',
         winStreak: false,        // no muestra "victorias seguidas" en el perfil
         render: coronas,
-        actions: { cell: b => cell(+b.dataset.i), undo },
-        status: (r, p) => r ? `Completada · ${mmss(r.t)}` : (p && (p.g && p.g.length || p.t0) ? 'En curso' : 'Sin jugar'),
+        actions: { cell: b => cell(+b.dataset.i), undo, reiniciar, rendirme: confirma(rendirse) },
+        status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Completada · ${mmss(r.t)}` : (p && (p.g && p.g.length || p.t0) ? 'En curso' : 'Sin jugar'),
         stats: (e, w) => w.length ? kpi([[mmss(Math.min(...w.map(x => x.t))), 'mejor tiempo'], [mmss(avg(w.map(x => x.t))), 'tiempo medio']]) : ''
     });
 })();

@@ -50,7 +50,7 @@
         ? res(`¡Exacto en ${r.n} ${pl(r.n, 'operación', 'operaciones')}!`, `Tiempo: ${mmss(r.t)}.`, `Daily Arcade · Operaciones #${DAY} · ${Z.target} · ${r.n} ${pl(r.n, 'operación', 'operaciones')} · ${mmss(r.t)}`)
         : res(`Te quedaste a ${r.gap} del objetivo`, `Una solución:<br>${Z.sol.join('<br>')}`, `Daily Arcade · Operaciones #${DAY} · ${Z.target} · a ${r.gap}`)
     }
-    else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="msg" role="status">${msg || (cerca ? `Lo más cerca: ${mejor} (a ${cerca}).` : '')}</p><div class="row" style="justify-content:center"><button class="btn" data-a="undo">Deshacer</button><button class="btn" data-a="reiniciar">Reiniciar</button><button class="btn" data-a="giveup">Rendirme</button></div><p class="foot" style="margin-top:8px;text-align:center">Elige un número, una operación y otro número.</p>`;
+    else b += `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="msg" role="status">${msg || (cerca ? `Lo más cerca: ${mejor} (a ${cerca}).` : '')}</p>${controles({ undo: 1, reiniciar: 1, rendirme: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Elige un número, una operación y otro número.</p>`;
     return shell('Operaciones', b)
   }
 
@@ -105,7 +105,7 @@
     pk: 'x',
     winLabel: 'exactas',
     render: operaciones,
-    actions: { num, op, undo, reiniciar: reset, giveup },
+    actions: { num, op, undo, reiniciar: reset, rendirme: confirma(giveup) },
     status: (r, p) => r ? (r.st == 'won' ? `Exacta · ${r.n} ${pl(r.n, 'operación', 'operaciones')}` : `A ${r.gap} del objetivo`) : (p && p.t0 ? 'En curso' : 'Sin jugar'),
     stats: (e, w) => w.length ? kpi([[mmss(Math.min(...w.map(x => x.t))), 'mejor tiempo'], [mmss(avg(w.map(x => x.t))), 'tiempo medio']]) : ''
   });

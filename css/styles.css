@@ -229,6 +229,17 @@ h2 {
     margin: 12px 0
 }
 
+/* Barra de controles de los juegos (controles() en core.js) */
+.row.ctl {
+    justify-content: center;
+    margin: 10px 0
+}
+
+.row.ctl .btn {
+    padding: 8px 12px;
+    font-size: .9rem
+}
+
 .msg {
     min-height: 22px;
     margin: 8px 0;

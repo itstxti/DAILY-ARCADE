@@ -48,7 +48,7 @@
       b += `<div class="r">${[...cur].map((l, i) => `<button class="t ${l != ult[i] ? 's1' : ''} ${p.i === i ? 'sel' : ''}" data-a="pos" data-i="${i}" aria-label="Letra ${i + 1}: ${l}">${l}</button>`).join('')}</div>`
         + fila(Z.b, null, 's2') + `<p class="cap" style="text-align:center;margin:0">Meta</p>`
         + `${S.set.tm ? `<p class="tm" id="tm">${p.t0 ? mmss(Date.now() - p.t0) : '0:00'}</p>` : ''}<p class="msg" role="status">${msg || 'Toca una letra, elige la nueva y pulsa Enter.'}</p>`
-        + `<div class="row" style="justify-content:center"><button class="btn" data-a="undo">Deshacer</button><button class="btn" data-a="hint">Pista</button><button class="btn" data-a="giveup">Rendirme</button></div>` + kb(null, true)
+        + `${controles({ undo: 1, pista: 1, rendirme: 1 })}` + kb(null, true)
     }
     return shell('Escalera', b)
   }
@@ -113,7 +113,7 @@
     winLabel: 'completadas',
     render: escalera,
     onKey: tecla,
-    actions: { pos, undo, hint, giveup },
+    actions: { pos, undo, pista: hint, rendirme: confirma(giveup) },
     status: (r, p) => r ? (r.st == 'won' ? `Completada · ${r.n} ${pl(r.n, 'paso', 'pasos')}` : 'Rendida') : (p && p.t0 ? 'En curso' : 'Sin jugar'),
     stats: (e, w) => w.length ? kpi([[avg(w.map(x => x.n)).toFixed(1), 'pasos de media'], [w.filter(x => x.n == x.par && !x.h).length, 'en el mínimo']]) : ''
   });
