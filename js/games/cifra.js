@@ -10,15 +10,13 @@
     };
     const _c = memoSD(mkC), C = new Proxy({}, { get: (_, k) => _c()[k] });
     function cini(p) { if (p.ph !== C.ph) { Object.keys(p).forEach(k => delete p[k]); p.ph = C.ph } if (!p.a) { p.a = {}; p.lk = []; p.h = 0; p.c = 0; p.bad = []; C.rev.forEach(l => { p.a[C.enc[l]] = l; p.lk.push(C.enc[l]) }) } }
-    function cdone(p) { if (C.ord.every(l => p.a[l] === C.dec[l])) fin('cifra', { st: 'completed', sc: Math.max(20, 100 - 12 * p.h - 4 * p.c), h: p.h, c: p.c, t: Date.now() - p.t0 }) }
-    const est = sc => sc >= 90 ? 5 : sc >= 75 ? 4 : sc >= 55 ? 3 : sc >= 35 ? 2 : 1;
+    function cdone(p) { if (C.ord.every(l => p.a[l] === C.dec[l])) fin('cifra', { st: 'completed', h: p.h || 0, c: p.c || 0, t: Date.now() - p.t0 }) }
     function cifra() {
         const p = prog('c'); cini(p); const r = R('cifra'), cnt = {}; Object.values(p.a).forEach(v => cnt[v] = (cnt[v] || 0) + 1);
         const w = C.ci.split(' ').map(x => `<div class="wd">${[...x].map(l => C.dec[l] ? `<button class="c ${sel == l ? 'sel' : ''} ${p.lk.includes(l) ? 'lk' : ''} ${p.a[l] && cnt[p.a[l]] > 1 ? 'cf' : ''} ${p.bad.includes(l) ? 'bd' : ''}" data-a="sel" data-l="${l}" aria-label="Letra cifrada ${l}"><small>${l.toUpperCase()}</small><b>${r ? C.dec[l] : p.a[l] || ''}</b></button>` : `<span class="pu">${l}</span>`).join('')}</div>`).join('');
         let b = `<div class="words">${w}</div>`;
         if (r) {
-            const n = est(r.sc);
-            b += res(r.st == 'completed' ? `¡Descifrada! ${r.sc} puntos` : 'Rendida', `“${C.ph}” — ${C.au}`, `Daily Arcade · Cifrado #${DAY} ${r.st == 'completed' ? '⭐'.repeat(n) + '☆'.repeat(5 - n) + ' · ' + mmss(r.t) : 'rendida'}`)
+            b += res(r.st == 'completed' ? `¡Descifrada en ${mmss(r.t)}!` : 'Rendida', `“${C.ph}” — ${C.au}`, `Daily Arcade · Cifrado #${DAY} ${r.st == 'completed' ? '· ' + mmss(r.t) + (r.h ? ' · ' + r.h + (r.h == 1 ? ' pista' : ' pistas') : '') + (r.c ? ' · ' + r.c + (r.c == 1 ? ' comprobación' : ' comprobaciones') : '') : '· rendida'}`)
         }
         else b += `${S.set.tm ? tmHtml(p) : ''}<p class="msg" role="status">${msg}</p>${controles({ comprobar: 1, pista: 1, rendirme: 1 })}` + kb(null, false);
         return shell('Cifrado', b)
@@ -30,7 +28,7 @@
     }
     function hint() { const p = prog('c'); cini(p); const l = C.ord.find(l => p.a[l] !== C.dec[l]); if (!l) return; p.t0 = p.t0 || Date.now(); p.a[l] = C.dec[l]; p.lk.push(l); p.h++; msg = ''; cdone(p); sv(); draw() }
     function chk() { const p = prog('c'); cini(p); p.t0 = p.t0 || Date.now(); p.c++; p.bad = C.ord.filter(l => p.a[l] && p.a[l] !== C.dec[l]); msg = p.bad.length ? `${p.bad.length} letra(s) incorrecta(s)` : 'Todo lo asignado es correcto'; sv(); draw() }
-    function giveup() { const p = prog('c'); fin('cifra', { st: 'lost', sc: 0, h: p.h, c: p.c, t: Date.now() - (p.t0 || Date.now()) }); draw() }
+    function giveup() { const p = prog('c'); fin('cifra', { st: 'lost', h: p.h || 0, c: p.c || 0, t: Date.now() - (p.t0 || Date.now()) }); draw() }
     function csel(b) { if (R('cifra')) return; prog('c').t0 = prog('c').t0 || Date.now(); sel = b.dataset.l; draw() }
 
     DailyArcade.register({
@@ -41,6 +39,6 @@
         render: cifra,
         onKey: ck,
         actions: { sel: csel, pista: hint, comprobar: chk, rendirme: confirma(giveup) },   // data-a="..." de los botones del juego
-        status: (r, p) => r ? (r.st == 'completed' ? `Descifrada · ${r.sc} puntos` : 'Rendida') : (p && (p.g && p.g.length || p.t0) ? 'En curso' : 'Sin jugar')
+        status: (r, p) => r ? (r.st == 'completed' ? `Descifrada · ${mmss(r.t)}` : 'Rendida') : (p && (p.g && p.g.length || p.t0) ? 'En curso' : 'Sin jugar')
     });
 })();
