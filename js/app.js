@@ -224,7 +224,7 @@ function ficha(g) {
 }
 function progreso() {
   const T = GAMES.length, n = GAMES.filter(g => R(g.id)).length, t = n == T;
-  return `<div class="hp"><div class="ht"><b>${t ? '¡Todo completado hoy!' : `Hoy: ${n} de ${T}`}</b><span class="hr"><span>${t ? 'Vuelve mañana' : `${T - n} por jugar`}</span></span></div><div class="slots" role="progressbar" aria-label="Juegos completados hoy" aria-valuemin="0" aria-valuemax="${T}" aria-valuenow="${n}">${GAMES.map(g => R(g.id) ? `<i style="background:var(${g.color})"></i>` : '<i></i>').join('')}</div></div>`
+  return `<div class="hp"><div class="ht"><b>${t ? '¡Todo completado hoy!' : `Hoy: ${n} de ${T}`}</b><span class="hr"><span>${t ? 'Vuelve mañana' : `${T - n} por jugar`}</span></span></div><div class="slots${t ? ' full' : ''}" role="progressbar" aria-label="Juegos completados hoy" aria-valuemin="0" aria-valuemax="${T}" aria-valuenow="${n}">${n ? `<i style="width:${n / T * 100}%"></i>` : ''}</div></div>`
 }
 function home() {
   const st = streak(), f = new Date(D0).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
