@@ -87,7 +87,7 @@ const Teclado = (() => {
     const g = typeof cur == 'function' && cur(); if (g && g.flechas) return;
     const n = vecino(t, d); if (!n) return;
     e.preventDefault(); n.focus({ preventScroll: false });
-    if (n.dataset && n.dataset.a == 'sc') n.click() // Sudoku: moverse por el tablero también selecciona la casilla
+    if (n.dataset && (n.dataset.a == 'sc' || n.dataset.a == 'sel')) n.click() // Sudoku y Cifrado: moverse también selecciona la casilla/letra
   });
 
   /* ---------- Esc: volver ---------- */

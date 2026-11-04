@@ -13,8 +13,8 @@
     function cdone(p) { if (C.ord.every(l => p.a[l] === C.dec[l])) fin('cifra', { st: 'completed', h: p.h || 0, c: p.c || 0, t: Date.now() - p.t0 }) }
     function cifra() {
         const p = prog('c'); cini(p); const r = R('cifra'), cnt = {}; Object.values(p.a).forEach(v => cnt[v] = (cnt[v] || 0) + 1);
-        const w = C.ci.split(' ').map(x => `<div class="wd">${[...x].map(l => C.dec[l] ? `<button class="c ${sel == l ? 'sel' : ''} ${p.lk.includes(l) ? 'lk' : ''} ${p.a[l] && cnt[p.a[l]] > 1 ? 'cf' : ''} ${p.bad.includes(l) ? 'bd' : ''}" data-a="sel" data-l="${l}" aria-label="Letra cifrada ${l}"><small>${l.toUpperCase()}</small><b>${r ? C.dec[l] : p.a[l] || ''}</b></button>` : `<span class="pu">${l}</span>`).join('')}</div>`).join('');
-        let b = `<div class="words">${w}</div>`;
+        const w = C.ci.split(' ').map(x => `<div class="wd">${[...x].map(l => C.dec[l] ? `<button class="c ${sel == l ? 'sel' : ''} ${p.lk.includes(l) ? 'lk' : ''} ${p.a[l] && cnt[p.a[l]] > 1 ? 'cf' : ''} ${p.bad.includes(l) ? 'bd' : ''}" data-a="sel" data-l="${l}" aria-pressed="${sel == l}" aria-label="Letra cifrada ${l.toUpperCase()}, ${r ? '' : p.lk.includes(l) ? 'revelada: ' + p.a[l] : p.a[l] ? 'asignada a ' + p.a[l] : 'sin asignar'}"><small>${l.toUpperCase()}</small><b>${r ? C.dec[l] : p.a[l] || ''}</b></button>` : `<span class="pu">${l}</span>`).join('')}</div>`).join('');
+        let b = `<div class="words" data-rv="cifra" role="group" aria-label="Frase cifrada">${w}</div>`;
         if (r) {
             b += res(r.st == 'completed' ? `¡Descifrada en ${mmss(r.t)}!` : 'Rendida', `“${C.ph}” — ${C.au}`, `Daily Arcade · Cifrado #${DAY} ${r.st == 'completed' ? '· ' + mmss(r.t) + (r.h ? ' · ' + r.h + (r.h == 1 ? ' pista' : ' pistas') : '') + (r.c ? ' · ' + r.c + (r.c == 1 ? ' comprobación' : ' comprobaciones') : '') : '· rendida'}`)
         }
@@ -22,9 +22,10 @@
         return shell('Cifrado', b)
     }
     function ck(m) {
-        const p = prog('c'); cini(p); if (R('cifra') || !sel || p.lk.includes(sel)) return; p.t0 = p.t0 || Date.now(); msg = ''; p.bad = p.bad.filter(l => l != sel);
+        const p = prog('c'); cini(p); if (R('cifra')) return; if (!sel) { msg = 'Toca primero una letra cifrada.'; return draw() } if (p.lk.includes(sel)) return; p.t0 = p.t0 || Date.now(); msg = ''; p.bad = p.bad.filter(l => l != sel);
         if (m == 'Del') delete p.a[sel]; else if (m != 'Enter') { p.a[sel] = m; const o = C.ord, i = o.indexOf(sel), nx = o.slice(i + 1).concat(o.slice(0, i)).find(l => !p.a[l]); if (nx) sel = nx }
-        cdone(p); sv(); draw()
+        cdone(p); sv(); draw();
+        const f = document.activeElement; if (f && f.matches && f.matches('#app button.c') && sel) { const n = document.querySelector(`#app button.c[data-l="${sel}"]`); if (n && n !== f) n.focus() } // el foco sigue a la letra seleccionada
     }
     function hint() { const p = prog('c'); cini(p); const l = C.ord.find(l => p.a[l] !== C.dec[l]); if (!l) return; p.t0 = p.t0 || Date.now(); p.a[l] = C.dec[l]; p.lk.push(l); p.h++; msg = ''; cdone(p); sv(); draw() }
     function chk() { const p = prog('c'); cini(p); p.t0 = p.t0 || Date.now(); p.c++; p.bad = C.ord.filter(l => p.a[l] && p.a[l] !== C.dec[l]); msg = p.bad.length ? `${p.bad.length} letra(s) incorrecta(s)` : 'Todo lo asignado es correcto'; sv(); draw() }
