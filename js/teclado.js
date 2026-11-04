@@ -25,7 +25,7 @@ const Teclado = (() => {
   }
   function guarda() {
     const a = document.activeElement, A = app();
-    if (!kbd || !a || a === A || !A.contains(a)) return null;
+    if (!a || a === A || !A.contains(a) || (!kbd && !a.closest('[data-rv]'))) return null;
     let q; try { q = selector(a) } catch (_) { return null }
     const n = [...A.querySelectorAll(q)].indexOf(a);
     return { q, n: Math.max(n, 0), ini: campo(a) ? [a.selectionStart, a.selectionEnd] : null }
@@ -50,20 +50,21 @@ const Teclado = (() => {
 
   /* ---------- Una sola parada de Tab por tablero (roving tabindex) ---------- */
   const RV = {}; // índice recordado de cada tablero
-  const grupos = () => [...app().querySelectorAll('[data-rv],.kb')];
-  const clave = (c, i) => c.dataset.rv || 'kb' + i;
+  const grupos = () => [...app().querySelectorAll('[data-rv]')];
+  const clave = c => c.dataset.rv;
   function rueda() {
-    grupos().forEach((c, i) => {
+    app().querySelectorAll('.kb button').forEach(b => { b.tabIndex = -1 }); // teclado en pantalla: solo táctil/ratón; con teclado físico se escribe directamente
+    grupos().forEach(c => {
       const l = [...c.querySelectorAll('button:not([disabled])')]; if (!l.length) return;
-      const f = l.findIndex(b => b === document.activeElement), k = clave(c, i);
+      const f = l.findIndex(b => b === document.activeElement), k = clave(c);
       const n = f >= 0 ? f : Math.min(RV[k] || 0, l.length - 1);
       l.forEach((b, j) => { b.tabIndex = j == n ? 0 : -1 })
     })
   }
   addEventListener('focusin', e => {
-    const c = e.target.closest && e.target.closest('[data-rv],.kb'); if (!c || !app().contains(c)) return;
+    const c = e.target.closest && e.target.closest('[data-rv]'); if (!c || !app().contains(c)) return;
     const l = [...c.querySelectorAll('button:not([disabled])')], j = l.indexOf(e.target); if (j < 0) return;
-    RV[clave(c, grupos().indexOf(c))] = j; l.forEach((b, k) => { b.tabIndex = k == j ? 0 : -1 })
+    RV[clave(c)] = j; l.forEach((b, k) => { b.tabIndex = k == j ? 0 : -1 })
   });
 
   /* ---------- Flechas: foco al vecino más cercano ---------- */
@@ -71,7 +72,7 @@ const Teclado = (() => {
     const r = t.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
     let mejor = null, m = Infinity;
     app().querySelectorAll(FOC).forEach(e => {
-      if (e === t || e.tabIndex < -1 || e.closest('[hidden]') || !visible(e)) return;
+      if (e === t || e.tabIndex < -1 || e.closest('[hidden],.kb') || !visible(e)) return;
       const q = e.getBoundingClientRect(), dx = q.left + q.width / 2 - cx, dy = q.top + q.height / 2 - cy;
       const p = dx * d[0] + dy * d[1], s = Math.abs(dx * d[1] + dy * d[0]); // p: avance en esa dirección; s: desvío lateral
       if (p < 2) return;
@@ -83,7 +84,12 @@ const Teclado = (() => {
     if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
     const t = e.target, A = app();
     if (e.key == 'Escape') return atras(e);
-    const d = DIR[e.key]; if (!d || !A || !t || !A.contains(t) || t === A || campo(t)) return;
+    const d = DIR[e.key]; if (!d || !A || !t || campo(t)) return;
+    if (!A.contains(t) || t === A) { // sin foco en la pantalla: las flechas llevan al tablero del juego (selección actual o última casilla)
+      const g0 = typeof cur == 'function' && cur(); if (!g0 || g0.flechas) return;
+      const s = A.querySelector('[data-rv] button.sel:not([disabled]),[data-rv] button[aria-pressed="true"]:not([disabled]),[data-rv] button[tabindex="0"]');
+      if (s) { e.preventDefault(); s.focus() } return
+    }
     const g = typeof cur == 'function' && cur(); if (g && g.flechas) return;
     const n = vecino(t, d); if (!n) return;
     e.preventDefault(); n.focus({ preventScroll: false });
