@@ -80,7 +80,7 @@ ${msg ? `<p class="msg" role="status">${msg}</p>` : ''}
 <section class="res pb"><h2>Juegos</h2>${sw('tm', 'Mostrar cronómetro', 'En todos los juegos.')}${sw('hl', 'Resaltar conflictos', 'En Coronas, marca filas, columnas y regiones repetidas y coronas que se tocan. En Sudoku, números repetidos.')}</section>
 ${inv() ? '' : `<section class="res pb"><h2>Usuarios bloqueados</h2>${BL === null ? '<p class="cap">Cargando…</p>' : BL.length ? BL.map(b => `<div class="st"><span><b>${esc(b.nombre || '@' + b.usuario)}</b>${b.nombre ? `<small>@${esc(b.usuario)}</small>` : ''}</span><button class="lnk" data-a="bl-un" data-u="${esc(b.usuario)}">Desbloquear</button></div>`).join('') : '<p>No has bloqueado a nadie.</p>'}</section>`}
 ${secInstalar()}
-<section class="res pb"><h2>Datos</h2><p>${inv() ? 'Tus resultados se guardan solo en este navegador.' : 'Tus resultados se guardan en tu cuenta y en este navegador.'}</p>${ask ? '<p><b>¿Borrar todos tus resultados?</b> ' + (inv() ? '' : 'Se borrarán también de tu cuenta. ') + 'No se puede deshacer.</p><div class="row"><button class="btn dg" data-a="reset-si">Sí, borrar</button><button class="btn" data-a="reset-no">Cancelar</button></div>' : '<div class="row"><button class="btn" data-a="reset">Borrar mis resultados</button></div>'}</section></div>`
+<section class="res pb"><h2>Datos</h2><p>${inv() ? 'Tus resultados se guardan solo en este navegador.' : 'Tus resultados se guardan en tu cuenta y en este navegador.'}</p>${ask ? '<p class="cf"><b>¿Borrar todos tus resultados?</b> ' + (inv() ? '' : 'Se borrarán también de tu cuenta. ') + 'No se puede deshacer.</p><div class="row cf"><button class="btn dg" data-a="reset-si">Sí, borrar</button><button class="btn" data-a="reset-no">Cancelar</button></div>' : '<div class="row cf"><button class="btn" data-a="reset">Borrar mis resultados</button></div>'}</section></div>`
 }
 
 /* ---------- Perfil ---------- */
@@ -122,7 +122,7 @@ function amigos() {
     rec = L.filter(a => a.estado == 'pendiente' && a.direccion == 'recibida'), env = L.filter(a => a.estado == 'pendiente' && a.direccion == 'enviada'), ami = L.filter(a => a.estado == 'aceptada'),
     nom = a => esc(a.nombre || '@' + a.usuario), ini = a => esc(((a.nombre || a.usuario)[0] || '?').toUpperCase()),
     fila = (a, sub, acc) => `<div class="st"><span class="av">${ini(a)}</span><span style="flex:1;min-width:0"><b>${nom(a)}</b><small>${sub}</small></span>${acc}</div>`,
-    quitar = a => cfm == a.usuario ? `<span class="row" style="margin:0;flex:none"><button class="btn dg" data-a="am-del-si" data-u="${esc(a.usuario)}">Quitar</button><button class="btn" data-a="am-del-no">No</button></span>` : `<button class="lnk" data-a="am-del" data-u="${esc(a.usuario)}">Quitar</button>`,
+    quitar = a => cfm == a.usuario ? `<span class="row cf" style="margin:0;flex:none"><button class="btn dg" data-a="am-del-si" data-u="${esc(a.usuario)}">Quitar</button><button class="btn" data-a="am-del-no">No</button></span>` : `<button class="lnk" data-a="am-del" data-u="${esc(a.usuario)}">Quitar</button>`,
     stats = a => `${a.racha} ${a.racha == 1 ? 'día' : 'días'} de racha · mejor ${a.mejor} · hoy ${a.hoy}/${T}`,
     h0 = a => a.nombre ? '@' + a.usuario : '', j = (...x) => x.filter(Boolean).join(' · ');
   let res = '';
@@ -139,7 +139,7 @@ function amigos() {
 <section class="res pb"><h2>Añadir amigos</h2><p>Escribe el @usuario exacto de tu amigo. Tu usuario es <b>@${esc((Nube.perfil && Nube.perfil.usuario) || '')}</b>.</p><div class="me"><span class="at">@</span><input id="fq" value="${esc(fq)}" maxlength="16" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="usuario" aria-label="Usuario de tu amigo"><button class="btn pri" data-a="am-buscar">Buscar</button></div>${res}</section>
 ${M}
 ${rec.length ? `<section class="res pb"><h2>Solicitudes recibidas</h2>${rec.map(a => blq == a.usuario
-    ? fila(a, '¿Bloquear? No podrá volver a encontrarte.', `<span class="row" style="margin:0;flex:none"><button class="btn dg" data-a="bl-si" data-u="${esc(a.usuario)}">Bloquear</button><button class="btn" data-a="bl-no">No</button></span>`)
+    ? fila(a, '¿Bloquear? No podrá volver a encontrarte.', `<span class="row cf" style="margin:0;flex:none"><button class="btn dg" data-a="bl-si" data-u="${esc(a.usuario)}">Bloquear</button><button class="btn" data-a="bl-no">No</button></span>`)
     : fila(a, j(h0(a), a.nombre ? `<button class="lnk" data-a="am-ver" data-u="${esc(a.usuario)}">Ver perfil</button>` : '', `<button class="lnk" data-a="bl-ask" data-u="${esc(a.usuario)}">Bloquear</button>`), `<span class="row" style="margin:0;flex:none"><button class="btn pri" data-a="am-ok" data-u="${esc(a.usuario)}">Aceptar</button><button class="lnk" data-a="am-no" data-u="${esc(a.usuario)}">Rechazar</button></span>`)).join('')}</section>` : ''}
 <section class="res pb"><h2>Mis amigos</h2>${AM === null ? '<p class="cap">Cargando…</p>' : ami.length ? ami.map(a => fila(a, j(h0(a), stats(a)), `<span class="row" style="margin:0;flex:none;gap:14px;align-items:center">${cfm != a.usuario && Duelo.disponible() ? `<button class="lnk" data-a="du-retar" data-u="${esc(a.usuario)}">Retar</button>` : ''}${a.visible && cfm != a.usuario ? `<button class="lnk" data-a="am-ver" data-u="${esc(a.usuario)}">Ver perfil</button>` : ''}${quitar(a)}</span>`)).join('') : '<p class="cap">Todavía no tienes amigos añadidos.</p>'}</section>
 ${env.length ? `<section class="res pb"><h2>Solicitudes enviadas</h2>${env.map(a => fila(a, j(h0(a), 'pendiente'), `<button class="lnk" data-a="am-can" data-u="${esc(a.usuario)}">Cancelar</button>`)).join('')}</section>` : ''}
@@ -168,7 +168,7 @@ function perfilAmigo() {
   const nm = f.n || f.u, a = (AM || []).find(x => x.usuario == f.u), rel = !a ? 'ninguna' : a.estado == 'aceptada' ? 'amigos' : a.direccion,
     bt = (ac, t, c) => `<button class="btn${c ? ' ' + c : ''}" style="flex:1" data-a="${ac}" data-u="${esc(f.u)}">${t}</button>`,
     der = rel == 'amigos' ? '<span class="tag">Amigo</span>' : rel == 'ninguna' ? `<button class="btn pri" data-a="am-add" data-u="${esc(f.u)}">Añadir amigo</button>` : `<span class="tag">${rel == 'recibida' ? 'Solicitud recibida' : 'Solicitud enviada'}</span>`,
-    fil = rel == 'amigos' ? (cfm == f.u ? `<p>¿Quitar a ${esc(nm)} de tus amigos?</p><div class="row">${bt('am-del-si', 'Quitar', 'dg')}<button class="btn" style="flex:1" data-a="am-del-no">Cancelar</button></div>` : `<div class="row">${bt('am-del', 'Quitar amigo')}</div>`)
+    fil = rel == 'amigos' ? (cfm == f.u ? `<p class="cf">¿Quitar a ${esc(nm)} de tus amigos?</p><div class="row cf">${bt('am-del-si', 'Quitar', 'dg')}<button class="btn" style="flex:1" data-a="am-del-no">Cancelar</button></div>` : `<div class="row cf">${bt('am-del', 'Quitar amigo')}</div>`)
       : rel == 'recibida' ? `<div class="row">${bt('am-ok', 'Aceptar', 'pri')}${bt('am-no', 'Rechazar')}</div>`
         : rel == 'enviada' ? `<div class="row">${bt('am-can', 'Cancelar solicitud')}</div>` : '';
   return back + `<section class="res hd"><div class="me"><span class="av lg">${esc((nm[0] || '?').toUpperCase())}</span><span class="id" style="flex:1"><b>${esc(nm)}</b><small>@${esc(f.u)}</small></span><span style="flex:none">${der}</span></div><div class="hs">${blq == f.u ? `<p>¿Bloquear a ${esc(nm)}? Dejará de poder encontrarte y ver tu perfil, y se eliminará vuestra amistad o solicitud. No se enterará.</p><div class="row">${bt('bl-si', 'Bloquear', 'dg')}<button class="btn" style="flex:1" data-a="bl-no">Cancelar</button></div>` : fil + `<p class="cap"${fil ? ' style="margin-top:12px"' : ''}><button class="lnk" data-a="bl-ask" data-u="${esc(f.u)}">Bloquear a @${esc(f.u)}</button></p>`}</div></section>${msg ? `<p class="msg" role="status">${msg}</p>` : ''}${resumen(f.res)}` + '<section class="gml">' + GAMES.map(g => blk(g, E(g.id, f.res), true)).join('') + '</section>'
@@ -238,9 +238,13 @@ function home() {
 function draw() {
   const g = cur();
   const dv = Nube.user ? Duelo.vista() : null;
-  const app = $('#app'), vk = (dv != null ? 'duelo' : V) + '|' + (g ? g.id : '');
-  app.className = [vk !== draw.vk ? 'in' : '', ...Anim.f].join(' ').trim(); draw.vk = vk; /* 'in' solo al cambiar de pantalla */
-  app.innerHTML = dv != null ? dv : V == 'perfil' ? perfil() : V == 'ajustes' ? ajustes() : V == 'cuenta' && Nube.activo ? cuenta() : V == 'amigos' && Nube.user ? amigos() : V == 'ranking' && Nube.user ? ranking() : V == 'amigo' && Nube.user && FP ? perfilAmigo() : g ? g.render() : (V = 'home', home());
+  /* Clave de pantalla: cada fase de un duelo (lista, cuenta atrás, espera, resultado) cuenta como pantalla distinta. */
+  const app = $('#app'), vk = (dv != null ? 'duelo/' + V + '/' + Duelo.clave() : V) + '|' + (g ? g.id : '');
+  const h = '' + (dv != null ? dv : V == 'perfil' ? perfil() : V == 'ajustes' ? ajustes() : V == 'cuenta' && Nube.activo ? cuenta() : V == 'amigos' && Nube.user ? amigos() : V == 'ranking' && Nube.user ? ranking() : V == 'amigo' && Nube.user && FP ? perfilAmigo() : g ? g.render() : (V = 'home', home()));
+  const ld = h.includes('Cargando…'), mismo = vk === draw.vk;
+  /* 'in' solo al cambiar de pantalla; 'sub' cuando llegan los datos de una pantalla que estaba "Cargando…" */
+  app.className = [mismo ? '' : 'in', mismo && draw.ld && !ld ? 'sub' : '', ...Anim.f].join(' ').trim(); draw.vk = vk; draw.ld = ld;
+  app.innerHTML = h;
   Anim.clear(); tick()
 }
 function tick() {
@@ -292,7 +296,7 @@ $('#app').onclick = e => {
   else if (a == 'set') { const k = b.dataset.k; S.set[k] = k == 'th' ? b.dataset.v : !S.set[k]; sv(); theme(); draw() }
   else if (a == 'copy') copy();
   else if (a == 'instalar') { if (dip) { dip.prompt(); dip.userChoice.catch(() => { }).then(() => { dip = null; draw() }) } }
-  else if (a == 'cm') { cm = b.dataset.v; msg = ''; draw() }
+  else if (a == 'cm') { cm = b.dataset.v; msg = ''; Anim.once('sub'); draw() }
   else if (a == 'entrar' || a == 'registrar') {
     const q = s => ($(s) || {}).value || '', em = q('#em').trim(), pw = q('#pw'), nm = (q('#nm2').trim() || 'Jugador').slice(0, 20), us = a == 'registrar' ? nu(q('#us2')) : '';
     fm = { em, pw, nm: q('#nm2').trim(), us: q('#us2') };
@@ -321,15 +325,15 @@ $('#app').onclick = e => {
   else if (a == 'nm-edit') { en = true; draw(); const i = $('#nm'); if (i) { i.focus(); i.select() } }
   else if (a == 'nm-cancel') { en = false; draw() }
   else if (a == 'nm-save') { const v = $('#nm').value.trim().slice(0, 20); if (v) { S.me.n = v; sv(); if (Nube.user) Nube.guardarNombre(v) } en = false; draw() }
-  else if (a == 'bl-ask') { blq = b.dataset.u; draw() }
-  else if (a == 'bl-no') { blq = null; draw() }
+  else if (a == 'bl-ask') { blq = b.dataset.u; Anim.once('conf'); draw() }
+  else if (a == 'bl-no') { blq = null; Anim.once('conf'); draw() }
   else if (a == 'bl-si') accion(Nube.bloquear(b.dataset.u).then(() => { BL = null }), 'Usuario bloqueado.', 1)
   else if (a == 'bl-un') {
     msg = 'Un momento…'; draw();
     Nube.desbloquear(b.dataset.u).then(() => Promise.all([Nube.bloqueados(), Nube.amistades()])).then(([l, am]) => { BL = l; AM = am; fr = undefined; msg = 'Usuario desbloqueado.' }).catch(e => { console.warn(e); msg = em(e) }).then(() => draw())
   }
-  else if (a == 'rk-tab') { RK.tab = b.dataset.v; RK[RK.tab] = null; draw(); cargarRanking() }
-  else if (a == 'rk-d') { const n = RK.d + +b.dataset.v; if (n < 1 || n > DAY) return; RK.d = n; RK.dia = null; draw(); cargarRanking() }
+  else if (a == 'rk-tab') { RK.tab = b.dataset.v; RK[RK.tab] = null; Anim.once('sub'); draw(); cargarRanking() }
+  else if (a == 'rk-d') { const n = RK.d + +b.dataset.v; if (n < 1 || n > DAY) return; RK.d = n; RK.dia = null; Anim.once('sub'); draw(); cargarRanking() }
   else if (a == 'am-buscar') {
     const v = nu($('#fq').value); fq = v; fr = undefined;
     if (!UOK.test(v)) { msg = UMSG; draw(); return }
@@ -339,11 +343,11 @@ $('#app').onclick = e => {
   else if (a == 'am-ok') accion(Nube.responder(b.dataset.u, true), () => { fr = undefined; return 'Ya sois amigos.' })
   else if (a == 'am-no') accion(Nube.responder(b.dataset.u, false), 'Solicitud rechazada.')
   else if (a == 'am-can') accion(Nube.quitar(b.dataset.u), 'Solicitud cancelada.')
-  else if (a == 'am-del') { cfm = b.dataset.u; draw() }
-  else if (a == 'am-del-no') { cfm = null; draw() }
+  else if (a == 'am-del') { cfm = b.dataset.u; Anim.once('conf'); draw() }
+  else if (a == 'am-del-no') { cfm = null; Anim.once('conf'); draw() }
   else if (a == 'am-del-si') accion(Nube.quitar(b.dataset.u), 'Amigo eliminado.', 1)
-  else if (a == 'reset') { ask = true; draw() }
-  else if (a == 'reset-no') { ask = false; draw() }
+  else if (a == 'reset') { ask = true; Anim.once('conf'); draw() }
+  else if (a == 'reset-no') { ask = false; Anim.once('conf'); draw() }
   else if (a == 'reset-si') {
     const hecho = () => { S = { res: {}, pr: {}, me: S.me, set: S.set, uid: S.uid }; ask = false; msg = ''; sv(); draw() };
     if (Nube.user) { msg = 'Borrando…'; draw(); Nube.borrarResultados().then(hecho).catch(e => { console.warn(e); ask = false; msg = 'No se han podido borrar tus resultados de la cuenta. Inténtalo de nuevo.'; draw() }) } else hecho()

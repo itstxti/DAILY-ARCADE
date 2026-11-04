@@ -198,13 +198,13 @@ ${env.length ? `<section class="res pb"><h2>Esperando respuesta</h2>${env.map(d 
     const dd = D.dentro && mio(D.dentro), jugando = !!DU || !!(dd && dd.estado == 'en_curso');
     const rec = jugando ? [] : recibidas(), a = D.dentro || DU ? null : act();
     const k = rec.map(d => d.id).join() + '|' + (a ? a.id : '');
-    if (k == D.ban) return; D.ban = k;
+    if (k == D.ban) return; D.ban = k; clearTimeout(el.t);
     if (rec.length) {
       const d = rec[0];
       el.innerHTML = `<div class="dub"><span class="dubi" aria-hidden="true">${IC.du}</span><span class="dubt"><span><b>${nom(d.rival)}</b> te reta a un duelo</span><small>Mejor de ${D.cfg.rondas || 5} · caduca en <span id="dubx" data-exp="${d.expira}">${cd(d.expira - now())}</span>${rec.length > 1 ? ` · +${rec.length - 1} más` : ''}</small></span><span class="row" style="margin:0;flex:none"><button class="btn pri" data-a="du-ok" data-id="${d.id}">Aceptar</button><button class="btn" data-a="du-no" data-id="${d.id}">Rechazar</button></span></div>`; el.className = 'on'
     } else if (a) {
       el.innerHTML = `<div class="dub"><span class="dubi" aria-hidden="true">${IC.du}</span><span class="dubt"><span><b>Duelo con ${nom(a.rival)}</b> en curso</span><small>${a.yo}–${a.ellos} · ronda ${a.ronda}</small></span><button class="btn pri" data-a="du-ir" data-id="${a.id}">Ir al duelo</button></div>`; el.className = 'on'
-    } else { el.className = ''; el.innerHTML = '' }
+    } else { el.className = ''; el.t = setTimeout(() => { if (!el.className) el.innerHTML = '' }, 260) /* deja terminar la salida */ }
   }
   /* Actualiza contadores sin volver a pintar la pantalla (no se pierde nada de lo que estés haciendo). */
   function parche() {
@@ -248,5 +248,5 @@ ${env.length ? `<section class="res pb"><h2>Esperando respuesta</h2>${env.map(d 
 
   /* Segundos de penalización de una ayuda en duelo (k = 'pista' | 'comprobar'); los pesos viven en duelo_cfg() del SQL. */
   const coste = k => Math.round((D.cfg[k + '_ms'] || { pista: 15000, comprobar: 5000 }[k]) / 1000);
-  return { coste, disponible: () => !D.noDisp, init, vista, shell, res, fin, accion, abrir, badge, reset, ocupado: () => !!(DU || D.dentro), cargar }
+  return { coste, disponible: () => !D.noDisp, clave: () => { const d = D.dentro && mio(D.dentro); return d ? fase(d) : '' }, init, vista, shell, res, fin, accion, abrir, badge, reset, ocupado: () => !!(DU || D.dentro), cargar }
 })();
