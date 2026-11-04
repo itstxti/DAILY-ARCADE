@@ -2166,14 +2166,41 @@ a.btn {
 
 /* ---------- Animaciones ligeras ----------
    Todo va dentro de prefers-reduced-motion:no-preference: quien pide menos movimiento no ve nada de esto.
-   Las entradas (#app.in) solo se disparan al cambiar de pantalla y los efectos de un solo uso (.fl .pp .sk .fin)
-   solo en el draw() siguiente al evento (ver Anim en core.js), así no se repiten al repintar. */
+   - Entradas (#app.in): solo al cambiar de pantalla. TODAS usan la misma duración (--da-d) y el mismo paso de cascada,
+     y la cascada tiene tope, así que ninguna pantalla tarda más que otra en asentarse.
+   - Efectos de un solo uso (.fl .pp .sk .fin): solo en el draw() siguiente al evento (ver Anim en core.js),
+     para que no se repitan al repintar. */
 @media (prefers-reduced-motion:no-preference) {
+    #app {
+        --da-d: .28s;
+        --da-s: .03s
+    }
+
+    /* --da-d: duración única de toda entrada de pantalla. --da-s: paso entre bloques de la cascada. */
 
     @keyframes da-up {
         from {
             opacity: 0;
             transform: translateY(10px)
+        }
+    }
+
+    @keyframes da-fade {
+        from {
+            opacity: 0;
+            transform: scale(.6)
+        }
+    }
+
+    @keyframes da-grow {
+        from {
+            transform: scaleX(0)
+        }
+    }
+
+    @keyframes da-check {
+        from {
+            transform: scale(0)
         }
     }
 
@@ -2185,12 +2212,6 @@ a.btn {
 
         60% {
             transform: scale(1.02)
-        }
-    }
-
-    @keyframes da-grow {
-        from {
-            transform: scaleX(0)
         }
     }
 
@@ -2219,85 +2240,102 @@ a.btn {
         }
     }
 
-    /* Entrada de pantalla: los bloques suben y aparecen en cascada */
+    /* ----- Entrada de pantalla: los bloques suben y aparecen en cascada ----- */
     #app.in>*:not(.gg) {
-        animation: da-up .32s ease-out backwards
+        animation: da-up var(--da-d) ease-out backwards;
+        animation-delay: calc(var(--n, 0) * var(--da-s))
     }
 
     #app.in>*:nth-child(2) {
-        animation-delay: .04s
+        --n: 1
     }
 
     #app.in>*:nth-child(3) {
-        animation-delay: .08s
+        --n: 2
     }
 
     #app.in>*:nth-child(4) {
-        animation-delay: .12s
+        --n: 3
     }
 
     #app.in>*:nth-child(5) {
-        animation-delay: .16s
+        --n: 4
     }
 
     #app.in>*:nth-child(n+6) {
-        animation-delay: .2s
+        --n: 5
     }
 
-    /* Inicio: tarjetas de juego en cascada y barra de progreso que se rellena */
-    #app.in .gg>.gc {
-        animation: da-up .36s ease-out backwards;
-        animation-delay: .1s
+    /* Inicio: las tarjetas entran por filas (de dos en dos) con la misma duración que el resto */
+    #app.in .gg>.gt {
+        animation: da-up var(--da-d) ease-out backwards;
+        animation-delay: calc(.09s + var(--n, 0) * .04s)
     }
 
-    #app.in .gg>.gc:nth-child(2) {
-        animation-delay: .14s
+    #app.in .gg>.gt:nth-child(3),
+    #app.in .gg>.gt:nth-child(4) {
+        --n: 1
     }
 
-    #app.in .gg>.gc:nth-child(3) {
-        animation-delay: .18s
+    #app.in .gg>.gt:nth-child(5),
+    #app.in .gg>.gt:nth-child(6) {
+        --n: 2
     }
 
-    #app.in .gg>.gc:nth-child(4) {
-        animation-delay: .22s
+    #app.in .gg>.gt:nth-child(7),
+    #app.in .gg>.gt:nth-child(8) {
+        --n: 3
     }
 
-    #app.in .gg>.gc:nth-child(5) {
-        animation-delay: .26s
+    #app.in .gg>.gt:nth-child(n+9) {
+        --n: 4
     }
 
-    #app.in .gg>.gc:nth-child(6) {
-        animation-delay: .3s
-    }
-
-    #app.in .gg>.gc:nth-child(7) {
-        animation-delay: .34s
-    }
-
-    #app.in .gg>.gc:nth-child(8) {
-        animation-delay: .38s
-    }
-
-    #app.in .gg>.gc:nth-child(9) {
-        animation-delay: .42s
-    }
-
-    #app.in .gg>.gc:nth-child(n+10) {
-        animation-delay: .46s
-    }
-
+    /* Inicio: la barra de progreso se rellena y los ✓ de los juegos completados aparecen con un pequeño rebote */
     #app.in .slots i {
         transform-origin: left;
-        animation: da-grow .5s .25s ease-out backwards
+        animation: da-grow var(--da-d) ease-out .15s backwards
     }
 
-    /* Palabra: la letra recién escrita late, la fila enviada se voltea ficha a ficha y la inválida se sacude */
-    .t.pp {
+    #app.in .gt .ck {
+        animation: da-check .3s cubic-bezier(.3, 1.6, .5, 1) .3s backwards
+    }
+
+    #app.in .nbd {
+        animation: da-check .3s cubic-bezier(.3, 1.6, .5, 1) .25s backwards
+    }
+
+    /* Perfil: el mapa de 28 días se enciende por semanas y las barras de puntuación crecen */
+    #app.in .hm span {
+        animation: da-fade var(--da-d) ease-out .1s backwards
+    }
+
+    #app.in .hm span:nth-child(n+8) {
+        animation-delay: .13s
+    }
+
+    #app.in .hm span:nth-child(n+15) {
+        animation-delay: .16s
+    }
+
+    #app.in .hm span:nth-child(n+22) {
+        animation-delay: .19s
+    }
+
+    #app.in .br i {
+        transform-origin: left;
+        animation: da-grow var(--da-d) ease-out .1s backwards
+    }
+
+    /* ----- Efectos de un solo uso ----- */
+    /* Pulso al tocar una casilla o tecla (Anim.pulse en app.js) y al escribir una letra en Palabra */
+    .pp {
         animation: da-type .14s ease-out
     }
 
+    /* Palabra: la fila enviada se voltea ficha a ficha y la inválida se sacude */
     .t.fl {
-        animation: da-flip .42s ease-out backwards;
+        animation: da-flip .4s ease-out backwards;
         animation-delay: calc(var(--j, 0) * .12s)
     }
 
@@ -2307,11 +2345,11 @@ a.btn {
 
     /* Resultado: la tarjeta entra con un pequeño rebote al terminar la partida (tras el volteo en Palabra) */
     #app.fin .res.rb {
-        animation: da-pop .45s cubic-bezier(.2, 1.2, .4, 1) backwards
+        animation: da-pop .4s cubic-bezier(.2, 1.2, .4, 1) backwards
     }
 
     #app.fin .res.rb .est {
-        animation: da-up .5s .2s ease-out backwards
+        animation: da-up .4s .2s ease-out backwards
     }
 
     #app.rv.fin .res.rb {
@@ -2322,8 +2360,8 @@ a.btn {
         animation-delay: .95s
     }
 
-    /* Respuesta táctil de botones, teclas y tarjetas */
-    .gc,
+    /* ----- Respuesta táctil: tarjetas del inicio, botones, botones de la cabecera y teclas hacen lo mismo ----- */
+    .gt,
     .btn,
     .bk,
     .k {
@@ -2345,20 +2383,21 @@ a.btn {
     }
 
     @media (hover:hover) {
-        .gc:hover {
+
+        .btn:hover:not(:active):not(:disabled),
+        .bk:hover:not(:active):not(:disabled) {
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0 var(--sh)
+        }
+
+        .gt:hover:not(:active) {
             transform: translate(-1px, -1px);
             box-shadow: 5px 5px 0 var(--sh)
         }
 
-        .gc:hover:active {
+        .gt:hover:active {
             transform: translate(2px, 2px);
             box-shadow: 2px 2px 0 var(--sh)
-        }
-
-        .btn:hover:not(:active),
-        .bk:hover:not(:active) {
-            transform: translate(-1px, -1px);
-            box-shadow: 3px 3px 0 var(--sh)
         }
     }
 }

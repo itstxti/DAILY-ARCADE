@@ -273,6 +273,15 @@ function secInstalar() {
   return ''
 }
 $('#app').addEventListener('keydown', e => { if (e.key == 'Enter' && e.target.matches('#em,#pw,#nm2,#us2')) { const b = $('.btn.pri.full'); if (b) b.click() } });
+/* Pulso al tocar una casilla o tecla: tras repintar, busca la casilla equivalente (mismos data-*) y le añade .pp una sola vez.
+   Se hace aquí y no con :active porque draw() sustituye el botón pulsado. Solo las acciones de casilla/tecla, no Deshacer, Pista, etc. */
+const PULSO = new Set(['cell', 'sc', 'lz', 'pos', 'num', 'op', 'sel']);
+function pulso(b) {
+  try {
+    const q = Object.entries(b.dataset).map(([k, v]) => `[data-${k.replace(/[A-Z]/g, m => '-' + m.toLowerCase())}="${CSS.escape(v)}"]`).join(''), e = q && $('#app ' + q);
+    if (e) e.classList.add('pp')
+  } catch (_) { }
+}
 $('#app').onclick = e => {
   const sm = e.target.closest('.how>summary'); if (sm) { const d = sm.parentNode; HW[d.dataset.g] = !d.open; return }
   const b = e.target.closest('[data-a]'); if (!b) return;
@@ -344,7 +353,7 @@ $('#app').onclick = e => {
       Nube.guardarPrivacidad(v).catch(e => { console.warn(e); S.me.v = o; sv(); msg = 'No se ha podido guardar la privacidad. Inténtalo de nuevo.'; draw() })
     } else draw()
   }
-  else if (g) { if (a == 'k') { g.onKey && g.onKey(b.dataset.k) } else if (g.actions && g.actions[a]) { const p0 = penP(prog(g.pk)); g.actions[a](b); const d = penP(prog(g.pk)) - p0, t = $('#tm'); if (d > 0 && t) { const s = document.createElement('span'); s.className = 'tb'; s.textContent = '+' + d + ' s'; t.appendChild(s); setTimeout(() => s.remove(), 1400) } } }
+  else if (g) { if (a == 'k') { g.onKey && g.onKey(b.dataset.k); pulso(b) } else if (g.actions && g.actions[a]) { const p0 = penP(prog(g.pk)); g.actions[a](b); if (PULSO.has(a)) pulso(b); const d = penP(prog(g.pk)) - p0, t = $('#tm'); if (d > 0 && t) { const s = document.createElement('span'); s.className = 'tb'; s.textContent = '+' + d + ' s'; t.appendChild(s); setTimeout(() => s.remove(), 1400) } } }
 };
 $('#app').oninput = e => { if (e.target.id == 'fq') fq = e.target.value };
 $('#app').onkeydown = e => {
