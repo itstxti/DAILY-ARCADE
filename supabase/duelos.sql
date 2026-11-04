@@ -29,7 +29,10 @@ $$ select jsonb_build_object(
      'victorias', 3,      -- rondas para ganar antes de tiempo
      'holgura', 4000,     -- ms que se le perdonan a cada jugador por latencia al empezar la ronda
      'pista_ms', 15000,   -- penalización por cada pista (Escalera, Luces, Cifrado, Sopa); el navegador la enseña en el botón
-     'comprobar_ms', 5000) -- penalización por cada comprobación (Cifrado, Sudoku)
+     'comprobar_ms', 5000, -- penalización por cada comprobación (Cifrado, Sudoku)
+     'historial_pagina', 10, -- duelos que enseña el historial de entrada y cuántos más con «Ver más»
+     'historial_max', 30,    -- máximo de duelos que se pueden ver en el historial
+     'historial_dias', 90)   -- los duelos terminados más antiguos se borran solos
 $$;
 
 create or replace function duelo_juegos() returns text[] language sql immutable as
@@ -409,18 +412,24 @@ end
 $$;
 
 -- Mis duelos: invitaciones y duelos activos, y los cerrados en los últimos 7 días (máx. 20). Incluye la hora del servidor y los parámetros.
-create or replace function mis_duelos() returns jsonb
+-- mis_duelos(mas): los `mas` duelos más recientes (los activos primero), con un tope de historial_max. Sin corte por días:
+-- se pagina con «Ver más» (el navegador pide 10, 20, 30). Además borra tus duelos terminados de hace más de historial_dias.
+drop function if exists mis_duelos();
+create or replace function mis_duelos(mas int default 10) returns jsonb
 language plpgsql security definer set search_path = public as
 $$
-declare me uuid := auth.uid(); l jsonb;
+declare me uuid := auth.uid(); l jsonb; n int; tot int; c jsonb := duelo_cfg();
 begin
   if me is null then raise exception 'Inicia sesión.'; end if;
+  n := least(greatest(coalesce(mas, (c->>'historial_pagina')::int), 1), (c->>'historial_max')::int);
   perform duelo_barrer(me);
-  select coalesce(jsonb_agg(duelo_json(x, me) order by coalesce(x.cerrado, x.creado) desc), '[]'::jsonb) into l from duelos x where x.id in (
+  delete from duelos d where me in (d.retador, d.rival) and d.estado not in ('pendiente','en_curso')
+     and coalesce(d.cerrado, d.creado) < clock_timestamp() - make_interval(days => (c->>'historial_dias')::int);
+  select count(*) into tot from duelos d where me in (d.retador, d.rival);
+  select coalesce(jsonb_agg(duelo_json(x, me) order by (x.estado in ('pendiente','en_curso')) desc, coalesce(x.cerrado, x.creado) desc), '[]'::jsonb) into l from duelos x where x.id in (
     select d.id from duelos d where me in (d.retador, d.rival)
-       and (d.estado in ('pendiente','en_curso') or d.cerrado > clock_timestamp() - interval '7 days')
-     order by coalesce(d.cerrado, d.creado) desc limit 20);
-  return jsonb_build_object('ahora', duelo_ms(clock_timestamp()), 'cfg', duelo_cfg(), 'duelos', l);
+     order by (d.estado in ('pendiente','en_curso')) desc, coalesce(d.cerrado, d.creado) desc limit n);
+  return jsonb_build_object('ahora', duelo_ms(clock_timestamp()), 'cfg', c, 'duelos', l, 'hay_mas', tot > n and n < (c->>'historial_max')::int);
 end
 $$;
 
@@ -581,9 +590,9 @@ revoke execute on function duelo_cfg(), duelo_juegos(), duelo_por_tiempo(text), 
   duelo_clave(text, jsonb, jsonb, timestamptz, timestamptz), duelo_nueva_ronda(uuid), duelo_cerrar_ronda(uuid), duelo_avanzar(uuid), duelo_barrer(uuid),
   duelo_json(duelos, uuid), duelo_peso(text) from public, anon, authenticated;
 revoke execute on function duelo_retar(text), duelo_responder(uuid, boolean), duelo_cancelar(uuid), duelo_enviar(uuid, int, jsonb), duelo_rendirse(uuid),
-  duelo_estado(uuid), mis_duelos() from public, anon;
+  duelo_estado(uuid), mis_duelos(int) from public, anon;
 grant execute on function duelo_retar(text), duelo_responder(uuid, boolean), duelo_cancelar(uuid), duelo_enviar(uuid, int, jsonb), duelo_rendirse(uuid),
-  duelo_estado(uuid), mis_duelos() to authenticated;
+  duelo_estado(uuid), mis_duelos(int) to authenticated;
 
 -- Que la API REST de Supabase vea las funciones nuevas sin esperar.
 notify pgrst, 'reload schema';

@@ -50,6 +50,7 @@ Ejecuta `supabase/duelos.sql` en el SQL Editor (después de `schema.sql`; es ide
 - **Parámetros** (caducidad, tiempo por ronda, rondas…): función `duelo_cfg()` en `duelos.sql`. Es la única fuente: el navegador los recibe del servidor.
 - **Trampas:** el tiempo lo mide el servidor (el navegador solo puede recortar hasta `holgura`, 4 s, respecto al reloj real) y en Palabra se comprueba la lista de intentos contra la palabra de la ronda. El resto de intentos (pasos, pulsaciones, operaciones) los declara el navegador, como en el ranking: es para jugar con amigos, no una competición oficial.
 - **Tiempo real:** el navegador consulta al servidor cada 1,5–6 s (más a menudo en pleno duelo). No usa Realtime: no hay nada que activar en Supabase.
+- **Historial:** enseña tus últimos 10 duelos y un botón *Ver más* añade 10 cada vez, hasta 30 como máximo. No hay corte por días; los duelos terminados de hace más de 90 días se borran solos cuando abres la lista. Los tres números (`historial_pagina`, `historial_max`, `historial_dias`) están en `duelo_cfg()`. `mis_duelos(mas)` es la función que lo sirve; si ya tenías la anterior (sin argumento), `duelos.sql` la sustituye.
 - **Los duelos no cuentan** en tus resultados diarios, rachas ni rankings.
 
 ### Entrar con @usuario

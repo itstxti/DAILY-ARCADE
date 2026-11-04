@@ -22,7 +22,8 @@ const Duelo = (() => {
   const fase = d => d.estado == 'terminado' ? 'fin' : d.estado != 'en_curso' ? 'nada' : now() < ult(d).empieza ? 'cuenta' : ult(d).yo_fin ? 'espera' : 'juego';
 
   /* ---------- Datos ---------- */
-  function lista(r) { D.off = r.ahora - Date.now(); D.cfg = r.cfg; D.lista = r.duelos; D.ult = Date.now(); cambio() }
+  const pagina = () => D.cfg.historial_pagina || 10, tope = () => D.cfg.historial_max || 30;
+  function lista(r) { D.off = r.ahora - Date.now(); D.cfg = r.cfg; D.lista = r.duelos; D.hayMas = !!r.hay_mas; D.ult = Date.now(); cambio() }
   function uno(d) { /* un duelo que llega suelto (enviar, rendirse, estado) sustituye al que teníamos */
     const l = D.lista || (D.lista = []), i = l.findIndex(x => x.id == d.id); if (i < 0) l.unshift(d); else l[i] = d; cambio()
   }
@@ -35,7 +36,9 @@ const Duelo = (() => {
   function cargar() {
     if (D.cargando || D.noDisp || !Nube.user || !navigator.onLine) return Promise.resolve();
     D.cargando = true;
-    return Nube.misDuelos().then(r => { bien(); lista(r) }).catch(fallo).then(() => { D.cargando = false })
+    /* Fuera de la pantalla de duelos solo se pide la primera página (la lista larga no se consulta cada pocos segundos). */
+    if (V != 'duelos') D.max = 0;
+    return Nube.misDuelos(D.max || pagina()).then(r => { bien(); lista(r) }).catch(fallo).then(() => { D.cargando = false })
   }
   function consultar(id) { /* consulta ligera de un duelo en juego */
     if (D.cargando || !navigator.onLine) return Promise.resolve();
@@ -178,7 +181,7 @@ ${a ? `<section class="res pb"><h2>En curso</h2>${fila(a.rival, `${a.yo}–${a.e
 ${rec.length ? `<section class="res pb"><h2>Te han retado</h2>${rec.map(d => fila(d.rival, `Caduca en <span data-exp="${d.expira}">${cd(d.expira - now())}</span>`, `<span class="row" style="margin:0;flex:none"><button class="btn pri" data-a="du-ok" data-id="${d.id}">Aceptar</button><button class="lnk" data-a="du-no" data-id="${d.id}">Rechazar</button></span>`)).join('')}</section>` : ''}
 ${env.length ? `<section class="res pb"><h2>Esperando respuesta</h2>${env.map(d => fila(d.rival, `Caduca en <span data-exp="${d.expira}">${cd(d.expira - now())}</span>`, `<button class="lnk" data-a="du-can" data-id="${d.id}">Cancelar</button>`)).join('')}</section>` : ''}
 <section class="res pb"><h2>Retar a un amigo</h2>${AM === null ? '<p class="cap">Cargando…</p>' : am.length ? am.map(x => { const bus = env.some(d => d.rival.usuario == x.usuario) || rec.some(d => d.rival.usuario == x.usuario); return fila(x, bus ? 'Invitación pendiente' : '', bus || ocup ? '' : `<button class="btn pri" data-a="du-retar" data-u="${x.usuario}">Retar</button>`) }).join('') : '<p class="cap">Todavía no tienes amigos. <button class="lnk" data-a="go" data-v="amigos">Añade alguno</button> para retarlo.</p>'}${ocup ? '<p class="cap">Termina tu duelo en curso para retar a otro amigo.</p>' : ''}</section>
-<section class="res pb"><h2>Historial</h2>${L === null ? '<p class="cap">Cargando…</p>' : hist.length ? hist.map(d => fila(d.rival, `${lab(d)} · ${hace(d.cerrado || d.creado)}`, d.estado == 'terminado' && !ocup ? `<button class="lnk" data-a="du-retar" data-u="${esc(d.rival.usuario)}">Revancha</button>` : '')).join('') : '<p class="cap">Aquí saldrán tus últimos duelos (7 días).</p>'}</section>`
+<section class="res pb"><h2>Historial</h2>${L === null ? '<p class="cap">Cargando…</p>' : hist.length ? hist.map(d => fila(d.rival, `${lab(d)} · ${hace(d.cerrado || d.creado)}`, d.estado == 'terminado' && !ocup ? `<button class="lnk" data-a="du-retar" data-u="${esc(d.rival.usuario)}">Revancha</button>` : '')).join('') + (D.hayMas ? `<div class="row" style="justify-content:center"><button class="btn" data-a="du-mas">Ver más</button></div>` : '') : '<p class="cap">Aquí saldrán tus últimos duelos (7 días).</p>'}</section>`
   }
 
   /* Pantallas que pinta draw() en app.js: devuelve null si no le toca a los duelos. */
@@ -228,6 +231,7 @@ ${env.length ? `<section class="res pb"><h2>Esperando respuesta</h2>${env.map(d 
     else if (a == 'du-can') aviso(Nube.cancelarDuelo(id), 'Invitación cancelada.')
     else if (a == 'du-retar') aviso(Nube.retar(u), () => { if (!D.dentro) { V = 'duelos'; draw() } return `Reto enviado a @${u}. Caduca en ${Math.round((D.cfg.invitacion || 300) / 60)} min.` })
     else if (a == 'du-revancha') { D.dentro = null; D.key = ''; V = 'duelos'; aviso(Nube.retar(u), `Reto enviado a @${u}.`).then(() => draw()) }
+    else if (a == 'du-mas') { D.max = Math.min((D.max || pagina()) + pagina(), tope()); const pide = () => D.cargando ? setTimeout(pide, 200) : cargar(); pide() }
     else if (a == 'du-ir') { D.dentro = id; D.conf = false; D.key = ''; sync() }
     else if (a == 'du-rendir') { D.conf = true; draw() }
     else if (a == 'du-rendir-no') { D.conf = false; draw() }
