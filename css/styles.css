@@ -2193,6 +2193,12 @@ a.btn {
         }
     }
 
+    @keyframes da-in {
+        from {
+            opacity: 0
+        }
+    }
+
     @keyframes da-fade {
         from {
             opacity: 0;
@@ -2366,6 +2372,38 @@ a.btn {
 
     #app.rv.fin .res.rb .est {
         animation-delay: .95s
+    }
+
+    /* Duelo: el resultado final entra con el mismo rebote que el de un reto diario */
+    #app.in .res.duf {
+        animation: da-pop .4s cubic-bezier(.2, 1.2, .4, 1) .1s backwards
+    }
+
+    /* Cambios dentro de una misma pantalla (pestañas del ranking, entrar/crear cuenta, datos que terminan de cargar):
+       los bloques bajo la cabecera aparecen con un fundido corto; la cabecera no se mueve. */
+    #app.sub>*:not(.bar):not(.top) {
+        animation: da-in .2s ease-out backwards
+    }
+
+    /* Confirmaciones en línea (Quitar amigo, Bloquear, Borrar mis resultados) */
+    #app.conf .cf {
+        animation: da-up .2s ease-out backwards
+    }
+
+    /* Aviso de invitación a duelo: entra y sale deslizándose desde arriba (sin esto solo conmuta display) */
+    #dub {
+        display: block;
+        visibility: hidden;
+        opacity: 0;
+        transform: translateY(-12px);
+        transition: opacity .2s, transform .2s, visibility 0s .2s
+    }
+
+    #dub.on {
+        visibility: visible;
+        opacity: 1;
+        transform: none;
+        transition: opacity .2s, transform .2s, visibility 0s
     }
 
     /* ----- Respuesta táctil: tarjetas del inicio, botones, botones de la cabecera y teclas hacen lo mismo ----- */
