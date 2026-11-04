@@ -12,8 +12,8 @@
         p.g.forEach(g => ev(g, s).forEach((v, i) => { st[g[i]] = Math.max(st[g[i]] ?? -1, v) }));
         for (let i = 0; i < MAX; i++) {
             const g = p.g[i], cur = (i == p.g.length && !r) ? (p.cur || '') : '', e = g && ev(g, s); let t = '';
-            for (let j = 0; j < 5; j++)t += `<span class="t ${e ? 's' + e[j] : ''}">${g ? g[j] : cur[j] || ''}<i>${e ? ['–', '●', '✓'][e[j]] : ''}</i></span>`;
-            h += `<div class="r" role="group" aria-label="Intento ${i + 1}">${t}</div>`
+            for (let j = 0; j < 5; j++)t += `<span class="t ${e ? 's' + e[j] : ''}${e && Anim.has('rv') && i == p.g.length - 1 ? ' fl' : ''}${cur && Anim.has('ty') && j == cur.length - 1 ? ' pp' : ''}" style="--j:${j}">${g ? g[j] : cur[j] || ''}<i>${e ? ['–', '●', '✓'][e[j]] : ''}</i></span>`;
+            h += `<div class="r${!g && i == p.g.length && !r && Anim.has('sk') ? ' sk' : ''}" role="group" aria-label="Intento ${i + 1}">${t}</div>`
         }
         let b = `<div>${h}</div>${S.set.tm && !r ? tmHtml(p) : ''}<p class="msg" role="status">${msg}</p>`;
         if (r) b += res(r.st == 'won' ? `¡Acertada en ${ratt(r)}${r.t ? ' · ' + mmss(r.t) : ''}!` : 'No ha podido ser', r.st == 'won' ? 'Vuelve mañana para un reto nuevo.' : `La palabra era <b>${s.toUpperCase()}</b>.`, pshare(r)); else b += kb(st, true);
@@ -25,9 +25,10 @@
         if (k == 'Del') p.cur = p.cur.slice(0, -1);
         else if (k == 'Enter') {
             if (p.cur.length < 5) msg = 'Faltan letras'; else if (!OK.has(p.cur) && p.cur != SOL()) msg = 'Esa palabra no está en el diccionario'; else if (p.g.includes(p.cur)) msg = 'Ya probaste esa palabra';
-            else { p.g.push(p.cur); p.cur = ''; const l = p.g[p.g.length - 1]; if (l == SOL()) fin('palabra', { st: 'won', att: p.g.length, g: p.g, t: Date.now() - (p.t0 || Date.now()) }); else if (p.g.length == MAX) fin('palabra', { st: 'lost', att: MAX, g: p.g, t: Date.now() - (p.t0 || Date.now()) }) }
+            if (msg) Anim.once('sk');
+            else { Anim.once('rv'); p.g.push(p.cur); p.cur = ''; const l = p.g[p.g.length - 1]; if (l == SOL()) fin('palabra', { st: 'won', att: p.g.length, g: p.g, t: Date.now() - (p.t0 || Date.now()) }); else if (p.g.length == MAX) fin('palabra', { st: 'lost', att: MAX, g: p.g, t: Date.now() - (p.t0 || Date.now()) }) }
         }
-        else if (p.cur.length < 5) { p.t0 = p.t0 || Date.now(); p.cur += k }
+        else if (p.cur.length < 5) { p.t0 = p.t0 || Date.now(); p.cur += k; Anim.once('ty') }
         sv(); draw()
     }
 

@@ -30,8 +30,11 @@ const memoSD = gen => { let ok, k, v; return () => { if (!ok || k !== SD) { ok =
 const snap = (g, o) => { const gm = GAMES.find(x => x.id == g), p = gm && gm.pk && S.pr[DAY + gm.pk]; if (!p) return; try { const t = JSON.stringify(p); if (t.length <= 3000) o.pr = JSON.parse(t) } catch (e) { } };
 /* Al entrar: si hoy hay un juego terminado sin progreso local (otro navegador, o se cerró sesión), recompone el tablero final desde el resultado. */
 const restaurar = () => GAMES.forEach(g => { const r = (S.res[DAY] || {})[g.id]; if (!r || !g.pk || S.pr[DAY + g.pk]) return; if (r.pr) S.pr[DAY + g.pk] = JSON.parse(JSON.stringify(r.pr)); else if (g.id == 'palabra' && r.g) S.pr[DAY + g.pk] = { g: r.g.slice() } }); /* palabra: los resultados antiguos ya guardaban los intentos */
+/* Animaciones de un solo uso: Anim.once('x') marca un efecto para el PRÓXIMO draw() y se limpia justo después,
+   así no se repite cuando la pantalla se vuelve a pintar (pulsar una tecla, un temporizador…). Anim.has('x') se consulta al renderizar. */
+const Anim = { f: new Set(), once(k) { this.f.add(k) }, has(k) { return this.f.has(k) }, clear() { this.f.clear() } };
 const R = g => DU ? DU.res[g] : (S.res[DAY] || {})[g],
-   fin = (g, o) => { if (DU) return Duelo.fin(g, o); o = penaliza(o); snap(g, o); (S.res[DAY] = S.res[DAY] || {})[g] = o; sv(); Nube.guardarResultado(DAY, g, o) },
+   fin = (g, o) => { if (DU) return Duelo.fin(g, o); Anim.once('fin'); o = penaliza(o); snap(g, o); (S.res[DAY] = S.res[DAY] || {})[g] = o; sv(); Nube.guardarResultado(DAY, g, o) },
    prog = g => DU ? (DU.pr[g] = DU.pr[g] || {}) : (S.pr[DAY + g] = S.pr[DAY + g] || {});
 const days = (r = S.res) => Object.keys(r).map(Number).filter(d => Object.keys(r[d]).length);
 function streak() { return runs(days()).cur }

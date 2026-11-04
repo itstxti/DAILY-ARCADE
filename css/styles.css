@@ -2163,3 +2163,202 @@ a.btn {
         width: 100%
     }
 }
+
+/* ---------- Animaciones ligeras ----------
+   Todo va dentro de prefers-reduced-motion:no-preference: quien pide menos movimiento no ve nada de esto.
+   Las entradas (#app.in) solo se disparan al cambiar de pantalla y los efectos de un solo uso (.fl .pp .sk .fin)
+   solo en el draw() siguiente al evento (ver Anim en core.js), así no se repiten al repintar. */
+@media (prefers-reduced-motion:no-preference) {
+
+    @keyframes da-up {
+        from {
+            opacity: 0;
+            transform: translateY(10px)
+        }
+    }
+
+    @keyframes da-pop {
+        from {
+            opacity: 0;
+            transform: scale(.94) translateY(8px)
+        }
+
+        60% {
+            transform: scale(1.02)
+        }
+    }
+
+    @keyframes da-grow {
+        from {
+            transform: scaleX(0)
+        }
+    }
+
+    @keyframes da-type {
+        50% {
+            transform: scale(1.12)
+        }
+    }
+
+    @keyframes da-flip {
+        from {
+            transform: perspective(320px) rotateX(-90deg)
+        }
+    }
+
+    @keyframes da-shake {
+
+        20%,
+        60% {
+            transform: translateX(-6px)
+        }
+
+        40%,
+        80% {
+            transform: translateX(6px)
+        }
+    }
+
+    /* Entrada de pantalla: los bloques suben y aparecen en cascada */
+    #app.in>*:not(.gg) {
+        animation: da-up .32s ease-out backwards
+    }
+
+    #app.in>*:nth-child(2) {
+        animation-delay: .04s
+    }
+
+    #app.in>*:nth-child(3) {
+        animation-delay: .08s
+    }
+
+    #app.in>*:nth-child(4) {
+        animation-delay: .12s
+    }
+
+    #app.in>*:nth-child(5) {
+        animation-delay: .16s
+    }
+
+    #app.in>*:nth-child(n+6) {
+        animation-delay: .2s
+    }
+
+    /* Inicio: tarjetas de juego en cascada y barra de progreso que se rellena */
+    #app.in .gg>.gc {
+        animation: da-up .36s ease-out backwards;
+        animation-delay: .1s
+    }
+
+    #app.in .gg>.gc:nth-child(2) {
+        animation-delay: .14s
+    }
+
+    #app.in .gg>.gc:nth-child(3) {
+        animation-delay: .18s
+    }
+
+    #app.in .gg>.gc:nth-child(4) {
+        animation-delay: .22s
+    }
+
+    #app.in .gg>.gc:nth-child(5) {
+        animation-delay: .26s
+    }
+
+    #app.in .gg>.gc:nth-child(6) {
+        animation-delay: .3s
+    }
+
+    #app.in .gg>.gc:nth-child(7) {
+        animation-delay: .34s
+    }
+
+    #app.in .gg>.gc:nth-child(8) {
+        animation-delay: .38s
+    }
+
+    #app.in .gg>.gc:nth-child(9) {
+        animation-delay: .42s
+    }
+
+    #app.in .gg>.gc:nth-child(n+10) {
+        animation-delay: .46s
+    }
+
+    #app.in .slots i {
+        transform-origin: left;
+        animation: da-grow .5s .25s ease-out backwards
+    }
+
+    /* Palabra: la letra recién escrita late, la fila enviada se voltea ficha a ficha y la inválida se sacude */
+    .t.pp {
+        animation: da-type .14s ease-out
+    }
+
+    .t.fl {
+        animation: da-flip .42s ease-out backwards;
+        animation-delay: calc(var(--j, 0) * .12s)
+    }
+
+    .r.sk {
+        animation: da-shake .36s ease-in-out
+    }
+
+    /* Resultado: la tarjeta entra con un pequeño rebote al terminar la partida (tras el volteo en Palabra) */
+    #app.fin .res.rb {
+        animation: da-pop .45s cubic-bezier(.2, 1.2, .4, 1) backwards
+    }
+
+    #app.fin .res.rb .est {
+        animation: da-up .5s .2s ease-out backwards
+    }
+
+    #app.rv.fin .res.rb {
+        animation-delay: .75s
+    }
+
+    #app.rv.fin .res.rb .est {
+        animation-delay: .95s
+    }
+
+    /* Respuesta táctil de botones, teclas y tarjetas */
+    .gc,
+    .btn,
+    .bk,
+    .k {
+        transition: transform .12s ease, box-shadow .12s ease, background-color .15s ease
+    }
+
+    .btn:active,
+    .bk:active {
+        transform: translate(1px, 1px);
+        box-shadow: 1px 1px 0 var(--sh)
+    }
+
+    .k:active {
+        transform: scale(.92)
+    }
+
+    .sw {
+        transition: background-color .15s
+    }
+
+    @media (hover:hover) {
+        .gc:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 5px 5px 0 var(--sh)
+        }
+
+        .gc:hover:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 var(--sh)
+        }
+
+        .btn:hover:not(:active),
+        .bk:hover:not(:active) {
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0 var(--sh)
+        }
+    }
+}
