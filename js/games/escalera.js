@@ -105,6 +105,12 @@
     const p = prog('e'); fin('escalera', { st: 'lost', n: (p.w || []).length, par: Z.par, t: tiempo(p) }); draw()
   }
 
+  /* Teclado: con una letra ya cambiada, Enter confirma el paso aunque el foco esté en la ficha (si no, Enter volvería a «tocarla») */
+  $('#app').addEventListener('keydown', e => {
+    if (V != 'escalera' || R('escalera') || e.key != 'Enter' || !e.target.matches || !e.target.matches('.t[data-a="pos"]')) return;
+    if (prog('e').x) { e.preventDefault(); paso() }
+  });
+
   DailyArcade.register({
     id: 'escalera', name: 'Escalera', desc: 'Cambia una letra en cada paso para llegar de una palabra a otra.', color: '--lav', icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h5v-5h5v-5h5V5h3"/></svg>',
     how: ["Llega de la palabra de <b>inicio</b> a la <b>meta</b>.", "Cambia <b>una sola letra</b> en cada paso, y la palabra tiene que existir.", "Toca la letra, escribe la nueva y pulsa <b>Enter</b>."],

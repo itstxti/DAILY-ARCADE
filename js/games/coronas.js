@@ -20,7 +20,7 @@
             const x = i % N, y = (i / N) | 0, d = (a, b) => a < 0 || b < 0 || a >= N || b >= N || G[b * N + a] != G[i] ? 3 : 1;
             z += `<button class="z ${S.set.hl && bad.has(i) ? 'cf' : ''}" style="background:${REG[G[i]]};border-width:${d(x, y - 1)}px ${d(x + 1, y)}px ${d(x, y + 1)}px ${d(x - 1, y)}px" data-a="cell" data-i="${i}" aria-label="Fila ${y + 1}, columna ${x + 1}, región ${'ABCDEFGHI'[G[i]]}, ${['vacía', 'marcada', 'corona'][p.b[i]]}"><small>${'ABCDEFGHI'[G[i]]}</small>${['', '✕', '♛'][p.b[i]]}</button>`
         }
-        let b = `<div class="bd2" style="grid-template-columns:repeat(${N},1fr)">${z}</div>`;
+        let b = `<div class="bd2" data-rv="coronas" role="group" aria-label="Tablero de coronas" style="grid-template-columns:repeat(${N},1fr)">${z}</div>`;
         if (r && r.st == 'lost') b += resRendida('Coronas'); else if (r) b += res(`¡Completado en ${mmss(r.t)}!`, `Tablero de ${N}×${N}. Vuelve mañana para un reto nuevo.`, `Daily Arcade · Coronas #${DAY} · ${N}×${N} · ${mmss(r.t)}`);
         else b += `${S.set.tm ? tmHtml(p) : ''}${controles({ undo: 1, reiniciar: 1, rendirme: 1 })}<p class="msg">Toca una casilla: vacía → ✕ → corona.</p>`;
         return shell('Coronas', b)
