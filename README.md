@@ -165,6 +165,23 @@ npx serve
 3. Hints and checks add seconds to your time, shown on the button (e.g. `Hint ⏱15 s`).
 4. Finish faster for more stars. Giving up scores 0.
 
+### Keyboard
+
+The whole app can be used without a mouse.
+
+| Key | Action |
+|-----|--------|
+| `Tab` / `Shift+Tab` | Move through buttons and links. Each board (Sudoku, Coronas, Luces) and on-screen keyboard is a single tab stop. |
+| Arrow keys | Move the focus to the nearest control in that direction (home, boards, settings, rankings…). In Sudoku this also selects the cell. |
+| `Enter` / `Space` | Activate the focused control. |
+| `Esc` | Go back. |
+| Letters, `Enter`, `Backspace` | Type in Palabra, Cifrado and Escalera; digits `1`–`6` in Sudoku. |
+| Arrow keys or `WASD` | Draw the path in Camino. |
+| Sopa de letras | `Tab` to the board, arrows move the cursor, `Enter` on the first and on the last letter, `Esc` cancels. |
+| Tuberías | `Tab` to the board, arrows move the cursor, `Enter` on a dot starts a pipe, arrows extend (or go back along) it, `Enter`/`Esc` release. |
+
+Games that need the arrow keys for themselves register with `flechas: true`. Board containers opt in to the single tab stop with `data-rv="name"`.
+
 ### Scoring
 
 | Time vs. reference | Stars |
@@ -193,6 +210,7 @@ admin.html          Admin panel
 sw.js               Service Worker
 js/games/           One file per game (+ _plantilla.js)
 js/core.js          Shared utilities, scoring and reference times
+js/teclado.js       Keyboard navigation (focus, arrows, Esc)
 js/duelo.js         Duel client
 supabase/           SQL schema, seed, duels, hardening + login function
 ```

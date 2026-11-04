@@ -63,7 +63,7 @@
          const x = i % N, y = i / N | 0, e = (b >> i) & 1;
          z += `<button class="lz${e ? ' on' : ''}${!r && p.pi === i ? ' pista' : ''}" data-a="lz" data-i="${i}"${r ? ' disabled' : ''} aria-pressed="${!!e}" aria-label="Fila ${y + 1}, columna ${x + 1}, ${e ? 'encendida' : 'apagada'}"></button>`
       }
-      let h = `<div class="lzb" role="group" aria-label="Tablero de luces de 5 por 5">${z}</div>`;
+      let h = `<div class="lzb" data-rv="luces" role="group" aria-label="Tablero de luces de 5 por 5">${z}</div>`;
       if (r && r.st == 'lost') h += resRendida('Luces');
       else if (r) {
          const ex = r.n - r.par;

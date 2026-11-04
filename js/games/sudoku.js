@@ -59,7 +59,7 @@
          const c = ['sx', giv[i] ? 'g' : '', x == 2 ? 'vr' : '', y % 2 && y < N - 1 ? 'hr' : '', s === i ? 'sel' : '', s != null && v && v == g[s] ? 'eq' : '', !r && S.set.hl && cf.has(i) ? 'cf' : '', !r && p.bad && p.bad.includes(i) ? 'bd' : ''].filter(Boolean).join(' ');
          z += `<button class="${c}" data-a="sc" data-i="${i}"${r ? ' disabled' : ''} aria-label="Fila ${y + 1}, columna ${x + 1}, ${giv[i] ? 'número dado ' + v : v ? 'número ' + v : 'vacía'}">${v || ''}</button>`
       }
-      let b = `<div class="sd" role="group" aria-label="Tablero de sudoku de 6 por 6">${z}</div>`;
+      let b = `<div class="sd" data-rv="sudoku" role="group" aria-label="Tablero de sudoku de 6 por 6">${z}</div>`;
       if (r && r.st == 'lost') b += resRendida('Sudoku'); else if (r) b += res(`¡Resuelto en ${mmss(r.t)}!`, 'Tablero de 6×6. Vuelve mañana para un reto nuevo.', `Daily Arcade · Sudoku #${DAY} · 6×6 · ${mmss(r.t)}${r.c ? ' · ' + r.c + pl(r.c, ' comprobación', ' comprobaciones') : ''}`);
       else b += `${S.set.tm ? tmHtml(p) : ''}<p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, comprobar: 1, rendirme: 1 })}<div class="kb np"><div class="kr">${[1, 2, 3, 4, 5, 6].map(n => `<button class="k" data-a="k" data-k="${n}">${n}</button>`).join('')}<button class="k w" data-a="k" data-k="Del" aria-label="Borrar">⌫</button></div></div>`;
       return shell('Sudoku mini', b)

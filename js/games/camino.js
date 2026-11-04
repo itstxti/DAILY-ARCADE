@@ -177,6 +177,7 @@
       pk: 'cm',
       render: camino,
       onKey: tecla,
+      flechas: true,          // las flechas dibujan el camino: la navegación por foco no las toca
       actions: { undo, reiniciar, rendirme: confirma(rendirse) },
       status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Completado · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar')
    });

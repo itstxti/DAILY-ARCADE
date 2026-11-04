@@ -64,7 +64,7 @@
    const centro = i => [i % N + .5, (i / N | 0) + .5];
 
    /* Selección en curso (no se guarda) */
-   let sel = null, pend = null, drag = false;
+   let sel = null, pend = null, drag = false, kc = 0; // kc: cursor del teclado
 
    function svgTablero(p, dis) {
       const Z = P();
@@ -72,6 +72,7 @@
       for (let i = 0; i < T; i++)s += `<rect x="${i % N}" y="${i / N | 0}" width="1" height="1" style="fill:var(--card);stroke:var(--line);stroke-width:.02"/>`;
       p.f.forEach(f => { const [a, b] = [centro(f.a), centro(f.b)]; s += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" style="stroke:${COL[f.w % COL.length]};stroke-opacity:.5;stroke-width:.78;stroke-linecap:round"/>` });
       if (!dis && sel) { const [a, b] = [centro(sel.a), centro(sel.b)]; s += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" style="stroke:var(--sky);stroke-opacity:.45;stroke-width:.78;stroke-linecap:round"/>` }
+      if (!dis && document.activeElement && document.activeElement.id == 'spb') s += `<rect x="${kc % N + .06}" y="${(kc / N | 0) + .06}" width=".88" height=".88" rx=".12" fill="none" style="stroke:var(--ink);stroke-width:.08"/>`;
       if (!dis && p.pi != null) { const c = centro(p.pi); s += `<circle cx="${c[0]}" cy="${c[1]}" r=".42" fill="none" style="stroke:var(--sun);stroke-width:.09"/>` }
       for (let i = 0; i < T; i++)s += `<text x="${i % N + .5}" y="${(i / N | 0) + .53}" text-anchor="middle" dominant-baseline="central" style="fill:var(--ink);font:800 .5px 'Bricolage Grotesque',system-ui,sans-serif;pointer-events:none">${Z.g[i]}</text>`;
       return s + '</svg>'
@@ -90,10 +91,10 @@
       const Z = P();
       if (!Z) return shell('Sopa de letras', '<p class="sub">Hoy no hay sopa de letras disponible.</p>');
       const p = prog('sp'); ini(p); const r = R('sopa');
-      let b = `<div id="spb" data-b="sopa" style="${r ? '' : 'touch-action:none;'}max-width:400px;margin:12px auto;border:3px solid var(--ink);border-radius:var(--r-md);overflow:hidden;user-select:none;-webkit-user-select:none">${svgTablero(p, !!r)}</div>`
+      let b = `<div id="spb" data-b="sopa"${r ? '' : ' tabindex="0" role="application" aria-label="Tablero de la sopa de letras. Flechas para mover el cursor, Enter para marcar la primera y la última letra, Esc para cancelar."'} style="${r ? '' : 'touch-action:none;'}max-width:400px;margin:12px auto;border:3px solid var(--ink);border-radius:var(--r-md);overflow:hidden;user-select:none;-webkit-user-select:none">${svgTablero(p, !!r)}</div>${r ? '' : '<span class="sr" id="spl" aria-live="polite"></span>'}`
          + `<ul id="spw" class="spw">${lista(p)}</ul>`;
       if (r && r.st == 'lost') b += resRendida('Sopa'); else if (r) b += res(`¡Las ${NP} palabras en ${mmss(r.t)}!`, r.h ? `Con ${r.h} ${pl(r.h, 'pista', 'pistas')}. Vuelve mañana para una sopa nueva.` : 'Vuelve mañana para una sopa nueva.', `Daily Arcade · Sopa #${DAY} · ${NP}/${NP} palabras${r.h ? ' · ' + r.h + pl(r.h, ' pista', ' pistas') : ''} · ${mmss(r.t)}`);
-      else b += `${S.set.tm ? tmHtml(p) : ''}<p class="cap" id="spc" style="text-align:center;margin:0">${p.f.length} / ${NP} palabras</p><p class="msg" id="spm" role="status">${msg}</p>${controles({ pista: 1, rendirme: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Arrastra de la primera a la última letra, o toca esas dos letras.</p>`;
+      else b += `${S.set.tm ? tmHtml(p) : ''}<p class="cap" id="spc" style="text-align:center;margin:0">${p.f.length} / ${NP} palabras</p><p class="msg" id="spm" role="status">${msg}</p>${controles({ pista: 1, rendirme: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Arrastra de la primera a la última letra, o toca esas dos letras. Con teclado: flechas y Enter.</p>`;
       return shell('Sopa de letras', b)
    }
 
@@ -155,6 +156,32 @@
    };
    A.addEventListener('pointerup', suelta); A.addEventListener('pointercancel', suelta);
 
+   /* ----- Teclado: Tab hasta el tablero, flechas mueven el cursor, Enter marca el principio y el final, Esc cancela ----- */
+   const DK = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+   const nombre = i => `Fila ${(i / N | 0) + 1}, columna ${i % N + 1}: ${P().g[i]}`;
+   A.addEventListener('keydown', e => {
+      if (V != 'sopa' || R('sopa') || e.target.id != 'spb' || e.ctrlKey || e.metaKey || e.altKey) return;
+      const p = prog('sp'), k = e.key; ini(p);
+      if (DK[k]) {
+         e.preventDefault();
+         const x = kc % N + DK[k][0], y = (kc / N | 0) + DK[k][1]; if (x < 0 || y < 0 || x >= N || y >= N) return;
+         kc = y * N + x; if (pend != null) sel = { a: pend, b: ajusta(pend, kc) };
+         pinta(); Teclado.anuncia('spl', nombre(kc))
+      } else if (k == 'Enter' || k == ' ') {
+         e.preventDefault(); p.t0 = p.t0 || Date.now();
+         if (pend == null) { pend = kc; sel = { a: kc, b: kc }; msg = 'Mueve el cursor a la última letra y pulsa Enter.'; pinta(); Teclado.anuncia('spl', 'Inicio en ' + nombre(kc)); return }
+         const a = pend, f = ajusta(a, kc); pend = null; sel = null; msg = '';
+         if (f == a) { pinta(); return }
+         if (probar(a, f)) return;
+         pinta(); Teclado.anuncia('spl', msg || 'Selección descartada')
+      } else if (k == 'Escape' && pend != null) {
+         e.preventDefault(); pend = null; sel = null; msg = ''; pinta()
+      }
+   });
+   /* El cursor solo se ve con el tablero enfocado */
+   A.addEventListener('focusin', e => { if (V == 'sopa' && e.target.id == 'spb') pinta() });
+   A.addEventListener('focusout', e => { if (V == 'sopa' && e.target.id == 'spb') setTimeout(() => { if (V == 'sopa') pinta() }, 0) });
+
    function pista() {
       const Z = P(); if (!Z || R('sopa')) return;
       const p = prog('sp'); ini(p);
@@ -172,7 +199,7 @@
 
    DailyArcade.register({
       id: 'sopa', name: 'Sopa de letras', desc: 'Encuentra las 6 palabras escondidas en la cuadrícula.', color: '--pink', icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>',
-      how: ["Encuentra las <b>6 palabras</b> de la lista escondidas en la cuadrícula.", "Van en <b>horizontal, vertical o diagonal</b>. Se pueden marcar en cualquier sentido.", "Arrastra de la primera a la última letra, o toca esas dos letras."],
+      how: ["Encuentra las <b>6 palabras</b> de la lista escondidas en la cuadrícula.", "Van en <b>horizontal, vertical o diagonal</b>. Se pueden marcar en cualquier sentido.", "Arrastra de la primera a la última letra, o toca esas dos letras. Con teclado: <b>Tab</b> hasta el tablero, <b>flechas</b> para moverte y <b>Enter</b> en la primera y en la última letra."],
       demo: (() => {
          const L = ['M', 'E', 'S', 'A', 'X', 'S', 'O', 'L', 'X', 'X', 'X', 'X']; let s = `<svg viewBox="0 0 4 3" style="display:block;width:140px;margin:6px auto;border:3px solid var(--ink);border-radius:var(--r-sm)">`;
          for (let i = 0; i < 12; i++)s += `<rect x="${i % 4}" y="${i / 4 | 0}" width="1" height="1" style="fill:var(--card);stroke:var(--line);stroke-width:.03"/>`;

@@ -85,6 +85,7 @@
          s += `<circle cx="${i % N + .5}" cy="${(i / N | 0) + .5}" r=".31" style="fill:${COL[c]};stroke:var(--ink);stroke-width:.04"/>`
             + `<text x="${i % N + .5}" y="${(i / N | 0) + .5}" text-anchor="middle" dominant-baseline="central" style="fill:#14213D;font:800 .3px 'Bricolage Grotesque',system-ui,sans-serif">${LET[c]}</text>`
       }));
+      if (!dis && document.activeElement && document.activeElement.id == 'tbb') s += `<rect x="${kc % N + .06}" y="${(kc / N | 0) + .06}" width=".88" height=".88" rx=".12" fill="none" style="stroke:${kd ? 'var(--sky)' : 'var(--ink)'};stroke-width:.09"/>`;
       return s + '</svg>'
    }
 
@@ -98,14 +99,14 @@
 
    function tuberias() {
       const p = prog('t'); ini(p); const r = R('tuberias');
-      let b = `<div id="tbb" class="cm" data-b="tuberias" style="${r ? '' : 'touch-action:none;'}max-width:372px;margin:12px auto;border:3px solid var(--ink);border-radius:var(--r-md);overflow:hidden;user-select:none;-webkit-user-select:none">${svgTablero(p.t, !!r)}</div>`;
+      let b = `<div id="tbb" class="cm" data-b="tuberias"${r ? '' : ' tabindex="0" role="application" aria-label="Tablero de tuberías. Flechas para mover el cursor, Enter sobre un punto para empezar a trazar y de nuevo Enter para soltar, Esc para soltar."'} style="${r ? '' : 'touch-action:none;'}max-width:372px;margin:12px auto;border:3px solid var(--ink);border-radius:var(--r-md);overflow:hidden;user-select:none;-webkit-user-select:none">${svgTablero(p.t, !!r)}</div>${r ? '' : '<span class="sr" id="tbl" aria-live="polite"></span>'}`;
       if (r && r.st == 'lost') b += resRendida('Tuberías'); else if (r) b += res(`¡Tuberías unidas en ${mmss(r.t)}!`, `Las ${K} parejas están unidas y el tablero está lleno. Vuelve mañana para un reto nuevo.`, `Daily Arcade · Tuberías #${DAY} · 6×6 · ${K} colores · ${mmss(r.t)}`);
-      else b += `${S.set.tm ? tmHtml(p) : ''}<p class="cap" id="tbc" style="text-align:center;margin:0">${info(p.t)}</p><p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, rendirme: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Arrastra desde un punto. Si cruzas otro camino, lo cortas.</p>`;
+      else b += `${S.set.tm ? tmHtml(p) : ''}<p class="cap" id="tbc" style="text-align:center;margin:0">${info(p.t)}</p><p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, rendirme: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Arrastra desde un punto. Si cruzas otro camino, lo cortas. Con teclado: flechas y Enter.</p>`;
       return shell('Tuberías', b)
    }
 
    /* ----- Interacción con el puntero ----- */
-   let act = null, drag = false, snap = null; // act: color activo (se puede seguir tocando casillas contiguas); snap: copia para Deshacer
+   let act = null, drag = false, snap = null, kc = 0, kd = false; // act: color activo (se puede seguir tocando casillas contiguas); snap: copia para Deshacer
    const casilla = (e, el) => { const q = el.getBoundingClientRect(), x = Math.floor((e.clientX - q.left) / q.width * N), y = Math.floor((e.clientY - q.top) / q.height * N); return x < 0 || y < 0 || x >= N || y >= N ? -1 : y * N + x };
    const copia = t => t.map(x => x.slice());
    function final(p) {
@@ -145,16 +146,54 @@
    };
    A.addEventListener('pointerup', suelta); A.addEventListener('pointercancel', suelta);
 
+   /* ----- Teclado: flechas mueven el cursor; Enter sobre un punto (o un camino) empieza a trazar y las flechas lo alargan;
+      Enter o Esc sueltan. Es el mismo trazo que con el puntero (hacia/mover), así que cortar, retroceder y Deshacer funcionan igual. ----- */
+   const DK = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+   const nombre = i => { const e = EX()[i], d = duenos(prog('t').t)[i]; return `Fila ${(i / N | 0) + 1}, columna ${i % N + 1}: ` + (e >= 0 ? 'punto ' + LET[e] : d >= 0 ? 'camino ' + LET[d] : 'vacía') };
+   function cierra(p) { // equivale a soltar el puntero
+      kd = false;
+      if (snap && JSON.stringify(snap) != JSON.stringify(p.t)) { (p.u = p.u || []).push(snap); if (p.u.length > 40) p.u.shift() }
+      snap = null; sv(); pinta()
+   }
+   A.addEventListener('keydown', e => {
+      if (V != 'tuberias' || R('tuberias') || e.target.id != 'tbb' || e.ctrlKey || e.metaKey || e.altKey) return;
+      const p = prog('t'), k = e.key; ini(p);
+      if (DK[k]) {
+         e.preventDefault();
+         const x = kc % N + DK[k][0], y = (kc / N | 0) + DK[k][1]; if (x < 0 || y < 0 || x >= N || y >= N) return;
+         const i = y * N + x;
+         if (kd && act != null) {
+            if (hacia(p.t, act, i) && final(p)) { kd = false; snap = null; return }
+            const h = p.t[act]; kc = h.length ? h[h.length - 1] : i      // el cursor sigue a la punta del camino (si algo lo bloquea, no se adelanta)
+         } else kc = i;
+         pinta(); Teclado.anuncia('tbl', nombre(kc))
+      } else if (k == 'Enter' || k == ' ') {
+         e.preventDefault();
+         if (kd) { cierra(p); Teclado.anuncia('tbl', 'Soltado'); return }
+         const i = kc, antes = copia(p.t), ex = EX(), d = duenos(p.t)[i]; let c = null;
+         p.t0 = p.t0 || Date.now(); msg = '';
+         if (ex[i] >= 0) { c = ex[i]; p.t[c] = [i] }
+         else if (d >= 0) { c = d; p.t[c].length = p.t[c].indexOf(i) + 1 }
+         else if (act != null && p.t[act].length && !unido(p.t, act) && ady(p.t[act][p.t[act].length - 1], i)) { c = act; mover(p.t, c, i) }
+         if (c == null) { act = null; pinta(); return }
+         act = c; kd = true; snap = antes;
+         if (final(p)) { kd = false; snap = null; return }
+         sv(); pinta(); Teclado.anuncia('tbl', `Trazando ${LET[c]}. Flechas para avanzar, Enter para soltar.`)
+      } else if (k == 'Escape' && kd) { e.preventDefault(); cierra(p) }
+   });
+   A.addEventListener('focusin', e => { if (V == 'tuberias' && e.target.id == 'tbb') pinta() });
+   A.addEventListener('focusout', e => { if (V == 'tuberias' && e.target.id == 'tbb') setTimeout(() => { if (V == 'tuberias' && !R('tuberias')) { if (kd) cierra(prog('t')); else pinta() } }, 0) });
+
    function undo() {
       const p = prog('t'); ini(p);
       if (R('tuberias') || !(p.u && p.u.length)) return;
-      p.t = p.u.pop(); act = null; msg = ''; sv(); draw()
+      p.t = p.u.pop(); act = null; kd = false; msg = ''; sv(); draw()
    }
    function reiniciar() {
       const p = prog('t'); ini(p);
       if (R('tuberias')) return;
       if (p.t.some(x => x.length)) { (p.u = p.u || []).push(copia(p.t)) }
-      p.t = Array.from({ length: K }, () => []); act = null; msg = ''; sv(); draw()
+      p.t = Array.from({ length: K }, () => []); act = null; kd = false; msg = ''; sv(); draw()
    }
 
    function rendirse() {
@@ -164,7 +203,7 @@
 
    DailyArcade.register({
       id: 'tuberias', name: 'Tuberías', desc: 'Une las parejas de puntos del mismo color y rellena todo el tablero.', color: '--aqua', icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h7a5 5 0 0 1 5 5v7"/><path d="M4 4.5v7M12.5 20h7"/></svg>',
-      how: ["Une cada pareja de puntos del <b>mismo color</b> con un camino.", "Los caminos <b>no pueden cruzarse</b> y entre todos tienen que <b>rellenar el tablero</b>.", "Arrastra desde un punto. Si pasas por otro camino, lo cortas. Las letras ayudan a distinguir los colores."],
+      how: ["Une cada pareja de puntos del <b>mismo color</b> con un camino.", "Los caminos <b>no pueden cruzarse</b> y entre todos tienen que <b>rellenar el tablero</b>.", "Arrastra desde un punto. Si pasas por otro camino, lo cortas. Las letras ayudan a distinguir los colores. Con teclado: <b>Tab</b> hasta el tablero, <b>flechas</b> para moverte, <b>Enter</b> sobre un punto para trazar y <b>Enter</b> otra vez para soltar."],
       demo: (() => {
          const c = [[0, 1, 2], [3, 6, 7], [4, 5, 8]], cl = ['#E5484D', '#3E6FE0', '#2FA36B'], ex = [[0, 2], [3, 7], [4, 8]]; let s = `<svg viewBox="0 0 3 3" style="display:block;width:120px;margin:6px auto;border:3px solid var(--ink);border-radius:var(--r-sm)">`;
          for (let i = 0; i < 9; i++)s += `<rect x="${i % 3}" y="${i / 3 | 0}" width="1" height="1" style="fill:var(--card);stroke:var(--line);stroke-width:.03"/>`;

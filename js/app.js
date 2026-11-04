@@ -244,7 +244,9 @@ function draw() {
   const ld = h.includes('Cargando…'), mismo = vk === draw.vk;
   /* 'in' solo al cambiar de pantalla; 'sub' cuando llegan los datos de una pantalla que estaba "Cargando…" */
   app.className = [mismo ? '' : 'in', mismo && draw.ld && !ld ? 'sub' : '', ...Anim.f].join(' ').trim(); draw.vk = vk; draw.ld = ld;
+  const foco = Teclado.guarda();
   app.innerHTML = h;
+  Teclado.repinta(foco, mismo);
   Anim.clear(); tick()
 }
 function tick() {
