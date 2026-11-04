@@ -116,7 +116,7 @@ const Nube = (() => {
    N.bloqueados = async () => { const { data, error } = await sb.rpc('mis_bloqueados'); if (error) throw error; return data || [] };
    /* ---------- Duelos (ver supabase/duelos.sql) ---------- */
    const rpc = async (f, a) => { const { data, error } = await sb.rpc(f, a); if (error) throw error; return data };
-   N.misDuelos = () => rpc('mis_duelos');
+   N.misDuelos = mas => rpc('mis_duelos', { mas });
    N.estadoDuelo = did => rpc('duelo_estado', { did });
    N.retar = u => rpc('duelo_retar', { u });
    N.responderDuelo = (did, aceptar) => rpc('duelo_responder', { did, aceptar });
