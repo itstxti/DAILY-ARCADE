@@ -237,8 +237,10 @@ function home() {
 function draw() {
   const g = cur();
   const dv = Nube.user ? Duelo.vista() : null;
-  $('#app').innerHTML = dv != null ? dv : V == 'perfil' ? perfil() : V == 'ajustes' ? ajustes() : V == 'cuenta' && Nube.activo ? cuenta() : V == 'amigos' && Nube.user ? amigos() : V == 'ranking' && Nube.user ? ranking() : V == 'amigo' && Nube.user && FP ? perfilAmigo() : g ? g.render() : (V = 'home', home());
-  tick()
+  const app = $('#app'), vk = (dv != null ? 'duelo' : V) + '|' + (g ? g.id : '');
+  app.className = [vk !== draw.vk ? 'in' : '', ...Anim.f].join(' ').trim(); draw.vk = vk; /* 'in' solo al cambiar de pantalla */
+  app.innerHTML = dv != null ? dv : V == 'perfil' ? perfil() : V == 'ajustes' ? ajustes() : V == 'cuenta' && Nube.activo ? cuenta() : V == 'amigos' && Nube.user ? amigos() : V == 'ranking' && Nube.user ? ranking() : V == 'amigo' && Nube.user && FP ? perfilAmigo() : g ? g.render() : (V = 'home', home());
+  Anim.clear(); tick()
 }
 function tick() {
   const q = parts(); if (q.day !== P.day && !Duelo.ocupado()) return location.reload();
