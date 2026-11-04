@@ -6,6 +6,7 @@ const VT = { public: 'Cualquiera que te encuentre por tu @usuario podrá ver tu 
 const inv = () => !Nube.user, pct = (a, b) => b ? Math.round(100 * a / b) : 0;
 const UOK = /^[a-z0-9_]{3,15}$/, UMSG = 'El usuario debe tener de 3 a 15 caracteres: minúsculas, números o _.', nu = v => String(v).trim().toLowerCase().replace(/^@/, '');
 let vp = 'perfil'; /* de dónde se abrió Cuenta, para el botón Volver */
+let vd = 'home'; /* de dónde se abrió Duelos (inicio o amigos), para el botón Volver */
 let cm = 'entrar', fm = {}; /* pantalla de acceso (entrar/crear) y lo escrito en ella */
 let en = false; /* editando el nombre en Perfil */
 let eu = null; /* usuario en edición (null = no se está editando) */
@@ -286,7 +287,7 @@ $('#app').onclick = e => {
   const sm = e.target.closest('.how>summary'); if (sm) { const d = sm.parentNode; HW[d.dataset.g] = !d.open; return }
   const b = e.target.closest('[data-a]'); if (!b) return;
   const a = b.dataset.a, g = cur();
-  if (a == 'go') { if (b.dataset.v == 'cuenta') { vp = V == 'ajustes' ? 'ajustes' : 'perfil'; cm = 'entrar'; fm = {} } V = b.dataset.v; msg = ''; fs = false; sel = null; hist = []; ask = false; eu = null; en = false; cfm = null; blq = null; fr = undefined; fq = ''; if (V == 'ranking') { RK = { tab: RK.tab, d: DAY, dia: null, rachas: null, err: '' } } draw(); if (V == 'amigos' && Nube.user) cargarAmigos(); if (V == 'ranking' && Nube.user) cargarRanking(); if (V == 'ajustes' && Nube.user) cargarBloqueados(); if (V == 'duelos' && Nube.user) Duelo.abrir() }
+  if (a == 'go') { if (b.dataset.v == 'duelos') vd = V == 'amigos' ? 'amigos' : 'home'; if (b.dataset.v == 'cuenta') { vp = V == 'ajustes' ? 'ajustes' : 'perfil'; cm = 'entrar'; fm = {} } V = b.dataset.v; msg = ''; fs = false; sel = null; hist = []; ask = false; eu = null; en = false; cfm = null; blq = null; fr = undefined; fq = ''; if (V == 'ranking') { RK = { tab: RK.tab, d: DAY, dia: null, rachas: null, err: '' } } draw(); if (V == 'amigos' && Nube.user) cargarAmigos(); if (V == 'ranking' && Nube.user) cargarRanking(); if (V == 'ajustes' && Nube.user) cargarBloqueados(); if (V == 'duelos' && Nube.user) Duelo.abrir() }
   else if (a.startsWith('du-')) Duelo.accion(a, b)
   else if (a == 'set') { const k = b.dataset.k; S.set[k] = k == 'th' ? b.dataset.v : !S.set[k]; sv(); theme(); draw() }
   else if (a == 'copy') copy();
