@@ -1754,17 +1754,25 @@ a.btn {
     font-weight: 700
 }
 
+/* Barra de progreso del día: una sola barra que se rellena, sirve para cualquier número de juegos */
 .slots {
-    display: flex;
-    gap: 4px
+    box-sizing: border-box;
+    height: 20px;
+    border: 2px solid var(--ink);
+    border-radius: var(--r-sm);
+    background: var(--card);
+    overflow: hidden
 }
 
 .slots i {
-    flex: 1;
-    height: 16px;
-    border: 2px solid var(--ink);
-    border-radius: var(--r-sm);
-    background: var(--card)
+    display: block;
+    height: 100%;
+    background: var(--mint);
+    border-right: 2px solid var(--ink)
+}
+
+.slots.full i {
+    border-right: 0
 }
 
 .gg {
