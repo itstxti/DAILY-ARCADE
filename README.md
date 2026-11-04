@@ -53,6 +53,12 @@ Ejecuta `supabase/duelos.sql` en el SQL Editor (después de `schema.sql`; es ide
 - **Historial:** enseña tus últimos 10 duelos y un botón *Ver más* añade 10 cada vez, hasta 30 como máximo. No hay corte por días; los duelos terminados de hace más de 90 días se borran solos cuando abres la lista. Los tres números (`historial_pagina`, `historial_max`, `historial_dias`) están en `duelo_cfg()`. `mis_duelos(mas)` es la función que lo sirve; si ya tenías la anterior (sin argumento), `duelos.sql` la sustituye.
 - **Los duelos no cuentan** en tus resultados diarios, rachas ni rankings.
 
+### Seguridad y soluciones
+
+- Ejecuta también `supabase/endurecimiento.sql` (después de `schema.sql` y `duelos.sql`; idempotente): fija el `search_path` de las funciones internas, quita de la API la función de alta de usuarios, añade índices a dos claves foráneas y ajusta las políticas de `profiles` y `retos`. Corrige los avisos del *Security/Performance Advisor*. Además, en el panel de Supabase activa *Authentication → Passwords → Leaked password protection*.
+- **Las soluciones no deben ser públicas.** `supabase/seed.sql` y `local/` contienen las respuestas de los próximos meses. `.vercelignore` y `vercel.json` impiden que Vercel las sirva, pero **si el repositorio de GitHub es público, cualquiera las lee ahí**. Mantén el repositorio privado, o sustituye esos archivos por un ejemplo corto y carga el calendario real solo desde el panel de administración.
+- `vercel.json` añade cabeceras de seguridad y `Cache-Control: no-cache` para `sw.js`.
+
 ### Entrar con @usuario
 
 Con correo funciona sin más. Para entrar también con el @usuario:

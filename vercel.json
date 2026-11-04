@@ -1,0 +1,17 @@
+{
+  "headers": [
+    { "source": "/sw.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+    { "source": "/(.*)", "headers": [
+      { "key": "X-Content-Type-Options", "value": "nosniff" },
+      { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+      { "key": "X-Frame-Options", "value": "DENY" },
+      { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+    ] }
+  ],
+  "redirects": [
+    { "source": "/supabase/:path*", "destination": "/", "permanent": false },
+    { "source": "/admin-local/:path*", "destination": "/", "permanent": false },
+    { "source": "/local/:path*", "destination": "/", "permanent": false },
+    { "source": "/tests/:path*", "destination": "/", "permanent": false }
+  ]
+}

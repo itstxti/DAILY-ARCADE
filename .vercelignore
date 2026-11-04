@@ -1,0 +1,6 @@
+supabase/
+admin-local/
+local/
+tests/
+.github/
+README.md
