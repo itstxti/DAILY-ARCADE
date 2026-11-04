@@ -2469,3 +2469,14 @@ h1[tabindex="-1"]:focus {
     outline: 3px solid var(--sky);
     outline-offset: 3px
 }
+
+/* Ranking: mientras llegan los datos del día elegido se ve la lista anterior; solo se atenúa si tarda (así no parpadea) */
+@keyframes rk-ld {
+    to {
+        opacity: .55
+    }
+}
+
+.res.ld {
+    animation: rk-ld .2s .3s forwards
+}

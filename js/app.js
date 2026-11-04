@@ -28,10 +28,10 @@ function verAmigo(u) {
 }
 let RK = { tab: 'dia', d: DAY, dia: null, rachas: null, err: '' }, rkTok = 0; /* ranking: pestaña, día visto y datos (null = cargando) */
 function cargarRanking() {
-  const t = RK.tab, d = RK.d, k = ++rkTok; RK.err = '';
+  const t = RK.tab, d = RK.d, k = ++rkTok; RK.err = ''; RK.ld = true;
   (t == 'dia' ? Nube.rankingDia(d) : Nube.rankingRachas())
     .then(l => { if (k == rkTok) RK[t] = l }).catch(e => { console.warn(e); if (k == rkTok) { RK[t] = []; RK.err = em(e) } })
-    .then(() => { if (k == rkTok && V == 'ranking') draw() })
+    .then(() => { if (k == rkTok) RK.ld = false; if (k == rkTok && V == 'ranking') draw() })
 }
 const em = e => e && e.code == 'P0001' && e.message ? e.message : 'No se ha podido completar la acción. Inténtalo de nuevo.'; /* solo mostramos los mensajes que escribe el servidor */
 const nrec = () => (AM || []).filter(a => a.estado == 'pendiente' && a.direccion == 'recibida').length;
@@ -157,7 +157,7 @@ function ranking() {
     regla = tab == 'dia' ? 'Gana quien más juegos gane; si empatan, el menor tiempo total.' : 'Se ordena por racha actual; si empatan, por la mejor racha.';
   return `<div class="bar"><button class="bk" data-a="go" data-v="amigos">‹ Amigos</button><h1>Ranking</h1></div>
 ${tabs}${nav}
-<section class="res pb">${L === null ? '<p class="cap">Cargando…</p>' : RK.err ? `<p class="msg" role="status">${RK.err}</p>` : L.map(tab == 'dia' ? fd : fr2).join('') + solo}</section>
+<section class="res pb${RK.ld && L !== null ? ' ld' : ''}">${L === null ? '<p class="cap">Cargando…</p>' : RK.err ? `<p class="msg" role="status">${RK.err}</p>` : L.map(tab == 'dia' ? fd : fr2).join('') + solo}</section>
 <p class="foot">${regla} Solo salen tú y tus amigos. Los resultados los envía cada jugador desde su navegador: es un ranking entre amigos, no una clasificación oficial.</p>`
 }
 
@@ -334,8 +334,8 @@ $('#app').onclick = e => {
     msg = 'Un momento…'; draw();
     Nube.desbloquear(b.dataset.u).then(() => Promise.all([Nube.bloqueados(), Nube.amistades()])).then(([l, am]) => { BL = l; AM = am; fr = undefined; msg = 'Usuario desbloqueado.' }).catch(e => { console.warn(e); msg = em(e) }).then(() => draw())
   }
-  else if (a == 'rk-tab') { RK.tab = b.dataset.v; RK[RK.tab] = null; Anim.once('sub'); draw(); cargarRanking() }
-  else if (a == 'rk-d') { const n = RK.d + +b.dataset.v; if (n < 1 || n > DAY) return; RK.d = n; RK.dia = null; Anim.once('sub'); draw(); cargarRanking() }
+  else if (a == 'rk-tab') { RK.tab = b.dataset.v; Anim.once('sub'); cargarRanking(); draw() }
+  else if (a == 'rk-d') { const n = RK.d + +b.dataset.v; if (n < 1 || n > DAY) return; RK.d = n; cargarRanking(); draw() } /* sin vaciar la lista ni animar: se ve la anterior hasta que llegan los datos nuevos (si no, parpadeaba) */
   else if (a == 'am-buscar') {
     const v = nu($('#fq').value); fq = v; fr = undefined;
     if (!UOK.test(v)) { msg = UMSG; draw(); return }
