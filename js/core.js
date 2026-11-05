@@ -18,7 +18,7 @@ const shuf = (a, r) => { for (let i = a.length - 1; i > 0; i--) { const j = Math
 const nz = k => k.toLowerCase() === 'ñ' ? 'ñ' : k.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const mmss = ms => { const s = Math.floor(ms / 1e3); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') };
 let S = { res: {}, pr: {}, me: { n: 'Invitado', v: 'public' } }; try { S = Object.assign(S, JSON.parse(localStorage.getItem('da2') || '{}')) } catch (e) { }
-S.set = Object.assign({ cb: false, tm: true, hl: true, th: 'auto' }, S.set);
+S.set = Object.assign({ cb: false, tm: true, hl: true, vib: false, th: 'auto' }, S.set);
 const sv = () => { try { localStorage.setItem('da2', JSON.stringify(S)) } catch (e) { } };
 /* S.uid = cuenta a la que pertenecen los datos de este navegador (null = invitado). */
 /* Semilla del puzle (SD): el reto de hoy o, en un duelo, la semilla de la ronda (la elige el servidor). Los juegos generan con SD, no con DAY.
@@ -33,8 +33,10 @@ const restaurar = () => GAMES.forEach(g => { const r = (S.res[DAY] || {})[g.id];
 /* Animaciones de un solo uso: Anim.once('x') marca un efecto para el PRÓXIMO draw() y se limpia justo después,
    así no se repite cuando la pantalla se vuelve a pintar (pulsar una tecla, un temporizador…). Anim.has('x') se consulta al renderizar. */
 const Anim = { f: new Set(), once(k) { this.f.add(k) }, has(k) { return this.f.has(k) }, clear() { this.f.clear() } };
+/* Vibración opcional (Ajustes → Juegos) al terminar: patrón corto si ganas, uno largo si no. Solo en dispositivos que la admiten. */
+const vibra = o => { try { if (S.set.vib && navigator.vibrate) navigator.vibrate(o && (o.st == 'won' || o.st == 'completed') ? [30, 50, 30] : [140]) } catch (_) { } };
 const R = g => DU ? DU.res[g] : (S.res[DAY] || {})[g],
-   fin = (g, o) => { if (DU) return Duelo.fin(g, o); Anim.once('fin'); o = penaliza(o); snap(g, o); (S.res[DAY] = S.res[DAY] || {})[g] = o; sv(); Nube.guardarResultado(DAY, g, o) },
+   fin = (g, o) => { if (DU) return Duelo.fin(g, o); Anim.once('fin'); vibra(o); o = penaliza(o); snap(g, o); (S.res[DAY] = S.res[DAY] || {})[g] = o; sv(); Nube.guardarResultado(DAY, g, o) },
    prog = g => DU ? (DU.pr[g] = DU.pr[g] || {}) : (S.pr[DAY + g] = S.pr[DAY + g] || {});
 const days = (r = S.res) => Object.keys(r).map(Number).filter(d => Object.keys(r[d]).length);
 function streak() { return runs(days()).cur }
@@ -73,15 +75,19 @@ const shell = (t, b) => DU ? Duelo.shell(t, b) : `<div class="bar"><button class
    controles({undo:1, reiniciar:1, comprobar:1, pista:1, rendirme:1}) — cada juego pide solo los que tienen sentido,
    siempre en este orden y con estos nombres de acción: undo, reiniciar, comprobar, pista, rendirme.
    pista y comprobar enseñan su coste en segundos (de duelo_cfg(); mismo valor en el reto diario y en duelo). "Rendirme" pide confirmación con un segundo toque (confirma(fn)),
-   y en un duelo se llama «Abandonar ronda» (solo pierde esa ronda; rendirse del duelo está en la cabecera). */
+   y en un duelo se llama «Abandonar ronda» (solo pierde esa ronda; rendirse del duelo está en la cabecera).
+   La confirmación NO caduca sola (antes se revertía a los 3 s, incómodo con teclado, lector de pantalla o poca destreza): sigue hasta
+   que se pulsa «Sí», «Cancelar» o Esc, o hasta que cambia la pantalla o se pulsa otra acción (ver app.js y draw()). */
 let CFT = 0;
-const confirma = fn => () => { if (CFT) { clearTimeout(CFT); CFT = 0; fn() } else { CFT = setTimeout(() => { CFT = 0; draw() }, 3000); draw() } };
+const confirma = fn => () => { if (CFT) { CFT = 0; fn() } else { CFT = 1; draw(); const c = $('[data-a="cft-no"]'); if (c) c.focus({ preventScroll: true }) } }; /* el foco va a «Cancelar»: la opción segura */
 const controles = o => {
    /* Las ayudas enseñan su penalización en segundos (⏱15 s), en el reto diario y en duelo: en los dos se suma al tiempo. */
    const c = k => ` ⏱${Duelo.coste(k)} s`;
    const b = (a, t, x = '') => `<button class="btn${x}" data-a="${a}">${t}</button>`;
    const ley = (o.pista || o.comprobar) ? '<p class="cap" style="text-align:center;margin:0">⏱ = segundos que se suman a tu tiempo</p>' : '';
-   return `<div class="row ctl">${o.undo ? b('undo', 'Deshacer') : ''}${o.reiniciar ? b('reiniciar', 'Reiniciar') : ''}${o.comprobar ? b('comprobar', 'Comprobar' + c('comprobar', o.comprobar)) : ''}${o.pista ? b('pista', 'Pista' + c('pista', o.pista)) : ''}${o.rendirme ? (CFT ? b('rendirme', '¿Seguro? Sí', ' dg') : b('rendirme', DU ? 'Abandonar ronda' : 'Rendirme')) : ''}</div>${ley}`
+   /* Con la confirmación abierta solo se ofrecen «Cancelar» y «Sí»: así la pregunta no se mezcla con Deshacer/Reiniciar. */
+   if (o.rendirme && CFT) return `<div class="row ctl" role="group" aria-label="Confirmar"><button class="btn" data-a="cft-no" aria-describedby="cft-t">Cancelar</button>${b('rendirme', DU ? 'Sí, abandonar' : 'Sí, rendirme', ' dg')}</div><p class="cap cc" id="cft-t">${DU ? '¿Abandonar la ronda? Pierdes solo esta ronda.' : '¿Rendirte? El reto cuenta como perdido y no se puede deshacer.'} Esc para cancelar.</p>`;
+   return `<div class="row ctl">${o.undo ? b('undo', 'Deshacer') : ''}${o.reiniciar ? b('reiniciar', 'Reiniciar') : ''}${o.comprobar ? b('comprobar', 'Comprobar' + c('comprobar', o.comprobar)) : ''}${o.pista ? b('pista', 'Pista' + c('pista', o.pista)) : ''}${o.rendirme ? b('rendirme', DU ? 'Abandonar ronda' : 'Rendirme') : ''}</div>${ley}`
 };
 /* Tarjeta de resultado de una partida rendida (igual en todos los juegos). */
 const resRendida = (nombre, detalle) => res('Rendida', detalle || 'Vuelve mañana para un reto nuevo.', `Daily Arcade · ${nombre} #${DAY} · rendida`);

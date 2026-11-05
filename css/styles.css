@@ -6,7 +6,7 @@
     --sky: #3E6FE0;
     --berry: #D1345B;
     --sun: #F6B73C;
-    --mint: #1E8A66;
+    --mint: #1A7F5E; /* antes #1E8A66: el texto blanco encima daba 4,3:1; ahora 4,95:1 */
     --lav: #B79CF0;
     --coral: #F28B6B;
     --aqua: #2DB9D3;
@@ -15,6 +15,12 @@
     --orange: #EE7B1E;
     --mut: #5B6683;
     --sh: #14213D;
+    /* Borde de casillas vacías: 3,9:1 sobre la tarjeta y 3,4:1 sobre el fondo (mínimo 3:1 en componentes). --line queda para separadores */
+    --edge: #7080A6;
+    /* Color del texto sobre fondos sky/berry, y berry apto para texto pequeño (5,3:1 sobre el fondo) */
+    --on-sky: #fff;
+    --on-berry: #fff;
+    --berry-tx: #B8284D;
     /* Escala de radios: xs=barras/celdas diminutas, sm=teclas/casillas, md=controles/tiles/tableros, lg=tarjetas */
     --r-xs: 4px;
     --r-sm: 8px;
@@ -33,7 +39,14 @@
         --card: #17224A;
         --line: #2C3B6C;
         --mut: #9AA6CC;
-        --sh: #05091A
+        --sh: #05091A;
+        --edge: #6577B3;
+        /* sky y berry más claros: antes daban 3,3:1 y 3,2:1 sobre la tarjeta oscura; ahora 6,6:1 y 5,9:1 */
+        --sky: #86A8F7;
+        --berry: #F27C97;
+        --berry-tx: #F27C97;
+        --on-sky: #14213D;
+        --on-berry: #14213D
     }
 }
 
@@ -43,7 +56,13 @@
     --card: #17224A;
     --line: #2C3B6C;
     --mut: #9AA6CC;
-    --sh: #05091A
+    --sh: #05091A;
+    --edge: #6577B3;
+    --sky: #86A8F7;
+    --berry: #F27C97;
+    --berry-tx: #F27C97;
+    --on-sky: #14213D;
+    --on-berry: #14213D
 }
 
 html {
@@ -170,16 +189,20 @@ h2 {
 
 .foot {
     color: var(--mut);
-    font-size: 13px;
+    font-size: 14px;
     margin-top: 28px
 }
 
 .lnk {
     background: none;
     border: 0;
-    padding: 0;
+    /* Zona táctil de 44 px de alto: el padding la amplía y el margen negativo evita que cambie el layout */
+    display: inline-block;
+    padding: 13px 8px;
+    margin: -13px -8px;
+    line-height: 18px;
     text-decoration: underline;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--mut)
 }
 
@@ -200,7 +223,14 @@ h2 {
     background: var(--card);
     border-radius: var(--r-pill);
     padding: 4px 12px;
-    font-weight: 700
+    font-weight: 700;
+    /* Objetivo táctil mínimo de 44×44 px */
+    box-sizing: border-box;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center
 }
 
 .btn {
@@ -208,6 +238,7 @@ h2 {
     background: var(--card);
     border-radius: var(--r-md);
     padding: 8px 14px;
+    min-height: 44px;
     font-weight: 700;
     box-shadow: 2px 2px 0 var(--sh)
 }
@@ -240,6 +271,30 @@ h2 {
     font-size: .9rem
 }
 
+.cc {
+    text-align: center;
+    margin: 0
+}
+
+/* Inicio: botón «Continuar / Siguiente reto» y aviso a invitados con racha */
+.btn.sg {
+    margin: 0 0 16px
+}
+
+.av2 {
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    border: 2px dashed var(--edge);
+    border-radius: var(--r-md);
+    font-size: 14px;
+    color: var(--mut)
+}
+
+.av2 .lnk {
+    font-weight: 700;
+    color: var(--ink)
+}
+
 .msg {
     min-height: 22px;
     margin: 8px 0;
@@ -258,7 +313,7 @@ h2 {
     position: relative;
     width: 54px;
     height: 54px;
-    border: 2px solid var(--line);
+    border: 2px solid var(--edge);
     border-radius: var(--r-sm);
     display: grid;
     place-items: center;
@@ -272,7 +327,7 @@ h2 {
     position: absolute;
     right: 4px;
     bottom: 0;
-    font-size: 11px;
+    font-size: 14px;
     font-style: normal
 }
 
@@ -336,7 +391,7 @@ h2 {
 
 .c {
     width: 30px;
-    border: 2px solid var(--line);
+    border: 2px solid var(--edge);
     border-radius: var(--r-sm);
     background: var(--card);
     padding: 2px 0;
@@ -346,7 +401,7 @@ h2 {
 }
 
 .c small {
-    font-size: 11px;
+    font-size: 14px;
     color: var(--mut)
 }
 
@@ -371,11 +426,11 @@ h2 {
 
 .c.bd {
     background: var(--berry);
-    color: #fff
+    color: var(--on-berry)
 }
 
 .c.bd small {
-    color: #fff
+    color: var(--on-berry)
 }
 
 .pu {
@@ -411,7 +466,7 @@ h2 {
     position: absolute;
     left: 3px;
     top: 1px;
-    font-size: 10px
+    font-size: 12px
 }
 
 .z.cf {
@@ -448,9 +503,9 @@ pre {
 /* Desglose del cronómetro cuando hay penalización por ayudas, y destello +N s al pulsar una */
 .tm .tp {
     display: block;
-    font-size: .75rem;
+    font-size: .875rem;
     font-weight: 600;
-    color: var(--berry)
+    color: var(--berry-tx)
 }
 
 .tm .tp:empty {
@@ -462,7 +517,7 @@ pre {
     left: 50%;
     top: 0;
     margin-left: 42px;
-    color: var(--berry);
+    color: var(--berry-tx);
     font-weight: 800;
     pointer-events: none;
     animation: tmb 1.3s ease-out forwards
@@ -491,7 +546,7 @@ pre {
     height: 44px;
     border-radius: 50%;
     background: var(--sky);
-    color: #fff;
+    color: var(--on-sky);
     display: grid;
     place-items: center;
     font-weight: 800;
@@ -529,7 +584,7 @@ pre {
     border-radius: var(--r-md);
     padding: 8px;
     text-align: center;
-    font-size: 13px;
+    font-size: 14px;
     background: var(--card)
 }
 
@@ -546,7 +601,7 @@ pre {
 }
 
 .br span {
-    font-size: 13px
+    font-size: 14px
 }
 
 .br span.es {
@@ -569,21 +624,48 @@ pre {
 }
 
 .br b {
-    font-size: 13px;
+    font-size: 14px;
     width: 22px
 }
 
+/* Mapa de actividad: 4 semanas × 7 días. El número de cada casilla es la información (no depende del color) */
 .hm {
     display: grid;
-    grid-template-columns: repeat(14, 1fr);
-    gap: 3px;
-    margin: 4px 0 6px
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin: 8px 0 6px
 }
 
-.hm span {
-    aspect-ratio: 1;
+.hm button {
+    height: 40px;
+    padding: 0;
+    border: 2px solid var(--edge);
+    border-radius: var(--r-sm);
+    background: var(--card);
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums
+}
+
+.hm button.p {
     background: var(--sky);
-    border-radius: var(--r-xs)
+    border-color: var(--sky);
+    color: var(--on-sky)
+}
+
+.hm button.f {
+    background: var(--sun);
+    border-color: var(--sun);
+    color: #14213D
+}
+
+.hm button.hoy {
+    border-color: var(--ink)
+}
+
+.hm button[aria-pressed="true"] {
+    box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--ink)
 }
 
 .pb {
@@ -606,7 +688,7 @@ pre {
 .st small {
     display: block;
     color: var(--mut);
-    font-size: 13px
+    font-size: 14px
 }
 
 .cb .s1 {
@@ -715,7 +797,7 @@ pre {
 
 .btn.dg {
     background: var(--berry);
-    color: #fff
+    color: var(--on-berry)
 }
 
 .av.lg {
@@ -752,12 +834,7 @@ pre {
 
 .cap {
     color: var(--mut);
-    font-size: 13px
-}
-
-.hm .hoy {
-    outline: 2px solid var(--ink);
-    outline-offset: 1px
+    font-size: 14px
 }
 
 .gh {
@@ -817,7 +894,7 @@ pre {
 
 .gs span {
     min-width: 0;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     line-height: 1.25
 }
@@ -826,7 +903,7 @@ pre {
     display: block;
     margin-top: 2px;
     color: var(--mut);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500
 }
 
@@ -853,7 +930,7 @@ pre {
 
 .hb div {
     padding: 10px 8px;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.25;
     color: var(--mut)
 }
@@ -883,11 +960,21 @@ pre {
 
 /* ---------- Perfil: tarjetas de juego plegables (abiertas si hay 3 juegos o menos) ---------- */
 .gm summary {
-    display: flex;
+    /* Icono | nombre y estado apilados | flecha. Con texto de 14 px el estado ya no cabe al lado del nombre en pantallas estrechas */
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: 10px;
+    column-gap: 10px;
     cursor: pointer;
     list-style: none
+}
+
+.gm summary .gi {
+    grid-area: 1 / 1 / span 2 / 1
+}
+
+.gm summary::after {
+    grid-area: 1 / 3 / span 2 / 3
 }
 
 .gm summary::-webkit-details-marker {
@@ -895,16 +982,16 @@ pre {
 }
 
 .gm summary h2 {
-    flex: 1;
-    min-width: 0;
-    margin: 0
+    grid-column: 2;
+    margin: 0;
+    overflow-wrap: anywhere
 }
 
 .gm summary small {
+    grid-column: 2;
     color: var(--mut);
-    font-size: 13px;
-    font-weight: 500;
-    white-space: nowrap
+    font-size: 14px;
+    font-weight: 500
 }
 
 .gm summary::after {
@@ -1115,7 +1202,7 @@ pre {
 
 .sx.bd {
     background: var(--berry);
-    color: #fff
+    color: var(--on-berry)
 }
 
 .sx.sel {
@@ -1251,7 +1338,7 @@ button.t {
     border: 2px solid var(--ink);
     border-radius: var(--r-pill);
     padding: 1px 10px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     background: var(--card)
 }
@@ -1410,7 +1497,7 @@ a.btn {
     height: 22px;
     border-radius: 50%;
     background: var(--sky);
-    color: #fff;
+    color: var(--on-sky);
     border: 2px solid var(--ink);
     font-size: 12px;
     font-weight: 800
@@ -1450,7 +1537,7 @@ a.btn {
 
 .dm .t i {
     right: 3px;
-    font-size: 10px
+    font-size: 12px
 }
 
 .dm .dot {
@@ -1461,7 +1548,7 @@ a.btn {
     margin-right: 2px;
     border: 2px solid transparent;
     border-radius: var(--r-sm);
-    font-size: 11px;
+    font-size: 12px;
     vertical-align: middle
 }
 
@@ -1541,13 +1628,13 @@ a.btn {
 
 .kp i {
     font-style: normal;
-    font-size: 12px;
+    font-size: 14px;
     letter-spacing: 1px;
     line-height: 1.2
 }
 
 .kp span {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--mut);
     line-height: 1.2
@@ -1564,16 +1651,37 @@ a.btn {
     box-sizing: border-box;
     border-radius: var(--r-pill);
     background: var(--berry);
-    color: #fff;
-    font-size: 11px;
+    color: var(--on-berry);
+    font-size: 12px;
     font-weight: 800;
     display: grid;
     place-items: center;
     border: 2px solid var(--bg)
 }
 
-.st .row .btn {
+.st .row .btn,
+.st .acts .btn {
     padding: 6px 12px
+}
+
+/* Filas de personas (Amigos): si las acciones no caben junto al nombre, bajan a una segunda línea en vez de aplastarlo */
+.st.fa {
+    flex-wrap: wrap
+}
+
+.st.fa>.fn {
+    flex: 1 1 9rem;
+    min-width: 0
+}
+
+.acts {
+    flex: none;
+    margin: 0 0 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0 22px /* con los 8 px de zona táctil de cada lado, deja 6 px entre zonas vecinas */
 }
 
 /* Ranking entre amigos */
@@ -1605,7 +1713,7 @@ a.btn {
 }
 
 .pt small {
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 600
 }
 
@@ -1625,9 +1733,9 @@ a.btn {
 .ed {
     display: inline-grid;
     place-items: center;
-    width: 40px;
-    height: 40px;
-    margin: -8px 0 0 2px;
+    width: 44px;
+    height: 44px;
+    margin: -10px 0 0 0;
     vertical-align: middle;
     border-radius: 50%;
     color: var(--mut);
@@ -1750,7 +1858,7 @@ a.btn {
 
 .ht span {
     color: var(--mut);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700
 }
 
@@ -1822,7 +1930,7 @@ a.btn {
 .gt em {
     font-style: normal;
     font-weight: 700;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.25;
     color: var(--mut)
 }
@@ -2034,7 +2142,7 @@ a.btn {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 13px
+    font-size: 14px
 }
 
 .dus i {
@@ -2051,7 +2159,7 @@ a.btn {
 
 .dui {
     flex: none;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     color: var(--mut);
     font-variant-numeric: tabular-nums;
@@ -2479,4 +2587,165 @@ h1[tabindex="-1"]:focus {
 
 .res.ld {
     animation: rk-ld .2s .3s forwards
+}
+
+/* Solo para lectores de pantalla (anuncios como el del resultado) */
+.vh {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0
+}
+
+/* Carga: esqueleto de tarjetas */
+.gt.esq {
+    pointer-events: none;
+    min-height: 96px;
+    border-color: var(--edge);
+    box-shadow: none
+}
+
+.gt.esq .gl {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--r-md);
+    background: var(--line)
+}
+
+.gt.esq strong {
+    width: 70%;
+    height: 14px;
+    border-radius: var(--r-pill);
+    background: var(--line)
+}
+
+@media (prefers-reduced-motion:no-preference) {
+    .gt.esq {
+        animation: esq 1.2s ease-in-out infinite alternate
+    }
+
+    @keyframes esq {
+        from { opacity: .55 }
+        to { opacity: 1 }
+    }
+}
+
+/* Error de carga: detalle técnico plegado */
+.dt {
+    margin: 16px 0;
+    color: var(--mut);
+    font-size: 14px
+}
+
+.dt summary {
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center
+}
+
+.dt p {
+    margin: 0;
+    word-break: break-word
+}
+
+/* Aviso de reto nuevo (cambio de día con la web abierta) */
+#nd {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    max-width: 480px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--card);
+    color: var(--ink);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-lg);
+    box-shadow: 4px 4px 0 var(--sh);
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 60
+}
+
+#nd span {
+    flex: 1 1 200px
+}
+
+/* Perfil: mejor y más flojo */
+.mj {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0 0 14px
+}
+
+.mj>div {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md);
+    min-width: 0
+}
+
+.mj .gi {
+    flex: none
+}
+
+.mj span:last-child {
+    display: flex;
+    flex-direction: column;
+    min-width: 0
+}
+
+.mj small {
+    color: var(--mut);
+    font-size: 14px
+}
+
+.mj b {
+    overflow-wrap: anywhere
+}
+
+@media (max-width:360px) {
+    .mj {
+        grid-template-columns: 1fr
+    }
+}
+
+/* Conflictos: además del color, una marca «!» (no dependen solo del tono) */
+.c.cf,
+.c.bd {
+    position: relative
+}
+
+.c.cf::after,
+.c.bd::after,
+.z.cf::after {
+    content: "!";
+    position: absolute;
+    right: 3px;
+    top: 1px;
+    min-width: 14px;
+    height: 14px;
+    line-height: 14px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--bg);
+    font-size: 11px;
+    font-weight: 800;
+    text-align: center;
+    pointer-events: none
 }
