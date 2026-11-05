@@ -152,15 +152,16 @@ ${env.length ? `<section class="res pb"><h2>Solicitudes enviadas</h2>${env.map(a
 function ranking() {
   const T = GAMES.length, tab = RK.tab, L = RK[tab],
     tabs = `<div class="seg" role="group" aria-label="Tipo de ranking">${[['dia', 'Del día'], ['rachas', 'Rachas']].map(([v, l]) => `<button class="btn" data-a="rk-tab" data-v="${v}" aria-pressed="${tab == v}">${l}</button>`).join('')}</div>`,
-    nav = tab == 'dia' ? `<div class="rn"><button class="bk" data-a="rk-d" data-v="-1"${RK.d <= 1 ? ' disabled' : ''} aria-label="Día anterior">‹</button><b>Reto nº ${RK.d}${RK.d == DAY ? ' · hoy' : ''}</b><button class="bk" data-a="rk-d" data-v="1"${RK.d >= DAY ? ' disabled' : ''} aria-label="Día siguiente">›</button></div>` : '',
+    nav = tab == 'dia' ? `<div class="rn"><button class="bk" data-a="rk-d" data-v="-1"${RK.d <= 1 ? ' disabled' : ''} aria-label="Día anterior">‹</button><b>Reto nº ${RK.d}${RK.d == DAY ? ' · hoy' : ''}</b><button class="bk" data-a="rk-d" data-v="1"${RK.d >= DAY ? ' disabled' : ''} aria-label="Día siguiente">›</button></div>${RK.d != DAY ? '<div class="row ctl"><button class="btn" data-a="rk-hoy">Volver a hoy</button></div>' : ''}` : '',
     fila = (a, sub, pt) => `<div class="st${a.yo ? ' yo' : ''}"><span class="pos">${a.pos == null ? '–' : a.pos}</span><span style="flex:1;min-width:0"><b>${esc(a.nombre || '@' + a.usuario)}${a.yo ? ' <span class="tag">Tú</span>' : ''}</b><small>${sub}</small></span><span class="pt">${pt}</span></div>`,
     fd = a => a.jugados == 0 ? fila(a, 'Sin jugar', '') : fila(a, `${a.ganados} ${a.ganados == 1 ? 'ganado' : 'ganados'} · ${a.jugados}/${T} jugados${a.tiempo ? ' · ' + mmss(+a.tiempo) : ''}`, `${a.ganados}<small>de ${T}</small>`),
     fr2 = a => fila(a, `mejor ${a.mejor} · ${a.dias} ${a.dias == 1 ? 'día jugado' : 'días jugados'}`, `${a.racha}<small>${a.racha == 1 ? 'día' : 'días'}</small>`),
+    vacio = L && !L.length && !RK.err ? `<p class="cap">${tab == 'dia' ? (RK.d == DAY ? 'Todavía no hay resultados de hoy.' : 'Nadie jugó ese día.') : 'Todavía no hay rachas que mostrar.'}</p><div class="row">${tab == 'dia' && RK.d != DAY ? '<button class="btn pri" data-a="rk-hoy">Ver el ranking de hoy</button>' : '<button class="btn pri" data-a="go" data-v="home">Ir a jugar</button>'}<button class="btn" data-a="go" data-v="amigos">Añadir amigos</button></div>` : '',
     solo = L && L.length == 1 && !RK.err ? '<p class="cap" style="margin-top:12px">Aquí solo estás tú. <button class="lnk" data-a="go" data-v="amigos">Añade amigos</button> para competir.</p>' : '',
     regla = tab == 'dia' ? 'Gana quien más juegos gane; si empatan, el menor tiempo total.' : 'Se ordena por racha actual; si empatan, por la mejor racha.';
   return `<div class="bar"><button class="bk" data-a="go" data-v="amigos">‹ Amigos</button><h1>Ranking</h1></div>
 ${tabs}${nav}
-<section class="res pb${RK.ld && L !== null ? ' ld' : ''}">${L === null ? '<p class="cap">Cargando…</p>' : RK.err ? `<p class="msg" role="status">${RK.err}</p>` : L.map(tab == 'dia' ? fd : fr2).join('') + solo}</section>
+<section class="res pb${RK.ld && L !== null ? ' ld' : ''}">${L === null ? '<p class="cap">Cargando…</p>' : RK.err ? `<p class="msg" role="status">${RK.err}</p>` : L.map(tab == 'dia' ? fd : fr2).join('') + solo + vacio}</section>
 <p class="foot">${regla} Solo salen tú y tus amigos. Los resultados los envía cada jugador desde su navegador: es un ranking entre amigos, no una clasificación oficial.</p>`
 }
 
@@ -340,6 +341,7 @@ $('#app').onclick = e => {
     Nube.desbloquear(b.dataset.u).then(() => Promise.all([Nube.bloqueados(), Nube.amistades()])).then(([l, am]) => { BL = l; AM = am; fr = undefined; msg = 'Usuario desbloqueado.' }).catch(e => { console.warn(e); msg = em(e) }).then(() => draw())
   }
   else if (a == 'rk-tab') { RK.tab = b.dataset.v; Anim.once('sub'); cargarRanking(); draw() }
+  else if (a == 'rk-hoy') { RK.d = DAY; RK.dia = null; cargarRanking(); draw() }
   else if (a == 'rk-d') { const n = RK.d + +b.dataset.v; if (n < 1 || n > DAY) return; RK.d = n; cargarRanking(); draw() } /* sin vaciar la lista ni animar: se ve la anterior hasta que llegan los datos nuevos (si no, parpadeaba) */
   else if (a == 'am-buscar') {
     const v = nu($('#fq').value); fq = v; fr = undefined;
