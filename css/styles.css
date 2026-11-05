@@ -189,7 +189,7 @@ h2 {
 
 .foot {
     color: var(--mut);
-    font-size: 13px;
+    font-size: 14px;
     margin-top: 28px
 }
 
@@ -303,7 +303,7 @@ h2 {
     position: absolute;
     right: 4px;
     bottom: 0;
-    font-size: 11px;
+    font-size: 14px;
     font-style: normal
 }
 
@@ -377,7 +377,7 @@ h2 {
 }
 
 .c small {
-    font-size: 11px;
+    font-size: 14px;
     color: var(--mut)
 }
 
@@ -442,7 +442,7 @@ h2 {
     position: absolute;
     left: 3px;
     top: 1px;
-    font-size: 10px
+    font-size: 12px
 }
 
 .z.cf {
@@ -479,7 +479,7 @@ pre {
 /* Desglose del cronómetro cuando hay penalización por ayudas, y destello +N s al pulsar una */
 .tm .tp {
     display: block;
-    font-size: .75rem;
+    font-size: .875rem;
     font-weight: 600;
     color: var(--berry-tx)
 }
@@ -560,7 +560,7 @@ pre {
     border-radius: var(--r-md);
     padding: 8px;
     text-align: center;
-    font-size: 13px;
+    font-size: 14px;
     background: var(--card)
 }
 
@@ -577,7 +577,7 @@ pre {
 }
 
 .br span {
-    font-size: 13px
+    font-size: 14px
 }
 
 .br span.es {
@@ -600,7 +600,7 @@ pre {
 }
 
 .br b {
-    font-size: 13px;
+    font-size: 14px;
     width: 22px
 }
 
@@ -637,7 +637,7 @@ pre {
 .st small {
     display: block;
     color: var(--mut);
-    font-size: 13px
+    font-size: 14px
 }
 
 .cb .s1 {
@@ -783,7 +783,7 @@ pre {
 
 .cap {
     color: var(--mut);
-    font-size: 13px
+    font-size: 14px
 }
 
 .hm .hoy {
@@ -848,7 +848,7 @@ pre {
 
 .gs span {
     min-width: 0;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     line-height: 1.25
 }
@@ -857,7 +857,7 @@ pre {
     display: block;
     margin-top: 2px;
     color: var(--mut);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500
 }
 
@@ -884,7 +884,7 @@ pre {
 
 .hb div {
     padding: 10px 8px;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.25;
     color: var(--mut)
 }
@@ -933,7 +933,7 @@ pre {
 
 .gm summary small {
     color: var(--mut);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
     white-space: nowrap
 }
@@ -1282,7 +1282,7 @@ button.t {
     border: 2px solid var(--ink);
     border-radius: var(--r-pill);
     padding: 1px 10px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     background: var(--card)
 }
@@ -1481,7 +1481,7 @@ a.btn {
 
 .dm .t i {
     right: 3px;
-    font-size: 10px
+    font-size: 12px
 }
 
 .dm .dot {
@@ -1492,7 +1492,7 @@ a.btn {
     margin-right: 2px;
     border: 2px solid transparent;
     border-radius: var(--r-sm);
-    font-size: 11px;
+    font-size: 12px;
     vertical-align: middle
 }
 
@@ -1572,13 +1572,13 @@ a.btn {
 
 .kp i {
     font-style: normal;
-    font-size: 12px;
+    font-size: 14px;
     letter-spacing: 1px;
     line-height: 1.2
 }
 
 .kp span {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--mut);
     line-height: 1.2
@@ -1596,7 +1596,7 @@ a.btn {
     border-radius: var(--r-pill);
     background: var(--berry);
     color: var(--on-berry);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     display: grid;
     place-items: center;
@@ -1657,7 +1657,7 @@ a.btn {
 }
 
 .pt small {
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 600
 }
 
@@ -1802,7 +1802,7 @@ a.btn {
 
 .ht span {
     color: var(--mut);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700
 }
 
@@ -1874,7 +1874,7 @@ a.btn {
 .gt em {
     font-style: normal;
     font-weight: 700;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.25;
     color: var(--mut)
 }
@@ -2086,7 +2086,7 @@ a.btn {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 13px
+    font-size: 14px
 }
 
 .dus i {
@@ -2103,7 +2103,7 @@ a.btn {
 
 .dui {
     flex: none;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     color: var(--mut);
     font-variant-numeric: tabular-nums;
