@@ -5,7 +5,8 @@ const VT = { public: 'Cualquiera que te encuentre por tu @usuario podrá ver tu 
    así que no se le ofrece elegir la privacidad. */
 const inv = () => !Nube.user, pct = (a, b) => b ? Math.round(100 * a / b) : 0;
 const UOK = /^[a-z0-9_]{3,15}$/, UMSG = 'El usuario debe tener de 3 a 15 caracteres: minúsculas, números o _.', nu = v => String(v).trim().toLowerCase().replace(/^@/, '');
-let vp = 'perfil'; /* de dónde se abrió Cuenta, para el botón Volver */
+let vp = 'perfil'; /* de dónde se abrió Cuenta, para el botón Volver (perfil, ajustes o home) */
+const VPN = { perfil: 'Perfil', ajustes: 'Ajustes', home: 'Inicio' };
 let vd = 'home'; /* de dónde se abrió Duelos (inicio o amigos), para el botón Volver */
 let cm = 'entrar', fm = {}; /* pantalla de acceso (entrar/crear) y lo escrito en ella */
 let en = false; /* editando el nombre en Perfil */
@@ -184,7 +185,7 @@ const GG = `<button class="btn gg" data-a="google"><svg class="ggi" viewBox="0 0
 function formCuenta(M) {
   const cr = cm == 'crear', v = k => esc(fm[k] || ''),
     inp = (id, ph, ex, k) => `<input id="${id}" value="${v(k)}" placeholder="${ph}" aria-label="${ph}" ${ex}>`;
-  return `<div class="bar"><button class="bk" data-a="go" data-v="${vp}">‹ ${vp == 'ajustes' ? 'Ajustes' : 'Perfil'}</button><h1>${cr ? 'Crear cuenta' : 'Entrar'}</h1></div>
+  return `<div class="bar"><button class="bk" data-a="go" data-v="${vp}">‹ ${VPN[vp]}</button><h1>${cr ? 'Crear cuenta' : 'Entrar'}</h1></div>
 <section class="res"><p>${cr ? 'Es opcional. Con una cuenta tus resultados y rachas se guardan en el servidor y los recuperas en cualquier dispositivo. Lo que ya hayas jugado en este navegador se sube al crearla.' : 'Entra para recuperar tus resultados y rachas. Lo que hayas jugado aquí como invitado se sube a tu cuenta.'}</p>${GG}<p class="or"><span>${cr ? 'o con tu correo' : 'o con tu correo o usuario'}</span></p>
 <div class="me" style="flex-direction:column;align-items:stretch;gap:8px">${cr
       ? inp('nm2', 'Nombre', 'maxlength="20" autocomplete="name"', 'nm') + inp('us2', 'Usuario (opcional)', 'maxlength="16" autocapitalize="none" autocomplete="off" spellcheck="false"', 'us') + inp('em', 'Correo', 'type="email" autocomplete="email"', 'em')
@@ -200,7 +201,7 @@ function cuenta() {
   const fu = !us ? '' : eu === null
     ? `<div class="st"><span><b>Usuario</b><small>@${esc(us)}</small></span><button class="lnk" data-a="usr-edit">Cambiar</button></div>`
     : `<div class="st v"><span><b>Usuario</b><small>Con él te encontrarán tus amigos. De 3 a 15 caracteres: minúsculas, números o _.</small></span><div class="me"><span class="at">@</span><input id="us" value="${esc(eu)}" maxlength="16" autocapitalize="none" autocomplete="off" spellcheck="false" aria-label="Usuario"></div><div class="row"><button class="btn pri" data-a="usr-save">Guardar</button><button class="btn" data-a="usr-cancel">Cancelar</button></div></div>`;
-  return `<div class="bar"><button class="bk" data-a="go" data-v="${vp}">‹ ${vp == 'ajustes' ? 'Ajustes' : 'Perfil'}</button><h1>Cuenta</h1></div>
+  return `<div class="bar"><button class="bk" data-a="go" data-v="${vp}">‹ ${VPN[vp]}</button><h1>Cuenta</h1></div>
 <section class="res hd"><div class="me"><span class="av lg">${esc((nm[0] || 'J').toUpperCase())}</span><span class="id"><b>${esc(nm)}</b>${us ? `<small>@${esc(us)}</small>` : ''}<span class="tag${adm ? ' ad' : ''}">${adm ? 'Administrador' : 'Jugador'}</span></span></div></section>
 <section class="res pb"><h2>Datos</h2>
 ${fu}
@@ -226,6 +227,17 @@ function ficha(g) {
   const e = estado(g), s = status(g);
   return `<button class="gt ${e}" data-a="go" data-v="${g.id}" aria-label="${g.name}. ${s}"><span class="gl" style="background:var(${g.color})">${g.icon}${e == 'ok' ? CK : ''}</span><strong>${g.name}</strong>${e == 'nv' ? '' : `<em>${s}</em>`}</button>`
 }
+/* Primer juego sin terminar: el botón principal del inicio lleva directo a él. */
+function siguiente() {
+  const g = GAMES.find(x => !R(x.id)); if (!g) return '';
+  const e = estado(g), n = GAMES.filter(x => R(x.id)).length;
+  return `<button class="btn pri full sg" data-a="go" data-v="${g.id}">${e == 'en' ? 'Continuar' : n ? 'Siguiente reto' : 'Empezar'}: ${g.name}</button>`
+}
+/* Aviso discreto a invitados con racha: su progreso solo vive en este navegador. Solo si se puede crear cuenta. */
+function avisoInvitado(st) {
+  if (!inv() || !Nube.activo || st < 3) return '';
+  return `<p class="av2" role="note">Llevas ${st} días de racha, guardada solo en este navegador. <button class="lnk" data-a="go" data-v="cuenta">Crea cuenta para no perderla</button></p>`
+}
 function progreso() {
   const T = GAMES.length, n = GAMES.filter(g => R(g.id)).length, t = n == T;
   return `<div class="hp"><div class="ht"><b>${t ? '¡Todo completado hoy!' : `Hoy: ${n} de ${T}`}</b><span class="hr"><span>${t ? 'Vuelve mañana' : `${T - n} por jugar`}</span></span></div><div class="slots${t ? ' full' : ''}" role="progressbar" aria-label="Juegos completados hoy" aria-valuemin="0" aria-valuemax="${T}" aria-valuenow="${n}">${n ? `<i style="width:${n / T * 100}%"></i>` : ''}</div></div>`
@@ -234,7 +246,7 @@ function home() {
   const st = streak(), f = new Date(D0).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
   return `<header class="top"><h1>Daily Arcade</h1><span style="display:flex;gap:8px;align-items:center">${Nube.user ? `${Duelo.disponible() ? `<button class="bk ic" data-a="go" data-v="duelos" aria-label="Duelos${Duelo.badge() ? ` (${Duelo.badge()} pendientes)` : ''}" title="Duelos">${IC.du}${Duelo.badge() ? `<span class="nbd" aria-hidden="true">${Duelo.badge()}</span>` : ''}</button>` : ''}<button class="bk ic" data-a="go" data-v="amigos" aria-label="Amigos${nrec() ? ` (${nrec()} solicitudes)` : ''}" title="Amigos">${IC.fr}${nrec() ? `<span class="nbd" aria-hidden="true">${nrec()}</span>` : ''}</button>` : ''}<button class="bk ic" data-a="go" data-v="perfil" aria-label="Perfil" title="Perfil">${IC.user}</button><button class="bk ic" data-a="go" data-v="ajustes" aria-label="Ajustes" title="Ajustes">${IC.cfg}</button></span></header>
 <div class="hb"><div class="sn"><b>${st}</b>${st == 1 ? 'día' : 'días'} de racha</div><div><b>Reto nº ${DAY}</b>${f}</div><div><b id="cd">--:--:--</b>próximo reto</div></div>` +
-    progreso() + `<div class="gg">${GAMES.map(ficha).join('')}</div>` +
+    avisoInvitado(st) + progreso() + siguiente() + `<div class="gg">${GAMES.map(ficha).join('')}</div>` +
     `<p class="foot">Sin cuenta: los resultados se guardan solo en este navegador. Cada día cambia el reto a medianoche, hora de Madrid.</p>`
 }
 
@@ -299,7 +311,7 @@ $('#app').onclick = e => {
   const b = e.target.closest('[data-a]'); if (!b) return;
   const a = b.dataset.a, g = cur();
   if (CFT && a != 'rendirme' && a != 'cft-no') CFT = 0; /* otra acción cancela la confirmación pendiente de «Rendirme» */
-  if (a == 'go') { if (b.dataset.v == 'duelos') vd = V == 'amigos' ? 'amigos' : 'home'; if (b.dataset.v == 'cuenta') { vp = V == 'ajustes' ? 'ajustes' : 'perfil'; cm = 'entrar'; fm = {} } V = b.dataset.v; msg = ''; fs = false; sel = null; hist = []; ask = false; eu = null; en = false; cfm = null; blq = null; fr = undefined; fq = ''; if (V == 'ranking') { RK = { tab: RK.tab, d: DAY, dia: null, rachas: null, err: '' } } draw(); if (V == 'amigos' && Nube.user) cargarAmigos(); if (V == 'ranking' && Nube.user) cargarRanking(); if (V == 'ajustes' && Nube.user) cargarBloqueados(); if (V == 'duelos' && Nube.user) Duelo.abrir() }
+  if (a == 'go') { if (b.dataset.v == 'duelos') vd = V == 'amigos' ? 'amigos' : 'home'; if (b.dataset.v == 'cuenta') { vp = V == 'ajustes' || V == 'home' ? V : 'perfil'; cm = 'entrar'; fm = {} } V = b.dataset.v; msg = ''; fs = false; sel = null; hist = []; ask = false; eu = null; en = false; cfm = null; blq = null; fr = undefined; fq = ''; if (V == 'ranking') { RK = { tab: RK.tab, d: DAY, dia: null, rachas: null, err: '' } } draw(); if (V == 'amigos' && Nube.user) cargarAmigos(); if (V == 'ranking' && Nube.user) cargarRanking(); if (V == 'ajustes' && Nube.user) cargarBloqueados(); if (V == 'duelos' && Nube.user) Duelo.abrir() }
   else if (a.startsWith('du-')) Duelo.accion(a, b)
   else if (a == 'set') { const k = b.dataset.k; S.set[k] = k == 'th' ? b.dataset.v : !S.set[k]; sv(); theme(); draw() }
   else if (a == 'copy') copy();

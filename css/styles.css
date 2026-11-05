@@ -276,6 +276,25 @@ h2 {
     margin: 0
 }
 
+/* Inicio: botón «Continuar / Siguiente reto» y aviso a invitados con racha */
+.btn.sg {
+    margin: 0 0 16px
+}
+
+.av2 {
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    border: 2px dashed var(--edge);
+    border-radius: var(--r-md);
+    font-size: 14px;
+    color: var(--mut)
+}
+
+.av2 .lnk {
+    font-weight: 700;
+    color: var(--ink)
+}
+
 .msg {
     min-height: 22px;
     margin: 8px 0;
