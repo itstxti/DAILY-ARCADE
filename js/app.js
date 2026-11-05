@@ -103,9 +103,18 @@ function blk(g, e, am) {
 /* Reto N -> «jueves 5 de noviembre» (el reto 1 es EPOCH, ver core.js) */
 const fdia = d => new Date(EPOCH + (d - 1) * 864e5).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
 const hmTxt = (d, n, T, sr) => `Reto ${d} · ${fdia(d)}: ${sr ? n + ' de ' + T : n + '/' + T} ${T == 1 ? 'juego' : 'juegos'}${sr ? ' jugados' : ''}`;
+/* Mejor y más flojo: % de partidas ganadas, solo juegos con 3 o más partidas y solo si hay al menos dos para comparar. */
+function mejorFlojo(res) {
+  const L = GAMES.map(g => { const e = E(g.id, res), w = e.filter(x => x.st == 'won' || x.st == 'completed').length; return { g, n: e.length, p: pct(w, e.length) } }).filter(x => x.n >= 3);
+  if (L.length < 2) return '';
+  L.sort((a, b) => b.p - a.p || b.n - a.n); const m = L[0], f = L[L.length - 1];
+  if (m.p == f.p) return '';
+  const t = (k, x) => `<div><span class="gi" style="background:var(${x.g.color})" aria-hidden="true">${x.g.icon}</span><span><small>${k}</small><b>${x.g.name}</b><small>${x.p} % ganadas · ${x.n} partidas</small></span></div>`;
+  return `<div class="mj">${t('Tu mejor juego', m)}${t('El más flojo', f)}</div>`
+}
 function resumen(res) {
   const all = days(res), gr = runs(all), T = GAMES.length, full = all.filter(d => Object.keys(res[d]).length == T).length;
-  return `<div class="sm"><div><b>${gr.cur}</b>racha actual</div><div><b>${gr.best}</b>mejor racha</div><div><b>${all.length}</b>días jugados</div></div>
+  return `<div class="sm"><div><b>${gr.cur}</b>racha actual</div><div><b>${gr.best}</b>mejor racha</div><div><b>${all.length}</b>días jugados</div></div>${mejorFlojo(res)}
 <section class="res pb"><h2>Últimos 28 días</h2><div class="hm" role="group" aria-label="Actividad de los últimos 28 días" data-rv="hm">${Array.from({ length: 28 }, (_, i) => { const d = DAY - 27 + i, n = Object.keys(res[d] || {}).length, t = hmTxt(d, n, T); return `<button class="${n == T ? 'f' : n ? 'p' : ''}${i == 27 ? ' hoy' : ''}" data-a="hm" data-d="${d}" data-n="${n}" aria-pressed="false" aria-label="${hmTxt(d, n, T, 1)}${i == 27 ? ' (hoy)' : ''}" title="${t}">${n || ''}</button>` }).join('')}</div><p class="cap" id="hms" role="status">Cada casilla muestra los juegos jugados ese día; dorada = los ${T}. Toca un día para ver el detalle.</p><p class="cap">${full} ${full == 1 ? 'día' : 'días'} con los ${T} juegos completados.</p></section>`
 }
 function perfil() {

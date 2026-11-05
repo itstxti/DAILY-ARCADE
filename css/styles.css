@@ -2680,3 +2680,47 @@ h1[tabindex="-1"]:focus {
 #nd span {
     flex: 1 1 200px
 }
+
+/* Perfil: mejor y más flojo */
+.mj {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0 0 14px
+}
+
+.mj>div {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md);
+    min-width: 0
+}
+
+.mj .gi {
+    flex: none
+}
+
+.mj span:last-child {
+    display: flex;
+    flex-direction: column;
+    min-width: 0
+}
+
+.mj small {
+    color: var(--mut);
+    font-size: 14px
+}
+
+.mj b {
+    overflow-wrap: anywhere
+}
+
+@media (max-width:360px) {
+    .mj {
+        grid-template-columns: 1fr
+    }
+}
