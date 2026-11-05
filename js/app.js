@@ -99,10 +99,13 @@ function blk(g, e, am) {
     (e.length ? `<div class="gs">${c(e.length, sg(e.length, 'partidas'))}${c(w.length, sg(w.length, 'ganadas'), pct(w.length, e.length) + ' %')}${c(a.cur, 'días de racha', 'mejor ' + a.best)}${vs ? c(v.cur, sg(v.cur, 'victorias seguidas'), 'mejor ' + v.best) : ''}</div><div class="gx">${(() => { try { return histo(e, g) + (g.stats ? g.stats(e, w, ke(e, g)) : (w.length ? kpi([...kTiempos(w), ...ke(e, g)]) : '')) } catch (x) { return '' } })()}</div>`
       : (am ? '<p>Todavía no ha jugado este juego.</p>' : `<p>Todavía no has jugado este reto.</p><div class="row"><button class="btn" data-a="go" data-v="${g.id}">Jugar ahora</button></div>`)) + `</details>`
 }
+/* Reto N -> «jueves 5 de noviembre» (el reto 1 es EPOCH, ver core.js) */
+const fdia = d => new Date(EPOCH + (d - 1) * 864e5).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
+const hmTxt = (d, n, T, sr) => `Reto ${d} · ${fdia(d)}: ${sr ? n + ' de ' + T : n + '/' + T} ${T == 1 ? 'juego' : 'juegos'}${sr ? ' jugados' : ''}`;
 function resumen(res) {
   const all = days(res), gr = runs(all), T = GAMES.length, full = all.filter(d => Object.keys(res[d]).length == T).length;
   return `<div class="sm"><div><b>${gr.cur}</b>racha actual</div><div><b>${gr.best}</b>mejor racha</div><div><b>${all.length}</b>días jugados</div></div>
-<section class="res pb"><h2>Últimos 28 días</h2><div class="hm" aria-label="Actividad de los últimos 28 días">${Array.from({ length: 28 }, (_, i) => { const d = DAY - 27 + i, n = Object.keys(res[d] || {}).length; return `<span${i == 27 ? ' class="hoy"' : ''} title="Reto ${d}: ${n}/${T}" style="${n ? `opacity:${.35 + n / T * .65}` : 'background:var(--line)'}"></span>` }).join('')}</div><p class="cap">${full} ${full == 1 ? 'día' : 'días'} con los ${T} juegos completados.</p></section>`
+<section class="res pb"><h2>Últimos 28 días</h2><div class="hm" role="group" aria-label="Actividad de los últimos 28 días" data-rv="hm">${Array.from({ length: 28 }, (_, i) => { const d = DAY - 27 + i, n = Object.keys(res[d] || {}).length, t = hmTxt(d, n, T); return `<button class="${n == T ? 'f' : n ? 'p' : ''}${i == 27 ? ' hoy' : ''}" data-a="hm" data-d="${d}" data-n="${n}" aria-pressed="false" aria-label="${hmTxt(d, n, T, 1)}${i == 27 ? ' (hoy)' : ''}" title="${t}">${n || ''}</button>` }).join('')}</div><p class="cap" id="hms" role="status">Cada casilla muestra los juegos jugados ese día; dorada = los ${T}. Toca un día para ver el detalle.</p><p class="cap">${full} ${full == 1 ? 'día' : 'días'} con los ${T} juegos completados.</p></section>`
 }
 function perfil() {
   const me = S.me,
@@ -359,6 +362,10 @@ $('#app').onclick = e => {
       const o = S.me.v, v = b.dataset.v; if (v == o) return; S.me.v = v; sv(); msg = ''; draw();
       Nube.guardarPrivacidad(v).catch(e => { console.warn(e); S.me.v = o; sv(); msg = 'No se ha podido guardar la privacidad. Inténtalo de nuevo.'; draw() })
     } else draw()
+  }
+  else if (a == 'hm') { /* mapa de 28 días: el detalle sale en #hms (title no funciona al tocar). Sin draw(): repintar cerraría los desplegables abiertos del perfil */
+    const T = GAMES.length, st = $('#hms'); if (st) st.textContent = hmTxt(+b.dataset.d, +b.dataset.n, T);
+    b.parentNode.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'))
   }
   else if (g) { if (a == 'k') { g.onKey && g.onKey(b.dataset.k); pulso(b) } else if (g.actions && g.actions[a]) { const p0 = penP(prog(g.pk)); g.actions[a](b); if (PULSO.has(a)) pulso(b); const d = penP(prog(g.pk)) - p0, t = $('#tm'); if (d > 0 && t) { const s = document.createElement('span'); s.className = 'tb'; s.textContent = '+' + d + ' s'; t.appendChild(s); setTimeout(() => s.remove(), 1400) } } }
 };
