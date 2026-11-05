@@ -121,8 +121,8 @@ function amigos() {
   const L = AM || [], T = GAMES.length, M = msg ? `<p class="msg" role="status">${msg}</p>` : '',
     rec = L.filter(a => a.estado == 'pendiente' && a.direccion == 'recibida'), env = L.filter(a => a.estado == 'pendiente' && a.direccion == 'enviada'), ami = L.filter(a => a.estado == 'aceptada'),
     nom = a => esc(a.nombre || '@' + a.usuario), ini = a => esc(((a.nombre || a.usuario)[0] || '?').toUpperCase()),
-    fila = (a, sub, acc) => `<div class="st"><span class="av">${ini(a)}</span><span style="flex:1;min-width:0"><b>${nom(a)}</b><small>${sub}</small></span>${acc}</div>`,
-    quitar = a => cfm == a.usuario ? `<span class="row cf" style="margin:0;flex:none"><button class="btn dg" data-a="am-del-si" data-u="${esc(a.usuario)}">Quitar</button><button class="btn" data-a="am-del-no">No</button></span>` : `<button class="lnk" data-a="am-del" data-u="${esc(a.usuario)}">Quitar</button>`,
+    fila = (a, sub, acc) => `<div class="st fa"><span class="av">${ini(a)}</span><span class="fn"><b>${nom(a)}</b><small>${sub}</small></span>${acc}</div>`,
+    quitar = a => cfm == a.usuario ? `<span class="acts cf"><button class="btn dg" data-a="am-del-si" data-u="${esc(a.usuario)}">Quitar</button><button class="btn" data-a="am-del-no">No</button></span>` : `<button class="lnk" data-a="am-del" data-u="${esc(a.usuario)}">Quitar</button>`,
     stats = a => `${a.racha} ${a.racha == 1 ? 'día' : 'días'} de racha · mejor ${a.mejor} · hoy ${a.hoy}/${T}`,
     h0 = a => a.nombre ? '@' + a.usuario : '', j = (...x) => x.filter(Boolean).join(' · ');
   let res = '';
@@ -131,7 +131,7 @@ function amigos() {
     const a = fr, r = a.relacion,
     ver = (a.publico || r == 'amigos') && r != 'bloqueado' ? `<button class="lnk" data-a="am-ver" data-u="${esc(a.usuario)}">Ver perfil</button>` : '',
     main = r == 'bloqueado' ? `<button class="btn" data-a="bl-un" data-u="${esc(a.usuario)}">Desbloquear</button>` : r == 'ninguna' ? `<button class="btn pri" data-a="am-add" data-u="${esc(a.usuario)}">Añadir</button>` : r == 'recibida' ? `<button class="btn pri" data-a="am-ok" data-u="${esc(a.usuario)}">Aceptar</button>` : `<small>${r == 'yo' ? 'Eres tú' : r == 'amigos' ? 'Ya sois amigos' : 'Solicitud enviada'}</small>`,
-    acc = r == 'yo' ? main : `<span class="row" style="margin:0;flex:none;gap:14px;align-items:center">${ver}${main}</span>`;
+    acc = r == 'yo' ? main : `<span class="acts">${ver}${main}</span>`;
     res = `<div style="margin-top:10px">${fila(a, j(h0(a), r == 'bloqueado' ? 'Bloqueado' : r != 'yo' && r != 'amigos' && !a.publico ? 'Perfil privado' : ''), acc)}</div>`
   }
   return `<div class="bar"><button class="bk" data-a="go" data-v="home">‹ Inicio</button><h1>Amigos</h1></div>
@@ -139,9 +139,9 @@ function amigos() {
 <section class="res pb"><h2>Añadir amigos</h2><p>Escribe el @usuario exacto de tu amigo. Tu usuario es <b>@${esc((Nube.perfil && Nube.perfil.usuario) || '')}</b>.</p><div class="me"><span class="at">@</span><input id="fq" value="${esc(fq)}" maxlength="16" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="usuario" aria-label="Usuario de tu amigo"><button class="btn pri" data-a="am-buscar">Buscar</button></div>${res}</section>
 ${M}
 ${rec.length ? `<section class="res pb"><h2>Solicitudes recibidas</h2>${rec.map(a => blq == a.usuario
-    ? fila(a, '¿Bloquear? No podrá volver a encontrarte.', `<span class="row cf" style="margin:0;flex:none"><button class="btn dg" data-a="bl-si" data-u="${esc(a.usuario)}">Bloquear</button><button class="btn" data-a="bl-no">No</button></span>`)
-    : fila(a, j(h0(a), a.nombre ? `<button class="lnk" data-a="am-ver" data-u="${esc(a.usuario)}">Ver perfil</button>` : '', `<button class="lnk" data-a="bl-ask" data-u="${esc(a.usuario)}">Bloquear</button>`), `<span class="row" style="margin:0;flex:none"><button class="btn pri" data-a="am-ok" data-u="${esc(a.usuario)}">Aceptar</button><button class="lnk" data-a="am-no" data-u="${esc(a.usuario)}">Rechazar</button></span>`)).join('')}</section>` : ''}
-<section class="res pb"><h2>Mis amigos</h2>${AM === null ? '<p class="cap">Cargando…</p>' : ami.length ? ami.map(a => fila(a, j(h0(a), stats(a)), `<span class="row" style="margin:0;flex:none;gap:14px;align-items:center">${cfm != a.usuario && Duelo.disponible() ? `<button class="lnk" data-a="du-retar" data-u="${esc(a.usuario)}">Retar</button>` : ''}${a.visible && cfm != a.usuario ? `<button class="lnk" data-a="am-ver" data-u="${esc(a.usuario)}">Ver perfil</button>` : ''}${quitar(a)}</span>`)).join('') : '<p class="cap">Todavía no tienes amigos añadidos.</p>'}</section>
+    ? fila(a, '¿Bloquear? No podrá volver a encontrarte.', `<span class="acts cf"><button class="btn dg" data-a="bl-si" data-u="${esc(a.usuario)}">Bloquear</button><button class="btn" data-a="bl-no">No</button></span>`)
+    : fila(a, j(h0(a), a.nombre ? `<button class="lnk" data-a="am-ver" data-u="${esc(a.usuario)}">Ver perfil</button>` : '', `<button class="lnk" data-a="bl-ask" data-u="${esc(a.usuario)}">Bloquear</button>`), `<span class="acts"><button class="btn pri" data-a="am-ok" data-u="${esc(a.usuario)}">Aceptar</button><button class="lnk" data-a="am-no" data-u="${esc(a.usuario)}">Rechazar</button></span>`)).join('')}</section>` : ''}
+<section class="res pb"><h2>Mis amigos</h2>${AM === null ? '<p class="cap">Cargando…</p>' : ami.length ? ami.map(a => fila(a, j(h0(a), stats(a)), `<span class="acts">${cfm != a.usuario && Duelo.disponible() ? `<button class="lnk" data-a="du-retar" data-u="${esc(a.usuario)}">Retar</button>` : ''}${a.visible && cfm != a.usuario ? `<button class="lnk" data-a="am-ver" data-u="${esc(a.usuario)}">Ver perfil</button>` : ''}${quitar(a)}</span>`)).join('') : '<p class="cap">Todavía no tienes amigos añadidos.</p>'}</section>
 ${env.length ? `<section class="res pb"><h2>Solicitudes enviadas</h2>${env.map(a => fila(a, j(h0(a), 'pendiente'), `<button class="lnk" data-a="am-can" data-u="${esc(a.usuario)}">Cancelar</button>`)).join('')}</section>` : ''}
 <p class="foot">Con el perfil Público, cualquiera que te encuentre por tu @usuario puede verlo. Con Privado, solo tus amigos (Ajustes).</p>`}
 

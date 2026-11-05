@@ -177,9 +177,13 @@ h2 {
 .lnk {
     background: none;
     border: 0;
-    padding: 0;
+    /* Zona táctil de 44 px de alto: el padding la amplía y el margen negativo evita que cambie el layout */
+    display: inline-block;
+    padding: 13px 8px;
+    margin: -13px -8px;
+    line-height: 18px;
     text-decoration: underline;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--mut)
 }
 
@@ -200,7 +204,14 @@ h2 {
     background: var(--card);
     border-radius: var(--r-pill);
     padding: 4px 12px;
-    font-weight: 700
+    font-weight: 700;
+    /* Objetivo táctil mínimo de 44×44 px */
+    box-sizing: border-box;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center
 }
 
 .btn {
@@ -208,6 +219,7 @@ h2 {
     background: var(--card);
     border-radius: var(--r-md);
     padding: 8px 14px;
+    min-height: 44px;
     font-weight: 700;
     box-shadow: 2px 2px 0 var(--sh)
 }
@@ -1572,8 +1584,29 @@ a.btn {
     border: 2px solid var(--bg)
 }
 
-.st .row .btn {
+.st .row .btn,
+.st .acts .btn {
     padding: 6px 12px
+}
+
+/* Filas de personas (Amigos): si las acciones no caben junto al nombre, bajan a una segunda línea en vez de aplastarlo */
+.st.fa {
+    flex-wrap: wrap
+}
+
+.st.fa>.fn {
+    flex: 1 1 9rem;
+    min-width: 0
+}
+
+.acts {
+    flex: none;
+    margin: 0 0 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0 22px /* con los 8 px de zona táctil de cada lado, deja 6 px entre zonas vecinas */
 }
 
 /* Ranking entre amigos */
@@ -1625,9 +1658,9 @@ a.btn {
 .ed {
     display: inline-grid;
     place-items: center;
-    width: 40px;
-    height: 40px;
-    margin: -8px 0 0 2px;
+    width: 44px;
+    height: 44px;
+    margin: -10px 0 0 0;
     vertical-align: middle;
     border-radius: 50%;
     color: var(--mut);
