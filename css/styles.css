@@ -6,7 +6,7 @@
     --sky: #3E6FE0;
     --berry: #D1345B;
     --sun: #F6B73C;
-    --mint: #1E8A66;
+    --mint: #1A7F5E; /* antes #1E8A66: el texto blanco encima daba 4,3:1; ahora 4,95:1 */
     --lav: #B79CF0;
     --coral: #F28B6B;
     --aqua: #2DB9D3;
@@ -15,6 +15,12 @@
     --orange: #EE7B1E;
     --mut: #5B6683;
     --sh: #14213D;
+    /* Borde de casillas vacías: 3,9:1 sobre la tarjeta y 3,4:1 sobre el fondo (mínimo 3:1 en componentes). --line queda para separadores */
+    --edge: #7080A6;
+    /* Color del texto sobre fondos sky/berry, y berry apto para texto pequeño (5,3:1 sobre el fondo) */
+    --on-sky: #fff;
+    --on-berry: #fff;
+    --berry-tx: #B8284D;
     /* Escala de radios: xs=barras/celdas diminutas, sm=teclas/casillas, md=controles/tiles/tableros, lg=tarjetas */
     --r-xs: 4px;
     --r-sm: 8px;
@@ -33,7 +39,14 @@
         --card: #17224A;
         --line: #2C3B6C;
         --mut: #9AA6CC;
-        --sh: #05091A
+        --sh: #05091A;
+        --edge: #6577B3;
+        /* sky y berry más claros: antes daban 3,3:1 y 3,2:1 sobre la tarjeta oscura; ahora 6,6:1 y 5,9:1 */
+        --sky: #86A8F7;
+        --berry: #F27C97;
+        --berry-tx: #F27C97;
+        --on-sky: #14213D;
+        --on-berry: #14213D
     }
 }
 
@@ -43,7 +56,13 @@
     --card: #17224A;
     --line: #2C3B6C;
     --mut: #9AA6CC;
-    --sh: #05091A
+    --sh: #05091A;
+    --edge: #6577B3;
+    --sky: #86A8F7;
+    --berry: #F27C97;
+    --berry-tx: #F27C97;
+    --on-sky: #14213D;
+    --on-berry: #14213D
 }
 
 html {
@@ -270,7 +289,7 @@ h2 {
     position: relative;
     width: 54px;
     height: 54px;
-    border: 2px solid var(--line);
+    border: 2px solid var(--edge);
     border-radius: var(--r-sm);
     display: grid;
     place-items: center;
@@ -348,7 +367,7 @@ h2 {
 
 .c {
     width: 30px;
-    border: 2px solid var(--line);
+    border: 2px solid var(--edge);
     border-radius: var(--r-sm);
     background: var(--card);
     padding: 2px 0;
@@ -383,11 +402,11 @@ h2 {
 
 .c.bd {
     background: var(--berry);
-    color: #fff
+    color: var(--on-berry)
 }
 
 .c.bd small {
-    color: #fff
+    color: var(--on-berry)
 }
 
 .pu {
@@ -462,7 +481,7 @@ pre {
     display: block;
     font-size: .75rem;
     font-weight: 600;
-    color: var(--berry)
+    color: var(--berry-tx)
 }
 
 .tm .tp:empty {
@@ -474,7 +493,7 @@ pre {
     left: 50%;
     top: 0;
     margin-left: 42px;
-    color: var(--berry);
+    color: var(--berry-tx);
     font-weight: 800;
     pointer-events: none;
     animation: tmb 1.3s ease-out forwards
@@ -503,7 +522,7 @@ pre {
     height: 44px;
     border-radius: 50%;
     background: var(--sky);
-    color: #fff;
+    color: var(--on-sky);
     display: grid;
     place-items: center;
     font-weight: 800;
@@ -727,7 +746,7 @@ pre {
 
 .btn.dg {
     background: var(--berry);
-    color: #fff
+    color: var(--on-berry)
 }
 
 .av.lg {
@@ -1127,7 +1146,7 @@ pre {
 
 .sx.bd {
     background: var(--berry);
-    color: #fff
+    color: var(--on-berry)
 }
 
 .sx.sel {
@@ -1422,7 +1441,7 @@ a.btn {
     height: 22px;
     border-radius: 50%;
     background: var(--sky);
-    color: #fff;
+    color: var(--on-sky);
     border: 2px solid var(--ink);
     font-size: 12px;
     font-weight: 800
@@ -1576,7 +1595,7 @@ a.btn {
     box-sizing: border-box;
     border-radius: var(--r-pill);
     background: var(--berry);
-    color: #fff;
+    color: var(--on-berry);
     font-size: 11px;
     font-weight: 800;
     display: grid;
