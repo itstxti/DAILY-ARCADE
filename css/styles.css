@@ -2588,3 +2588,95 @@ h1[tabindex="-1"]:focus {
 .res.ld {
     animation: rk-ld .2s .3s forwards
 }
+
+/* Solo para lectores de pantalla (anuncios como el del resultado) */
+.vh {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0
+}
+
+/* Carga: esqueleto de tarjetas */
+.gt.esq {
+    pointer-events: none;
+    min-height: 96px;
+    border-color: var(--edge);
+    box-shadow: none
+}
+
+.gt.esq .gl {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--r-md);
+    background: var(--line)
+}
+
+.gt.esq strong {
+    width: 70%;
+    height: 14px;
+    border-radius: var(--r-pill);
+    background: var(--line)
+}
+
+@media (prefers-reduced-motion:no-preference) {
+    .gt.esq {
+        animation: esq 1.2s ease-in-out infinite alternate
+    }
+
+    @keyframes esq {
+        from { opacity: .55 }
+        to { opacity: 1 }
+    }
+}
+
+/* Error de carga: detalle técnico plegado */
+.dt {
+    margin: 16px 0;
+    color: var(--mut);
+    font-size: 14px
+}
+
+.dt summary {
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center
+}
+
+.dt p {
+    margin: 0;
+    word-break: break-word
+}
+
+/* Aviso de reto nuevo (cambio de día con la web abierta) */
+#nd {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    max-width: 480px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--card);
+    color: var(--ink);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-lg);
+    box-shadow: 4px 4px 0 var(--sh);
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 60
+}
+
+#nd span {
+    flex: 1 1 200px
+}

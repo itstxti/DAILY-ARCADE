@@ -261,13 +261,29 @@ function draw() {
   const ld = h.includes('Cargando…'), mismo = vk === draw.vk;
   /* 'in' solo al cambiar de pantalla; 'sub' cuando llegan los datos de una pantalla que estaba "Cargando…" */
   app.className = [mismo ? '' : 'in', mismo && draw.ld && !ld ? 'sub' : '', ...Anim.f].join(' ').trim(); draw.vk = vk; draw.ld = ld;
-  const foco = Teclado.guarda();
+  const foco = Teclado.guarda(), tenia = !!app.querySelector('.res.rb');
   app.innerHTML = h;
   Teclado.repinta(foco, mismo);
+  if (mismo && !tenia) mostrarResultado(app.querySelector('.res.rb'));
   Anim.clear(); tick()
 }
+/* Cambio de día con la web abierta: nunca se recarga a mitad de partida. Se avisa y la persona decide cuándo pasar al reto nuevo. */
+function avisoNuevoDia() {
+  if ($('#nd')) return;
+  const e = document.createElement('div'); e.id = 'nd'; e.setAttribute('role', 'status');
+  e.innerHTML = '<span>Ya hay un reto nuevo. Puedes terminar esta partida antes.</span><button class="btn pri">Ver reto nuevo</button>';
+  e.querySelector('button').onclick = () => location.reload(); document.body.appendChild(e)
+}
+/* Al terminar una partida, la tarjeta de resultado puede quedar bajo el pliegue en móvil: se desplaza hasta ella y se anuncia. */
+function mostrarResultado(c) {
+  if (!c) return;
+  const l = $('#live'), t = c.querySelector('h2'), r = c.querySelector('p:not(.est)');
+  if (l) { l.textContent = ''; setTimeout(() => { l.textContent = 'Resultado: ' + (t ? t.textContent : '') + (r ? '. ' + r.textContent : '') }, 50) }
+  const rm = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  c.scrollIntoView({ block: 'nearest', behavior: rm ? 'auto' : 'smooth' })
+}
 function tick() {
-  const q = parts(); if (q.day !== P.day && !Duelo.ocupado()) return location.reload();
+  const q = parts(); if (q.day !== P.day) { avisoNuevoDia(); if (!Duelo.ocupado() && V == 'home') return location.reload() }
   const rem = 86400 - (q.hour * 3600 + q.minute * 60 + q.second), c = $('#cd');
   if (c) c.textContent = [Math.floor(rem / 3600), Math.floor(rem % 3600 / 60), rem % 60].map(v => String(v).padStart(2, '0')).join(':');
   const t = $('#tmv'), g = cur(), p = g && prog(g.pk);
@@ -400,7 +416,7 @@ addEventListener('keydown', e => {
 });
 (async () => {
   if (Nube.activo) {
-    $('#app').innerHTML = '<p class="sub">Cargando el reto de hoy…</p>';
+    $('#app').innerHTML = `<h1>Daily Arcade</h1><p class="sub" role="status">Cargando el reto de hoy…</p><div class="gg" aria-hidden="true">${GAMES.map(() => '<div class="gt esq"><span class="gl"></span><strong></strong></div>').join('')}</div>`;
     try {
       try { await Nube.init() } catch (e) { if (!Nube.sb) throw e; console.warn('No se ha podido recuperar la sesión (¿sin conexión?)', e) }
       let r;
@@ -409,7 +425,10 @@ addEventListener('keydown', e => {
       if (!r) throw new Error('sin-reto');
       Content.setHoy({ p: r.palabra, f: r.frase, a: r.autor }); await alEntrar()
     }
-    catch (e) { console.error(e); $('#app').innerHTML = `<h1>Daily Arcade</h1><p class="sub">${e.message == 'sin-reto' ? 'Hoy todavía no hay reto. Vuelve en un rato.' : 'No se ha podido conectar. Inténtalo de nuevo.'}</p>${e.message == 'sin-reto' ? '' : `<p class="foot">Detalle técnico: ${esc(String(e.message || e))}</p>`}<button class="btn pri" onclick="location.reload()">Reintentar</button>`; return }
+    catch (e) {
+      console.error(e); const sr = e.message == 'sin-reto';
+      $('#app').innerHTML = `<h1>Daily Arcade</h1><section class="res" role="alert"><h2>${sr ? 'Hoy todavía no hay reto' : 'No hemos podido cargar el reto'}</h2><p>${sr ? 'Vuelve en un rato: se publica cada día a medianoche, hora de Madrid.' : 'Revisa tu conexión e inténtalo de nuevo. Tu progreso no se ha perdido.'}</p><div class="row"><button class="btn pri" onclick="location.reload()">Reintentar</button></div></section>${sr ? '' : `<details class="dt"><summary>Detalles técnicos</summary><p>${esc(String(e.message || e))}</p></details>`}`; return
+    }
   }
   addEventListener('online', () => { Nube.subirTodo(S, DAY, IDS()).catch(() => { }) }); /* reintenta lo que no se pudo subir sin conexión */
   setInterval(tick, 1000); theme(); draw(); Duelo.init();
