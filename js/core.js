@@ -73,15 +73,19 @@ const shell = (t, b) => DU ? Duelo.shell(t, b) : `<div class="bar"><button class
    controles({undo:1, reiniciar:1, comprobar:1, pista:1, rendirme:1}) — cada juego pide solo los que tienen sentido,
    siempre en este orden y con estos nombres de acción: undo, reiniciar, comprobar, pista, rendirme.
    pista y comprobar enseñan su coste en segundos (de duelo_cfg(); mismo valor en el reto diario y en duelo). "Rendirme" pide confirmación con un segundo toque (confirma(fn)),
-   y en un duelo se llama «Abandonar ronda» (solo pierde esa ronda; rendirse del duelo está en la cabecera). */
+   y en un duelo se llama «Abandonar ronda» (solo pierde esa ronda; rendirse del duelo está en la cabecera).
+   La confirmación NO caduca sola (antes se revertía a los 3 s, incómodo con teclado, lector de pantalla o poca destreza): sigue hasta
+   que se pulsa «Sí», «Cancelar» o Esc, o hasta que cambia la pantalla o se pulsa otra acción (ver app.js y draw()). */
 let CFT = 0;
-const confirma = fn => () => { if (CFT) { clearTimeout(CFT); CFT = 0; fn() } else { CFT = setTimeout(() => { CFT = 0; draw() }, 3000); draw() } };
+const confirma = fn => () => { if (CFT) { CFT = 0; fn() } else { CFT = 1; draw(); const c = $('[data-a="cft-no"]'); if (c) c.focus({ preventScroll: true }) } }; /* el foco va a «Cancelar»: la opción segura */
 const controles = o => {
    /* Las ayudas enseñan su penalización en segundos (⏱15 s), en el reto diario y en duelo: en los dos se suma al tiempo. */
    const c = k => ` ⏱${Duelo.coste(k)} s`;
    const b = (a, t, x = '') => `<button class="btn${x}" data-a="${a}">${t}</button>`;
    const ley = (o.pista || o.comprobar) ? '<p class="cap" style="text-align:center;margin:0">⏱ = segundos que se suman a tu tiempo</p>' : '';
-   return `<div class="row ctl">${o.undo ? b('undo', 'Deshacer') : ''}${o.reiniciar ? b('reiniciar', 'Reiniciar') : ''}${o.comprobar ? b('comprobar', 'Comprobar' + c('comprobar', o.comprobar)) : ''}${o.pista ? b('pista', 'Pista' + c('pista', o.pista)) : ''}${o.rendirme ? (CFT ? b('rendirme', '¿Seguro? Sí', ' dg') : b('rendirme', DU ? 'Abandonar ronda' : 'Rendirme')) : ''}</div>${ley}`
+   /* Con la confirmación abierta solo se ofrecen «Cancelar» y «Sí»: así la pregunta no se mezcla con Deshacer/Reiniciar. */
+   if (o.rendirme && CFT) return `<div class="row ctl" role="group" aria-label="Confirmar"><button class="btn" data-a="cft-no" aria-describedby="cft-t">Cancelar</button>${b('rendirme', DU ? 'Sí, abandonar' : 'Sí, rendirme', ' dg')}</div><p class="cap cc" id="cft-t">${DU ? '¿Abandonar la ronda? Pierdes solo esta ronda.' : '¿Rendirte? El reto cuenta como perdido y no se puede deshacer.'} Esc para cancelar.</p>`;
+   return `<div class="row ctl">${o.undo ? b('undo', 'Deshacer') : ''}${o.reiniciar ? b('reiniciar', 'Reiniciar') : ''}${o.comprobar ? b('comprobar', 'Comprobar' + c('comprobar', o.comprobar)) : ''}${o.pista ? b('pista', 'Pista' + c('pista', o.pista)) : ''}${o.rendirme ? b('rendirme', DU ? 'Abandonar ronda' : 'Rendirme') : ''}</div>${ley}`
 };
 /* Tarjeta de resultado de una partida rendida (igual en todos los juegos). */
 const resRendida = (nombre, detalle) => res('Rendida', detalle || 'Vuelve mañana para un reto nuevo.', `Daily Arcade · ${nombre} #${DAY} · rendida`);

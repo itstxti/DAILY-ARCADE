@@ -243,6 +243,7 @@ function draw() {
   const dv = Nube.user ? Duelo.vista() : null;
   /* Clave de pantalla: cada fase de un duelo (lista, cuenta atrás, espera, resultado) cuenta como pantalla distinta. */
   const app = $('#app'), vk = (dv != null ? 'duelo/' + V + '/' + Duelo.clave() : V) + '|' + (g ? g.id : '');
+  if (vk !== draw.vk) CFT = 0; /* una confirmación de «Rendirme» no sobrevive a un cambio de pantalla */
   const h = '' + (dv != null ? dv : V == 'perfil' ? perfil() : V == 'ajustes' ? ajustes() : V == 'cuenta' && Nube.activo ? cuenta() : V == 'amigos' && Nube.user ? amigos() : V == 'ranking' && Nube.user ? ranking() : V == 'amigo' && Nube.user && FP ? perfilAmigo() : g ? g.render() : (V = 'home', home()));
   const ld = h.includes('Cargando…'), mismo = vk === draw.vk;
   /* 'in' solo al cambiar de pantalla; 'sub' cuando llegan los datos de una pantalla que estaba "Cargando…" */
@@ -296,6 +297,7 @@ $('#app').onclick = e => {
   const sm = e.target.closest('.how>summary'); if (sm) { const d = sm.parentNode; HW[d.dataset.g] = !d.open; return }
   const b = e.target.closest('[data-a]'); if (!b) return;
   const a = b.dataset.a, g = cur();
+  if (CFT && a != 'rendirme' && a != 'cft-no') CFT = 0; /* otra acción cancela la confirmación pendiente de «Rendirme» */
   if (a == 'go') { if (b.dataset.v == 'duelos') vd = V == 'amigos' ? 'amigos' : 'home'; if (b.dataset.v == 'cuenta') { vp = V == 'ajustes' ? 'ajustes' : 'perfil'; cm = 'entrar'; fm = {} } V = b.dataset.v; msg = ''; fs = false; sel = null; hist = []; ask = false; eu = null; en = false; cfm = null; blq = null; fr = undefined; fq = ''; if (V == 'ranking') { RK = { tab: RK.tab, d: DAY, dia: null, rachas: null, err: '' } } draw(); if (V == 'amigos' && Nube.user) cargarAmigos(); if (V == 'ranking' && Nube.user) cargarRanking(); if (V == 'ajustes' && Nube.user) cargarBloqueados(); if (V == 'duelos' && Nube.user) Duelo.abrir() }
   else if (a.startsWith('du-')) Duelo.accion(a, b)
   else if (a == 'set') { const k = b.dataset.k; S.set[k] = k == 'th' ? b.dataset.v : !S.set[k]; sv(); theme(); draw() }
@@ -363,6 +365,7 @@ $('#app').onclick = e => {
       Nube.guardarPrivacidad(v).catch(e => { console.warn(e); S.me.v = o; sv(); msg = 'No se ha podido guardar la privacidad. Inténtalo de nuevo.'; draw() })
     } else draw()
   }
+  else if (a == 'cft-no') { CFT = 0; draw(); const r = $('[data-a="rendirme"]'); if (r) r.focus({ preventScroll: true }) }
   else if (a == 'hm') { /* mapa de 28 días: el detalle sale en #hms (title no funciona al tocar). Sin draw(): repintar cerraría los desplegables abiertos del perfil */
     const T = GAMES.length, st = $('#hms'); if (st) st.textContent = hmTxt(+b.dataset.d, +b.dataset.n, T);
     b.parentNode.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'))

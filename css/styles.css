@@ -271,6 +271,11 @@ h2 {
     font-size: .9rem
 }
 
+.cc {
+    text-align: center;
+    margin: 0
+}
+
 .msg {
     min-height: 22px;
     margin: 8px 0;

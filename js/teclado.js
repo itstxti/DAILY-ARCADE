@@ -98,6 +98,8 @@ const Teclado = (() => {
 
   /* ---------- Esc: volver ---------- */
   function atras(e) {
+    const no = app().querySelector('[data-a="cft-no"]'); /* hay un «¿Seguro?» de Rendirme abierto: Esc lo cancela antes que nada */
+    if (no) { e.preventDefault(); no.click(); return }
     if (campo(e.target) || (typeof DU != 'undefined' && DU) || (typeof V != 'undefined' && V == 'home')) return;
     if (typeof Duelo != 'undefined' && Duelo.ocupado && Duelo.ocupado()) return;
     const b = app().querySelector('.bar .bk[data-a="go"]'); if (!b) return;
