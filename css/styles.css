@@ -2724,3 +2724,28 @@ h1[tabindex="-1"]:focus {
         grid-template-columns: 1fr
     }
 }
+
+/* Conflictos: además del color, una marca «!» (no dependen solo del tono) */
+.c.cf,
+.c.bd {
+    position: relative
+}
+
+.c.cf::after,
+.c.bd::after,
+.z.cf::after {
+    content: "!";
+    position: absolute;
+    right: 3px;
+    top: 1px;
+    min-width: 14px;
+    height: 14px;
+    line-height: 14px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--bg);
+    font-size: 11px;
+    font-weight: 800;
+    text-align: center;
+    pointer-events: none
+}
