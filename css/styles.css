@@ -2790,3 +2790,29 @@ h1[tabindex="-1"]:focus {
 .gt em.tg {
     font-weight: 600
 }
+
+/* Inicio: progreso de hoy en un segmento por juego (con el color del juego cuando está hecho) */
+.segs {
+    display: grid;
+    gap: 4px;
+    height: 20px
+}
+
+.segs i {
+    display: block;
+    box-sizing: border-box;
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    background: var(--card)
+}
+
+.segs i.on {
+    background: var(--c, var(--mint))
+}
+
+@media (prefers-reduced-motion:no-preference) {
+    #app.in .segs i {
+        animation: da-check .22s ease-out backwards;
+        animation-delay: calc(.12s + var(--k, 0) * .03s)
+    }
+}
