@@ -154,8 +154,8 @@ body {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         grid-template-areas: "top top" "hola hola" "av av" "hb hp" "sg sg";
-        column-gap: 28px;
-        align-items: end
+        column-gap: 20px;
+        align-items: stretch
     }
 
     .hl>.top {
@@ -175,9 +175,22 @@ body {
         margin: 8px 0 20px
     }
 
+    /* El progreso va en una caja igual que la del resumen (mismo borde, radio, fondo y alto) para que las dos se lean como una sola franja */
     .hl>.hp {
         grid-area: hp;
-        margin: 8px 0 20px
+        margin: 8px 0 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-sizing: border-box;
+        padding: 10px 14px;
+        border: 2px solid var(--ink);
+        border-radius: var(--r-lg);
+        background: var(--card)
+    }
+
+    .hl>.hp .ht {
+        margin-bottom: 8px
     }
 
     .hl>.sg {
