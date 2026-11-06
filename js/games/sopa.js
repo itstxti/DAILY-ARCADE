@@ -118,9 +118,10 @@
       if (c.length < 2) return;
       const s = c.map(i => Z.g[i]).join(''), r = [...s].reverse().join('');
       const q = Z.ws.findIndex((w, k) => (w == s || w == r) && !p.f.some(f => f.w == k));
-      if (q < 0) { msg = c.length == 5 ? 'Esa no es ninguna de las palabras.' : ''; return }
+      if (q < 0) { msg = c.length == 5 ? 'Esa no es ninguna de las palabras.' : ''; if (c.length >= 3) Sfx.p('error'); return }
       const f = Z.ws[q] == s ? { w: q, a, b } : { w: q, a: b, b: a };
       p.f.push(f); p.pi = null; msg = `¡Encontrada: ${Z.ws[q]}!`;
+      if (p.f.length < NP) Sfx.p('acierto');
       if (p.f.length == NP) { fin('sopa', { st: 'completed', t: Date.now() - p.t0, h: p.h || 0, n: NP }); sv(); draw(); return true }
       sv()
    }
@@ -138,7 +139,7 @@
          pinta(); return
       }
       try { b.setPointerCapture(e.pointerId) } catch (x) { }
-      sel = { a: i, b: i }; drag = true; msg = ''; pinta()
+      sel = { a: i, b: i }; drag = true; msg = ''; Sfx.p('tap'); pinta()
    });
    A.addEventListener('pointermove', e => {
       if (!drag || !sel || V != 'sopa' || R('sopa')) return;

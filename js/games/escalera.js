@@ -56,7 +56,7 @@
   function pos(b) {
     if (R('escalera')) return;
     const p = prog('e'), i = +b.dataset.i;
-    p.t0 = p.t0 || Date.now(); p.i = p.i === i ? null : i; msg = ''; sv(); draw()
+    p.t0 = p.t0 || Date.now(); p.i = p.i === i ? null : i; msg = ''; Sfx.p('tap'); sv(); draw()
   }
 
   function llegar(p, Z) { fin('escalera', { st: 'won', n: p.w.length, par: Z.par, h: p.h || 0, t: tiempo(p) }) }
@@ -69,6 +69,7 @@
     else if (!Content.aceptadas().has(w)) msg = `“${up(w)}” no está en el diccionario.`;
     else if (cad.includes(w)) msg = 'Esa palabra ya está en tu escalera.';
     else { p.t0 = p.t0 || Date.now(); p.w.push(w); p.x = null; p.i = null; msg = ''; if (w == Z.b) llegar(p, Z) }
+    Sfx.p(msg ? 'error' : 'acierto');
     sv(); draw()
   }
 
@@ -76,10 +77,10 @@
     const Z = P(); if (!Z || R('escalera')) return;
     const p = prog('e');
     if (m == 'Enter') return paso();
-    if (p.i == null) { msg = 'Toca primero la letra que quieres cambiar.'; return draw() }
+    if (p.i == null) { msg = 'Toca primero la letra que quieres cambiar.'; Sfx.p('error'); return draw() }
     const ult = ultima(p), cur = [...(p.x || ult)];
     p.t0 = p.t0 || Date.now(); msg = '';
-    cur[p.i] = m == 'Del' ? ult[p.i] : m;           // ⌫ devuelve la letra original
+    Sfx.p(m == 'Del' ? 'borra' : 'tecla', p.i); cur[p.i] = m == 'Del' ? ult[p.i] : m;           // ⌫ devuelve la letra original
     p.x = cur.join(''); if (p.x == ult) p.x = null;
     sv(); draw()
   }

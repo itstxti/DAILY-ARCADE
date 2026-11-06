@@ -80,6 +80,7 @@
       const j = +b.dataset.i; p.t0 = p.t0 || Date.now();
       p.m.push(j); p.n++; p.pi = null; msg = '';
       if (!estado(p)) fin('luces', { st: 'completed', n: p.n, par: P().min, h: p.h || 0, t: Date.now() - p.t0 });
+      else Sfx.p('pon', (estado(p) >> j) & 1 ? 6 : 1);   // más agudo si la casilla queda encendida
       sv(); draw()
    }
 

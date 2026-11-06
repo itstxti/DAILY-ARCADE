@@ -58,10 +58,11 @@
     const Z = P(), p = prog('x'); ini(p);
     if (R('operaciones')) return;
     const i = +b.dataset.i; p.t0 = p.t0 || Date.now(); msg = '';
-    if (p.a == null || p.o == null) p.a = p.a === i && p.o == null ? null : i;      // elegir (o cambiar) el primer número
-    else if (p.a == i) { p.a = null; p.o = null }                          // tocar el mismo número lo suelta
+    if (p.a == null || p.o == null) { p.a = p.a === i && p.o == null ? null : i; Sfx.p(p.a == null ? 'borra' : 'tap') }      // elegir (o cambiar) el primer número
+    else if (p.a == i) { p.a = null; p.o = null; Sfx.p('borra') }                          // tocar el mismo número lo suelta
     else {
       const x = p.t[p.a].v, y = p.t[i].v, o = p.o, v = calc(o, x, y);
+      if (v == null) Sfx.p('error'); else Sfx.p('acierto');
       if (v == null) msg = o == '-' ? 'Una resta tiene que dar un número positivo.' : 'La división tiene que ser exacta.';
       else {
         p.u.push({ t: p.t.map(q => ({ ...q })), l: p.l.slice() });
@@ -75,8 +76,8 @@
   function op(b) {
     const p = prog('x'); ini(p);
     if (R('operaciones')) return;
-    if (p.a == null) msg = 'Elige primero un número.';
-    else { p.t0 = p.t0 || Date.now(); msg = ''; p.o = p.o == b.dataset.o ? null : b.dataset.o }
+    if (p.a == null) { msg = 'Elige primero un número.'; Sfx.p('error') }
+    else { Sfx.p('tap'); p.t0 = p.t0 || Date.now(); msg = ''; p.o = p.o == b.dataset.o ? null : b.dataset.o }
     sv(); draw()
   }
 

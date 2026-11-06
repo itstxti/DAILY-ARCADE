@@ -27,7 +27,8 @@
     }
     function cell(i) {
         const p = prog('o'); if (R('coronas')) return; p.b = p.b && p.b.length == N * N ? p.b : Array(N * N).fill(0); p.t0 = p.t0 || Date.now(); hist.push(p.b.slice()); p.b[i] = (p.b[i] + 1) % 3;
-        const c = conf(p.b); if (c.n == N && !c.bad.size) fin('coronas', { st: 'completed', t: Date.now() - p.t0, N }); sv(); draw()
+        const c = conf(p.b);
+        Sfx.p(p.b[i] == 0 ? 'borra' : p.b[i] == 1 ? 'tap' : S.set.hl && c.bad.has(i) ? 'error' : 'corona'); if (c.n == N && !c.bad.size) fin('coronas', { st: 'completed', t: Date.now() - p.t0, N }); sv(); draw()
     }
     function reiniciar() { const p = prog('o'); if (R('coronas') || !p.b || !p.b.some(x => x)) return; hist.push(p.b.slice()); p.b = Array(N * N).fill(0); sv(); draw() }   // el tiempo no se reinicia; Deshacer lo recupera
     function undo() { const p = prog('o'); if (hist.length && !R('coronas')) { p.b = hist.pop(); sv(); draw() } }
