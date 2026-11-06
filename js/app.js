@@ -265,9 +265,10 @@ function bienvenida() {
   return `<section class="res hola" aria-labelledby="hola-t"><h2 id="hola-t">Bienvenido a Daily Arcade</h2><p>Cada día, ${GAMES.length} minijuegos nuevos. El reto es el mismo para todo el mundo y cambia a medianoche.</p><ul><li>Juega los que quieras: tu racha sube cada día que juegues al menos uno.</li><li>Cada juego explica sus reglas la primera vez.</li><li>Comparte tu resultado sin spoilers.</li></ul><button class="btn pri" data-a="hola">Entendido</button></section>`
 }
 function home() {
+  const up = STUP; STUP = false;
   const st = streak(), f = new Date(D0).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
   return `<header class="top"><h1>Daily Arcade</h1><span style="display:flex;gap:8px;align-items:center">${Nube.user ? `${Duelo.disponible() ? `<button class="bk ic" data-a="go" data-v="duelos" aria-label="Duelos${Duelo.badge() ? ` (${Duelo.badge()} pendientes)` : ''}" title="Duelos">${IC.du}${Duelo.badge() ? `<span class="nbd" aria-hidden="true">${Duelo.badge()}</span>` : ''}</button>` : ''}<button class="bk ic" data-a="go" data-v="amigos" aria-label="Amigos${nrec() ? ` (${nrec()} solicitudes)` : ''}" title="Amigos">${IC.fr}${nrec() ? `<span class="nbd" aria-hidden="true">${nrec()}</span>` : ''}</button>` : ''}<button class="bk ic" data-a="go" data-v="perfil" aria-label="Perfil" title="Perfil">${IC.user}</button><button class="bk ic" data-a="go" data-v="ajustes" aria-label="Ajustes" title="Ajustes">${IC.cfg}</button></span></header>
-<div class="hb"><div class="sn"><b>${st}</b>${st == 1 ? 'día' : 'días'} de racha</div><div><b>Reto nº ${DAY}</b>${f}</div><div><b id="cd">--:--:--</b>próximo reto</div></div>` +
+<div class="hb"><div class="sn${up ? ' up' : ''}"><b>${st}</b>${st == 1 ? 'día' : 'días'} de racha</div><div><b>Reto nº ${DAY}</b>${f}</div><div><b id="cd">--:--:--</b>próximo reto</div></div>` +
     bienvenida() + avisoInvitado(st) + progreso() + siguiente() + juegos() +
     `<p class="foot">Sin cuenta: los resultados se guardan solo en este navegador. Cada día cambia el reto a medianoche, hora de Madrid.</p>`
 }

@@ -36,11 +36,12 @@ const Anim = { f: new Set(), once(k) { this.f.add(k) }, has(k) { return this.f.h
 /* Vibración opcional (Ajustes → Juegos) al terminar: patrón corto si ganas, uno largo si no. Solo en dispositivos que la admiten. */
 const vibra = o => { try { if (S.set.vib && navigator.vibrate) navigator.vibrate(o && (o.st == 'won' || o.st == 'completed') ? [30, 50, 30] : [140]) } catch (_) { } };
 const R = g => DU ? DU.res[g] : (S.res[DAY] || {})[g],
-   fin = (g, o) => { if (DU) return Duelo.fin(g, o); Anim.once('fin'); vibra(o); o = penaliza(o); snap(g, o); (S.res[DAY] = S.res[DAY] || {})[g] = o; sv(); Nube.guardarResultado(DAY, g, o) },
+   fin = (g, o) => { if (DU) return Duelo.fin(g, o); Anim.once('fin'); vibra(o); const r0 = streak(); o = penaliza(o); snap(g, o); (S.res[DAY] = S.res[DAY] || {})[g] = o; if (streak() > r0) STUP = true; sv(); Nube.guardarResultado(DAY, g, o) },
    prog = g => DU ? (DU.pr[g] = DU.pr[g] || {}) : (S.pr[DAY + g] = S.pr[DAY + g] || {});
 const days = (r = S.res) => Object.keys(r).map(Number).filter(d => Object.keys(r[d]).length);
 function streak() { return runs(days()).cur }
 let V = 'home', msg = '', sel = null, hist = [];
+let STUP = false; /* la racha ha subido: el inicio la anima la próxima vez que se pinta */
 const theme = () => { const r = document.documentElement; if (S.set.th == 'auto') r.removeAttribute('data-theme'); else r.dataset.theme = S.set.th; document.body.classList.toggle('cb', S.set.cb) };
 const KR = ['qwertyuiop', 'asdfghjklñ', 'zxcvbnm'];
 /* Las ayudas suman segundos al tiempo del reto diario, igual que en un duelo (pista_ms / comprobar_ms). Se guardan la penalización (pen) y el tiempo real (tr). */

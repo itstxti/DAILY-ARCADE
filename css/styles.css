@@ -2856,3 +2856,18 @@ h1[tabindex="-1"]:focus {
     display: block;
     will-change: transform, opacity
 }
+
+/* Racha: pulso del número cuando sube */
+@media (prefers-reduced-motion:no-preference) {
+    @keyframes da-racha {
+        0% { transform: scale(1) }
+        35% { transform: scale(1.7) rotate(-6deg) }
+        65% { transform: scale(.92) }
+        100% { transform: scale(1) }
+    }
+
+    .sn.up b {
+        transform-origin: left center;
+        animation: da-racha .9s cubic-bezier(.3, .7, .3, 1) .45s backwards
+    }
+}
