@@ -18,7 +18,7 @@ const shuf = (a, r) => { for (let i = a.length - 1; i > 0; i--) { const j = Math
 const nz = k => k.toLowerCase() === 'ñ' ? 'ñ' : k.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const mmss = ms => { const s = Math.floor(ms / 1e3); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') };
 let S = { res: {}, pr: {}, me: { n: 'Invitado', v: 'public' } }; try { S = Object.assign(S, JSON.parse(localStorage.getItem('da2') || '{}')) } catch (e) { }
-S.set = Object.assign({ cb: false, tm: true, hl: true, vib: false, th: 'auto' }, S.set);
+S.set = Object.assign({ cb: false, tm: true, hl: true, vib: false, snd: false, th: 'auto' }, S.set);
 const sv = () => { try { localStorage.setItem('da2', JSON.stringify(S)) } catch (e) { } };
 /* S.uid = cuenta a la que pertenecen los datos de este navegador (null = invitado). */
 /* Semilla del puzle (SD): el reto de hoy o, en un duelo, la semilla de la ronda (la elige el servidor). Los juegos generan con SD, no con DAY.
@@ -35,12 +35,29 @@ const restaurar = () => GAMES.forEach(g => { const r = (S.res[DAY] || {})[g.id];
 const Anim = { f: new Set(), once(k) { this.f.add(k) }, has(k) { return this.f.has(k) }, clear() { this.f.clear() } };
 /* Vibración opcional (Ajustes → Juegos) al terminar: patrón corto si ganas, uno largo si no. Solo en dispositivos que la admiten. */
 const vibra = o => { try { if (S.set.vib && navigator.vibrate) navigator.vibrate(o && (o.st == 'won' || o.st == 'completed') ? [30, 50, 30] : [140]) } catch (_) { } };
+/* Sonido opcional (Ajustes → Juegos, apagado por defecto): un arpegio corto si ganas, dos notas bajas si no. Sin archivos: se genera con Web Audio. */
+let AC = null;
+const suena = o => {
+   try {
+      if (!S.set.snd) return;
+      const A = window.AudioContext || window.webkitAudioContext; if (!A) return;
+      AC = AC || new A(); if (AC.state == 'suspended') AC.resume();
+      const gano = o && (o.st == 'won' || o.st == 'completed'), notas = gano ? [523.25, 659.25, 783.99, 1046.5] : [293.66, 233.08], t0 = AC.currentTime;
+      notas.forEach((f, i) => {
+         const osc = AC.createOscillator(), g = AC.createGain(), t = t0 + i * (gano ? .09 : .16);
+         osc.type = gano ? 'triangle' : 'sine'; osc.frequency.value = f;
+         g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.12, t + .015); g.gain.exponentialRampToValueAtTime(.0001, t + (gano ? .22 : .32));
+         osc.connect(g); g.connect(AC.destination); osc.start(t); osc.stop(t + .35)
+      })
+   } catch (_) { }
+};
 const R = g => DU ? DU.res[g] : (S.res[DAY] || {})[g],
-   fin = (g, o) => { if (DU) return Duelo.fin(g, o); Anim.once('fin'); vibra(o); o = penaliza(o); snap(g, o); (S.res[DAY] = S.res[DAY] || {})[g] = o; sv(); Nube.guardarResultado(DAY, g, o) },
+   fin = (g, o) => { if (DU) return Duelo.fin(g, o); Anim.once('fin'); vibra(o); suena(o); const r0 = streak(); o = penaliza(o); snap(g, o); (S.res[DAY] = S.res[DAY] || {})[g] = o; if (streak() > r0) STUP = true; sv(); Nube.guardarResultado(DAY, g, o) },
    prog = g => DU ? (DU.pr[g] = DU.pr[g] || {}) : (S.pr[DAY + g] = S.pr[DAY + g] || {});
 const days = (r = S.res) => Object.keys(r).map(Number).filter(d => Object.keys(r[d]).length);
 function streak() { return runs(days()).cur }
 let V = 'home', msg = '', sel = null, hist = [];
+let STUP = false; /* la racha ha subido: el inicio la anima la próxima vez que se pinta */
 const theme = () => { const r = document.documentElement; if (S.set.th == 'auto') r.removeAttribute('data-theme'); else r.dataset.theme = S.set.th; document.body.classList.toggle('cb', S.set.cb) };
 const KR = ['qwertyuiop', 'asdfghjklñ', 'zxcvbnm'];
 /* Las ayudas suman segundos al tiempo del reto diario, igual que en un duelo (pista_ms / comprobar_ms). Se guardan la penalización (pen) y el tiempo real (tr). */
@@ -62,11 +79,22 @@ const compBtn = (a, l) => `<button class="btn ib" data-a="${a}" aria-label="${l}
 /* Línea discreta bajo el resultado cuando hubo ayudas: «3:13 + 195 s de ayudas», igual que el desglose del cronómetro. */
 const penNota = () => { const g = cur(), r = g && R(g.id); return r && r.pen ? `<p class="cap" style="margin:-6px 0 10px">${mmss(r.tr)} + ${Math.round(r.pen / 1000)} s de ayudas</p>` : '' };
 const res = (t, d, s) => { if (DU) return Duelo.res(t); const g = cur(), n = g && estrellas(g.id, R(g.id)), e = n ? estTxt(n) : '';
-   return `<section class="res rb"><h2>${t}</h2>${compBtn('copy', CAN_SHARE ? 'Compartir resultado' : 'Copiar resultado')}${n == null ? '' : `<p class="est" aria-label="${n} de 5 estrellas">${estTxt(n)}</p>`}<p>${d}</p>${penNota()}<div class="pw"><pre id="sh">${s}${e ? ' · ' + e : ''}</pre></div></section>` };
+   return `<section class="res rb"><h2>${t}</h2>${compBtn('copy', CAN_SHARE ? 'Compartir resultado' : 'Copiar resultado')}${n == null ? '' : `<p class="est" aria-label="${n} de 5 estrellas">${estTxt(n)}</p>`}<p>${d}</p>${penNota()}<div class="pw"><pre id="sh">${s}${e ? ' · ' + e : ''}</pre></div>${siguiente2(g)}</section>` };
+/* Siguiente paso tras terminar un juego: el próximo sin jugar (empezando por el que sigue al actual) o, si ya están los 10, el cierre del día. */
+const siguiente2 = g => {
+   if (!g) return '';
+   const i = GAMES.findIndex(x => x.id == g.id), orden = [...GAMES.slice(i + 1), ...GAMES.slice(0, i)], n = orden.find(x => !R(x.id));
+   if (n) return `<button class="btn pri full sg2" data-a="go" data-v="${n.id}">Siguiente: ${n.name}</button><p class="cap sg3">${GAMES.filter(x => R(x.id)).length} de ${GAMES.length} hechos hoy</p>`;
+   const st = streak();
+   return `<div class="cierre"><b>¡Los ${GAMES.length} retos de hoy, completados!</b><span>Racha: ${st} ${st == 1 ? 'día' : 'días'}. Próximo reto en <b id="cd">--:--:--</b></span><button class="btn pri full" data-a="go" data-v="home">Volver al inicio</button></div>`
+};
 /* Instrucciones del juego (propiedad "how" al registrarlo). Abiertas la primera vez; después, plegadas. Se recuerda lo que el jugador abra o cierre. */
 const HW = {};
 const how = () => {
-   const g = cur(); if (!g || !g.how) return ''; const o = HW[g.id] !== undefined ? HW[g.id] : !E(g.id).length;
+   const g = cur(); if (!g || !g.how) return '';
+   /* Abiertas solo la primera vez y hasta la primera jugada: así no empujan el tablero (ni el teclado) fuera de pantalla. Si la persona las abre o cierra, se respeta. */
+   const pr = DU ? DU.pr[g.pk] : S.pr[DAY + g.pk], emp = !!(pr && (pr.t0 || (pr.g && pr.g.length))),
+      o = HW[g.id] !== undefined ? HW[g.id] : !E(g.id).length && !emp;
    return `<details class="how" data-g="${g.id}"${o ? ' open' : ''}><summary>Cómo se juega</summary>${g.demo ? `<div class="dm">${g.demo}</div>` : ''}<ol>${g.how.map(t => `<li><span>${t}</span></li>`).join('')}</ol></details>`
 };
 const shell = (t, b) => DU ? Duelo.shell(t, b) : `<div class="bar"><button class="bk" data-a="go" data-v="home">‹ Inicio</button><h1>${t}</h1></div><p class="sub" style="margin:0 0 8px">Reto nº ${DAY}</p>${how()}${b}`;

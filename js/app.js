@@ -78,7 +78,7 @@ function ajustes() {
 ${secCuenta()}
 ${msg ? `<p class="msg" role="status">${msg}</p>` : ''}
 <section class="res pb"><h2>Apariencia</h2><div class="st v"><span><b>Tema</b></span>${seg('set', 'th', [['auto', 'Sistema'], ['light', 'Claro'], ['dark', 'Oscuro']], 'Tema')}</div>${sw('cb', 'Paleta para daltónicos', 'Cambia los colores de acierto en Palabra; los símbolos ✓ ● – se mantienen.')}</section>
-<section class="res pb"><h2>Juegos</h2>${sw('tm', 'Mostrar cronómetro', 'En todos los juegos.')}${sw('hl', 'Resaltar conflictos', 'En Coronas, marca filas, columnas y regiones repetidas y coronas que se tocan. En Sudoku, números repetidos.')}${navigator.vibrate ? sw('vib', 'Vibración', 'Una vibración corta al terminar un juego: más suave si aciertas, más larga si no.') : ''}</section>
+<section class="res pb"><h2>Juegos</h2>${sw('tm', 'Mostrar cronómetro', 'En todos los juegos.')}${sw('hl', 'Resaltar conflictos', 'En Coronas, marca filas, columnas y regiones repetidas y coronas que se tocan. En Sudoku, números repetidos.')}${sw('snd', 'Sonidos', 'Un sonido corto al terminar un juego: alegre si aciertas, grave si no.')}${navigator.vibrate ? sw('vib', 'Vibración', 'Una vibración corta al terminar un juego: más suave si aciertas, más larga si no.') : ''}</section>
 ${inv() ? '' : `<section class="res pb"><h2>Usuarios bloqueados</h2>${BL === null ? '<p class="cap">Cargando…</p>' : BL.length ? BL.map(b => `<div class="st"><span><b>${esc(b.nombre || '@' + b.usuario)}</b>${b.nombre ? `<small>@${esc(b.usuario)}</small>` : ''}</span><button class="lnk" data-a="bl-un" data-u="${esc(b.usuario)}">Desbloquear</button></div>`).join('') : '<p>No has bloqueado a nadie.</p>'}</section>`}
 ${secInstalar()}
 <section class="res pb"><h2>Datos</h2><p>${inv() ? 'Tus resultados se guardan solo en este navegador.' : 'Tus resultados se guardan en tu cuenta y en este navegador.'}</p>${ask ? '<p class="cf"><b>¿Borrar todos tus resultados?</b> ' + (inv() ? '' : 'Se borrarán también de tu cuenta. ') + 'No se puede deshacer.</p><div class="row cf"><button class="btn dg" data-a="reset-si">Sí, borrar</button><button class="btn" data-a="reset-no">Cancelar</button></div>' : '<div class="row cf"><button class="btn" data-a="reset">Borrar mis resultados</button></div>'}</section></div>`
@@ -232,9 +232,11 @@ const IC = { user: SV('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 
 /* Estado de un juego en el inicio: ok (completado), en (empezado) o nv (sin jugar). */
 const estado = g => R(g.id) ? 'ok' : status(g) == 'Sin jugar' ? 'nv' : 'en';
 const CK = '<span class="ck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>';
+/* Lema corto de cada juego (en las tarjetas sin empezar). Un juego nuevo puede traer el suyo con la propiedad «tag». */
+const TAG = { palabra: 'Adivina la palabra', cifra: 'Descifra la frase', coronas: 'Una corona por color', sudoku: 'Sudoku de 6×6', escalera: 'Cambia una letra por paso', operaciones: 'Llega al número objetivo', camino: 'Une los números en orden', luces: 'Apaga todas las luces', tuberias: 'Une las parejas de color', sopa: 'Encuentra las 6 palabras' };
 function ficha(g) {
-  const e = estado(g), s = status(g);
-  return `<button class="gt ${e}" data-a="go" data-v="${g.id}" aria-label="${g.name}. ${s}"><span class="gl" style="background:var(${g.color})">${g.icon}${e == 'ok' ? CK : ''}</span><strong>${g.name}</strong>${e == 'nv' ? '' : `<em>${s}</em>`}</button>`
+  const e = estado(g), s = status(g), t = g.tag || TAG[g.id] || '';
+  return `<button class="gt ${e}" data-a="go" data-v="${g.id}" aria-label="${g.name}. ${e == 'nv' && t ? t + '. ' : ''}${s}"><span class="gl" style="background:var(${g.color})">${g.icon}${e == 'ok' ? CK : ''}</span><strong>${g.name}</strong>${e == 'nv' ? (t ? `<em class="tg">${t}</em>` : '') : `<em>${s}</em>`}</button>`
 }
 /* Primer juego sin terminar: el botón principal del inicio lleva directo a él. */
 function siguiente() {
@@ -249,14 +251,27 @@ function avisoInvitado(st) {
 }
 function progreso() {
   const T = GAMES.length, n = GAMES.filter(g => R(g.id)).length, t = n == T;
-  return `<div class="hp"><div class="ht"><b>${t ? '¡Todo completado hoy!' : `Hoy: ${n} de ${T}`}</b><span class="hr"><span>${t ? 'Vuelve mañana' : `${T - n} por jugar`}</span></span></div><div class="slots${t ? ' full' : ''}" role="progressbar" aria-label="Juegos completados hoy" aria-valuemin="0" aria-valuemax="${T}" aria-valuenow="${n}">${n ? `<i style="width:${n / T * 100}%"></i>` : ''}</div></div>`
+  return `<div class="hp"><div class="ht"><b>${t ? '¡Todo completado hoy!' : `Hoy: ${n} de ${T}`}</b><span class="hr"><span>${t ? 'Vuelve mañana' : `${T - n} por jugar`}</span></span></div><div class="segs${t ? ' full' : ''}" style="grid-template-columns:repeat(${T},1fr)" role="progressbar" aria-label="Juegos completados hoy" aria-valuemin="0" aria-valuemax="${T}" aria-valuenow="${n}">${GAMES.map((g, k) => `<i${R(g.id) ? ` class="on" style="--c:var(${g.color});--k:${k}"` : ` style="--k:${k}"`}></i>`).join('')}</div></div>`
+}
+/* Cuadrícula del inicio: primero los que faltan; los completados, atenuados y agrupados debajo (si hay de los dos). */
+function juegos() {
+  const hechos = GAMES.filter(g => R(g.id)), faltan = GAMES.filter(g => !R(g.id));
+  if (!hechos.length || !faltan.length) return `<div class="gg">${GAMES.map(ficha).join('')}</div>`;
+  return `<div class="gg">${faltan.map(ficha).join('')}</div><h2 class="gh">Hechos hoy · ${hechos.length}</h2><div class="gg hechos">${hechos.map(ficha).join('')}</div>`
+}
+/* Bienvenida de una sola vez: solo a quien llega sin ninguna partida ni haberla cerrado antes. */
+function bienvenida() {
+  if (S.set.hola || days().length) return '';
+  return `<section class="res hola" aria-labelledby="hola-t"><h2 id="hola-t">Bienvenido a Daily Arcade</h2><p>Cada día, ${GAMES.length} minijuegos nuevos. El reto es el mismo para todo el mundo y cambia a medianoche.</p><ul><li>Juega los que quieras: tu racha sube cada día que juegues al menos uno.</li><li>Cada juego explica sus reglas la primera vez.</li><li>Comparte tu resultado sin spoilers.</li></ul><button class="btn pri" data-a="hola">Entendido</button></section>`
 }
 function home() {
+  const up = STUP; STUP = false;
   const st = streak(), f = new Date(D0).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
-  return `<header class="top"><h1>Daily Arcade</h1><span style="display:flex;gap:8px;align-items:center">${Nube.user ? `${Duelo.disponible() ? `<button class="bk ic" data-a="go" data-v="duelos" aria-label="Duelos${Duelo.badge() ? ` (${Duelo.badge()} pendientes)` : ''}" title="Duelos">${IC.du}${Duelo.badge() ? `<span class="nbd" aria-hidden="true">${Duelo.badge()}</span>` : ''}</button>` : ''}<button class="bk ic" data-a="go" data-v="amigos" aria-label="Amigos${nrec() ? ` (${nrec()} solicitudes)` : ''}" title="Amigos">${IC.fr}${nrec() ? `<span class="nbd" aria-hidden="true">${nrec()}</span>` : ''}</button>` : ''}<button class="bk ic" data-a="go" data-v="perfil" aria-label="Perfil" title="Perfil">${IC.user}</button><button class="bk ic" data-a="go" data-v="ajustes" aria-label="Ajustes" title="Ajustes">${IC.cfg}</button></span></header>
-<div class="hb"><div class="sn"><b>${st}</b>${st == 1 ? 'día' : 'días'} de racha</div><div><b>Reto nº ${DAY}</b>${f}</div><div><b id="cd">--:--:--</b>próximo reto</div></div>` +
-    avisoInvitado(st) + progreso() + siguiente() + `<div class="gg">${GAMES.map(ficha).join('')}</div>` +
-    `<p class="foot">Sin cuenta: los resultados se guardan solo en este navegador. Cada día cambia el reto a medianoche, hora de Madrid.</p>`
+  /* Dos bloques: .hl (racha, progreso y botón principal) y .hr2 (los juegos). En móvil se apilan; en PC van en dos columnas. */
+  return `<div class="hl"><header class="top"><h1>Daily Arcade</h1><span style="display:flex;gap:8px;align-items:center">${Nube.user ? `${Duelo.disponible() ? `<button class="bk ic" data-a="go" data-v="duelos" aria-label="Duelos${Duelo.badge() ? ` (${Duelo.badge()} pendientes)` : ''}" title="Duelos">${IC.du}${Duelo.badge() ? `<span class="nbd" aria-hidden="true">${Duelo.badge()}</span>` : ''}</button>` : ''}<button class="bk ic" data-a="go" data-v="amigos" aria-label="Amigos${nrec() ? ` (${nrec()} solicitudes)` : ''}" title="Amigos">${IC.fr}${nrec() ? `<span class="nbd" aria-hidden="true">${nrec()}</span>` : ''}</button>` : ''}<button class="bk ic" data-a="go" data-v="perfil" aria-label="Perfil" title="Perfil">${IC.user}</button><button class="bk ic" data-a="go" data-v="ajustes" aria-label="Ajustes" title="Ajustes">${IC.cfg}</button></span></header>
+<div class="hb"><div class="sn${up ? ' up' : ''}"><b>${st}</b>${st == 1 ? 'día' : 'días'} de racha</div><div><b>Reto nº ${DAY}</b>${f}</div><div><b id="cd">--:--:--</b>próximo reto</div></div>` +
+    bienvenida() + avisoInvitado(st) + progreso() + siguiente() + `</div><div class="hr2">` + juegos() +
+    `<p class="foot">Sin cuenta: los resultados se guardan solo en este navegador. Cada día cambia el reto a medianoche, hora de Madrid.</p></div>`
 }
 
 /* ---------- Control ---------- */
@@ -270,9 +285,11 @@ function draw() {
   const ld = h.includes('Cargando…'), mismo = vk === draw.vk;
   /* 'in' solo al cambiar de pantalla; 'sub' cuando llegan los datos de una pantalla que estaba "Cargando…" */
   app.className = [mismo ? '' : 'in', mismo && draw.ld && !ld ? 'sub' : '', ...Anim.f].join(' ').trim(); draw.vk = vk; draw.ld = ld;
-  const foco = Teclado.guarda(), tenia = !!app.querySelector('.res.rb');
+  const foco = Teclado.guarda(), tenia = !!app.querySelector('.res.rb'), hw = app.querySelector('details.how'), h0 = hw && hw.open ? hw.offsetHeight : 0;
   app.innerHTML = h;
   Teclado.repinta(foco, mismo);
+  /* Si «Cómo se juega» se pliega solo al empezar, el tablero sube: se compensa el scroll para que no se mueva bajo el dedo. */
+  if (mismo && h0 && scrollY > 0) { const n = app.querySelector('details.how'), h1 = n ? n.offsetHeight : 0; if (h1 < h0 - 40) scrollBy(0, h1 - h0) }
   if (mismo && !tenia) mostrarResultado(app.querySelector('.res.rb'));
   Anim.clear(); tick()
 }
@@ -284,8 +301,24 @@ function avisoNuevoDia() {
   e.querySelector('button').onclick = () => location.reload(); document.body.appendChild(e)
 }
 /* Al terminar una partida, la tarjeta de resultado puede quedar bajo el pliegue en móvil: se desplaza hasta ella y se anuncia. */
+/* Confeti breve: piezas CSS animadas con la Web Animations API (sin librerías), solo si no se pide menos movimiento. n = cantidad. */
+function confeti(c, n) {
+  if (matchMedia('(prefers-reduced-motion:reduce)').matches || !c.animate) return;
+  const r = c.getBoundingClientRect(), x0 = r.left + r.width / 2, y0 = Math.min(Math.max(r.top + 30, 60), innerHeight - 120),
+    cs = ['--sun', '--mint', '--berry', '--sky', '--lime', '--pink', '--orange'], box = document.createElement('div');
+  box.setAttribute('aria-hidden', 'true'); box.className = 'cft'; document.body.appendChild(box);
+  for (let i = 0; i < n; i++) {
+    const e = document.createElement('i'), a = Math.random() * Math.PI - Math.PI, v = 90 + Math.random() * (n > 30 ? 260 : 170), dx = Math.cos(a) * v, dy = Math.sin(a) * v - 30, g = 160 + Math.random() * 120, rot = (Math.random() - .5) * 720;
+    e.style.cssText = `left:${x0}px;top:${y0}px;background:var(${cs[i % cs.length]});width:${6 + Math.random() * 5}px;height:${8 + Math.random() * 6}px;border-radius:${Math.random() < .3 ? '50%' : '2px'}`;
+    box.appendChild(e);
+    e.animate([{ transform: 'translate(0,0) rotate(0)', opacity: 1 }, { transform: `translate(${dx}px,${dy}px) rotate(${rot / 2}deg)`, opacity: 1, offset: .45 }, { transform: `translate(${dx * 1.25}px,${dy + g}px) rotate(${rot}deg)`, opacity: 0 }], { duration: 900 + Math.random() * 600, easing: 'cubic-bezier(.2,.7,.4,1)', fill: 'forwards' })
+  }
+  setTimeout(() => box.remove(), 1700)
+}
 function mostrarResultado(c) {
   if (!c) return;
+  const g = cur(), rs = g && R(g.id), gano = rs && (rs.st == 'won' || rs.st == 'completed'), todos = GAMES.every(x => R(x.id));
+  if (todos) confeti(c, 70); else if (gano) confeti(c, 26);
   const l = $('#live'), t = c.querySelector('h2'), r = c.querySelector('p:not(.est)');
   if (l) { l.textContent = ''; setTimeout(() => { l.textContent = 'Resultado: ' + (t ? t.textContent : '') + (r ? '. ' + r.textContent : '') }, 50) }
   const rm = matchMedia('(prefers-reduced-motion:reduce)').matches;
@@ -303,10 +336,13 @@ function toast(m, ms = 1800) {
   let e = $('#toast'); if (!e) { e = document.createElement('div'); e.id = 'toast'; e.setAttribute('role', 'status'); document.body.appendChild(e) }
   e.textContent = m; e.className = 'on'; clearTimeout(toast.t); toast.t = setTimeout(() => { e.className = '' }, ms)
 }
+/* Enlace a la web para que quien recibe el resultado pueda jugar: solo con http(s) (no en file://). */
+const enlace = () => /^https?:$/.test(location.protocol) ? location.origin + location.pathname.replace(/index\.html$/, '') : '';
 async function enviar(t, b, pre) {
-  if (CAN_SHARE) { try { await navigator.share({ text: t }); return } catch (e) { if (e && e.name == 'AbortError') return } }
-  try { await navigator.clipboard.writeText(t); toast('Copiado'); b.innerHTML = IC_OK; setTimeout(() => { b.innerHTML = CAN_SHARE ? IC_SH : IC_CP }, 1800) }
-  catch (e) { if (pre) { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Texto seleccionado: cópialo') } else prompt('Copia tu resumen:', t) }
+  const u = enlace(), tu = u ? t + '\n' + u : t;
+  if (CAN_SHARE) { try { await navigator.share(u ? { text: t, url: u } : { text: t }); return } catch (e) { if (e && e.name == 'AbortError') return } }
+  try { await navigator.clipboard.writeText(tu); toast('Copiado'); b.innerHTML = IC_OK; setTimeout(() => { b.innerHTML = CAN_SHARE ? IC_SH : IC_CP }, 1800) }
+  catch (e) { if (pre) { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Texto seleccionado: cópialo') } else prompt('Copia tu resumen:', tu) }
 }
 function copy() { return enviar($('#sh').textContent, $('[data-a=copy]'), $('#sh')) }
 /* Instalar como app (PWA) */
@@ -339,6 +375,7 @@ $('#app').onclick = e => {
   if (a == 'go') { if (b.dataset.v == 'duelos') vd = V == 'amigos' ? 'amigos' : 'home'; if (b.dataset.v == 'cuenta') { vp = V == 'ajustes' || V == 'home' ? V : 'perfil'; cm = 'entrar'; fm = {} } V = b.dataset.v; msg = ''; fs = false; sel = null; hist = []; ask = false; eu = null; en = false; cfm = null; blq = null; fr = undefined; fq = ''; if (V == 'ranking') { RK = { tab: RK.tab, d: DAY, dia: null, rachas: null, err: '' } } draw(); if (V == 'amigos' && Nube.user) cargarAmigos(); if (V == 'ranking' && Nube.user) cargarRanking(); if (V == 'ajustes' && Nube.user) cargarBloqueados(); if (V == 'duelos' && Nube.user) Duelo.abrir() }
   else if (a.startsWith('du-')) Duelo.accion(a, b)
   else if (a == 'set') { const k = b.dataset.k; S.set[k] = k == 'th' ? b.dataset.v : !S.set[k]; sv(); theme(); draw() }
+  else if (a == 'hola') { S.set.hola = true; sv(); draw() }
   else if (a == 'copy') copy();
   else if (a == 'instalar') { if (dip) { dip.prompt(); dip.userChoice.catch(() => { }).then(() => { dip = null; draw() }) } }
   else if (a == 'cm') { cm = b.dataset.v; msg = ''; Anim.once('sub'); draw() }
@@ -425,7 +462,7 @@ addEventListener('keydown', e => {
 });
 (async () => {
   if (Nube.activo) {
-    $('#app').innerHTML = `<h1>Daily Arcade</h1><p class="sub" role="status">Cargando el reto de hoy…</p><div class="gg" aria-hidden="true">${GAMES.map(() => '<div class="gt esq"><span class="gl"></span><strong></strong></div>').join('')}</div>`;
+    $('#app').innerHTML = `<h1>Daily Arcade</h1><p class="sub" role="status">Cargando el reto de hoy…</p><div class="gg" aria-hidden="true">${GAMES.map((_, k) => `<div class="gt esq" style="--k:${k}"><span class="gl"></span><strong></strong><em></em></div>`).join('')}</div>`;
     try {
       try { await Nube.init() } catch (e) { if (!Nube.sb) throw e; console.warn('No se ha podido recuperar la sesión (¿sin conexión?)', e) }
       let r;

@@ -82,6 +82,64 @@ body {
     padding: 16px 16px 40px
 }
 
+/* Móvil: el hueco de arriba (50 px de margen) es espacio que se necesita para jugar */
+@media (max-width:600px) {
+    #app {
+        margin: 12px auto
+    }
+}
+
+/* Pantallas anchas pero bajas (portátil de 768 px, tablet en horizontal): menos margen y tableros que se adaptan a la altura,
+   para ver el tablero y sus controles sin hacer scroll. --bw = ancho máximo de los tableros (ver los juegos). En móvil no se aplica. */
+@media (min-width:700px) and (max-height:900px) {
+    #app {
+        margin-top: 12px;
+        --bw: max(280px, min(372px, calc(100vh - 430px)));
+        --tile: clamp(38px, calc((100vh - 400px) / 6 - 6px), 54px)
+    }
+}
+
+/* Pantallas anchas y altas (tablet en vertical, PC grande): sobra sitio, así que tableros y casillas crecen */
+@media (min-width:700px) and (min-height:901px) {
+    #app {
+        --bw: 460px;
+        --tile: 62px
+    }
+}
+
+/* ---------- Tablet y PC: el inicio aprovecha el ancho ---------- */
+@media (min-width:700px) {
+    #app:has(.hl) {
+        max-width: 860px
+    }
+
+    .hr2 .gg {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr))
+    }
+}
+
+/* PC: dos columnas, el panel a la izquierda y los 10 juegos a la derecha, sin hacer scroll */
+@media (min-width:1080px) {
+    #app:has(.hl) {
+        max-width: 1140px;
+        display: grid;
+        grid-template-columns: 390px minmax(0, 1fr);
+        column-gap: 32px;
+        align-items: start
+    }
+
+    .hr2 .gg:first-child {
+        margin-top: 4px
+    }
+}
+
+@media (min-width:1080px) and (min-height:820px) {
+    .hl {
+        position: sticky;
+        top: 16px
+    }
+}
+
 button {
     font: inherit;
     color: inherit;
@@ -311,8 +369,8 @@ h2 {
 
 .t {
     position: relative;
-    width: 54px;
-    height: 54px;
+    width: var(--tile, 54px);
+    height: var(--tile, 54px);
     border: 2px solid var(--edge);
     border-radius: var(--r-sm);
     display: grid;
@@ -443,7 +501,7 @@ h2 {
     display: grid;
     gap: 0;
     margin: 12px auto;
-    max-width: 440px;
+    max-width: min(440px, var(--bw, 440px));
     border: 3px solid var(--ink);
     border-radius: var(--r-md);
     overflow: hidden
@@ -1148,7 +1206,7 @@ pre {
 .sd {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    max-width: 372px;
+    max-width: var(--bw, 372px);
     margin: 12px auto;
     border: 3px solid var(--ink);
     border-radius: var(--r-md);
@@ -2363,9 +2421,28 @@ a.btn {
     }
 
     /* ----- Entrada de pantalla: los bloques suben y aparecen en cascada ----- */
-    #app.in>*:not(.gg) {
+    #app.in>*:not(.gg):not(.hl):not(.hr2),
+    #app.in .hl>*,
+    #app.in .hr2>*:not(.gg) {
         animation: da-up var(--da-d) ease-out backwards;
         animation-delay: calc(var(--n, 0) * var(--da-s))
+    }
+
+    #app.in .hl>*:nth-child(2),
+    #app.in .hr2>*:nth-child(2) {
+        --n: 1
+    }
+
+    #app.in .hl>*:nth-child(3) {
+        --n: 2
+    }
+
+    #app.in .hl>*:nth-child(4) {
+        --n: 3
+    }
+
+    #app.in .hl>*:nth-child(n+5) {
+        --n: 4
     }
 
     #app.in>*:nth-child(2) {
@@ -2604,6 +2681,7 @@ h1[tabindex="-1"]:focus {
 
 /* Carga: esqueleto de tarjetas */
 .gt.esq {
+    box-sizing: border-box;
     pointer-events: none;
     min-height: 96px;
     border-color: var(--edge);
@@ -2624,14 +2702,30 @@ h1[tabindex="-1"]:focus {
     background: var(--line)
 }
 
+/* Una línea de texto más en el esqueleto, como las tarjetas reales */
+.gt.esq em {
+    display: block;
+    width: 50%;
+    height: 12px;
+    border-radius: var(--r-pill);
+    background: var(--line)
+}
+
+/* Brillo que recorre las piezas, escalonado de tarjeta en tarjeta */
 @media (prefers-reduced-motion:no-preference) {
-    .gt.esq {
-        animation: esq 1.2s ease-in-out infinite alternate
+    .gt.esq .gl,
+    .gt.esq strong,
+    .gt.esq em {
+        background-image: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--card) 70%, transparent) 50%, transparent 70%);
+        background-size: 250% 100%;
+        background-repeat: no-repeat;
+        animation: esq 1.4s ease-in-out infinite;
+        animation-delay: calc(var(--k, 0) * .09s)
     }
 
     @keyframes esq {
-        from { opacity: .55 }
-        to { opacity: 1 }
+        from { background-position: 120% 0 }
+        to { background-position: -120% 0 }
     }
 }
 
@@ -2748,4 +2842,126 @@ h1[tabindex="-1"]:focus {
     font-weight: 800;
     text-align: center;
     pointer-events: none
+}
+
+/* Tras terminar un juego: siguiente reto o cierre del día */
+.sg2 {
+    margin-top: 14px
+}
+
+.sg3 {
+    text-align: center;
+    margin: 8px 0 0
+}
+
+.cierre {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 14px;
+    text-align: center;
+    background: var(--sun);
+    color: #14213D;
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md)
+}
+
+.cierre span {
+    font-size: 14px
+}
+
+.cierre #cd {
+    font-variant-numeric: tabular-nums
+}
+
+.cierre .btn {
+    background: var(--card);
+    color: var(--ink)
+}
+
+/* Inicio: lema de los juegos sin empezar (más suave que el estado) */
+.gt em.tg {
+    font-weight: 600
+}
+
+/* Inicio: progreso de hoy en un segmento por juego (con el color del juego cuando está hecho) */
+.segs {
+    display: grid;
+    gap: 4px;
+    height: 20px
+}
+
+.segs i {
+    display: block;
+    box-sizing: border-box;
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    background: var(--card)
+}
+
+.segs i.on {
+    background: var(--c, var(--mint))
+}
+
+@media (prefers-reduced-motion:no-preference) {
+    #app.in .segs i {
+        animation: da-check .22s ease-out backwards;
+        animation-delay: calc(.12s + var(--k, 0) * .03s)
+    }
+}
+
+/* Inicio: juegos completados, agrupados debajo y más discretos */
+.gh {
+    margin: 22px 0 10px;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--mut);
+    letter-spacing: .02em;
+    text-transform: uppercase
+}
+
+/* Inicio: bienvenida de una sola vez */
+.hola {
+    margin: 0 0 16px;
+    background: color-mix(in srgb, var(--sun) 16%, var(--card))
+}
+
+.hola ul {
+    margin: 8px 0 14px;
+    padding-left: 20px
+}
+
+.hola li {
+    margin: 4px 0
+}
+
+/* Confeti (ver confeti() en app.js) */
+.cft {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 70
+}
+
+.cft i {
+    position: absolute;
+    display: block;
+    will-change: transform, opacity
+}
+
+/* Racha: pulso del número cuando sube */
+@media (prefers-reduced-motion:no-preference) {
+    @keyframes da-racha {
+        0% { transform: scale(1) }
+        35% { transform: scale(1.7) rotate(-6deg) }
+        65% { transform: scale(.92) }
+        100% { transform: scale(1) }
+    }
+
+    .sn.up b {
+        transform-origin: left center;
+        animation: da-racha .9s cubic-bezier(.3, .7, .3, 1) .45s backwards
+    }
 }
