@@ -37,19 +37,22 @@
    const NS_ = () => P().nums.length;
    const completo = c => c.length == T && c[c.length - 1] == P().nums[NS_() - 1] && new Set(c).size == T;
 
+   /* Aviso de jugada no válida: suena solo si el mensaje es nuevo (al arrastrar, el mismo error no se repite). Devuelve false. */
+   function err(t) { if (msg !== t) Sfx.p('error'); msg = t; return false }
+
    /* Intenta avanzar (o retroceder) hasta la casilla i. Devuelve true si el camino cambió. */
    function paso(p, i) {
       const c = p.c;
-      if (!c.length) { if (num(i) == 1) { c.push(i); return true } msg = 'Empieza por el número 1.'; return false }
+      if (!c.length) { if (num(i) == 1) { c.push(i); Sfx.p('pon', 0); return true } return err('Empieza por el número 1.') }
       const h = c[c.length - 1];
       if (i == h) return false;
       const k = c.indexOf(i);
-      if (k >= 0) { c.length = k + 1; msg = ''; return true }                        // volver atrás sobre tu camino
+      if (k >= 0) { c.length = k + 1; msg = ''; Sfx.p('borra'); return true }                        // volver atrás sobre tu camino
       if (!ady(h, i)) return false;
-      if (num(h) == NS_()) { msg = 'El último número es el final del camino.'; return false }
+      if (num(h) == NS_()) return err('El último número es el final del camino.')
       const n = num(i);
-      if (n && n != sig(c)) { msg = `Primero tienes que pasar por el ${sig(c)}.`; return false }
-      c.push(i); msg = ''; return true
+      if (n && n != sig(c)) return err(`Primero tienes que pasar por el ${sig(c)}.`)
+      c.push(i); msg = ''; Sfx.p('pon', c.length % 14); return true
    }
 
    /* Avanza hacia la casilla i de una en una (por si el dedo va rápido y salta casillas). */
@@ -111,7 +114,7 @@
       const p = prog('cm'); ini(p); e.preventDefault();
       try { b.setPointerCapture(e.pointerId) } catch (x) { }
       arr = true; p.t0 = p.t0 || Date.now();
-      if (!p.c.length || p.c.includes(i) || ady(p.c[p.c.length - 1], i)) hacia(p, i); else msg = p.c.length ? 'Sigue desde el final de tu camino.' : 'Empieza por el número 1.';
+      if (!p.c.length || p.c.includes(i) || ady(p.c[p.c.length - 1], i)) hacia(p, i); else err(p.c.length ? 'Sigue desde el final de tu camino.' : 'Empieza por el número 1.');
       if (!final(p)) { sv(); pinta() }
    });
    A.addEventListener('pointermove', e => {
