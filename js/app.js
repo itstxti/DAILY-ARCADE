@@ -458,7 +458,7 @@ addEventListener('keydown', e => {
 });
 (async () => {
   if (Nube.activo) {
-    $('#app').innerHTML = `<h1>Daily Arcade</h1><p class="sub" role="status">Cargando el reto de hoy…</p><div class="gg" aria-hidden="true">${GAMES.map(() => '<div class="gt esq"><span class="gl"></span><strong></strong></div>').join('')}</div>`;
+    $('#app').innerHTML = `<h1>Daily Arcade</h1><p class="sub" role="status">Cargando el reto de hoy…</p><div class="gg" aria-hidden="true">${GAMES.map((_, k) => `<div class="gt esq" style="--k:${k}"><span class="gl"></span><strong></strong><em></em></div>`).join('')}</div>`;
     try {
       try { await Nube.init() } catch (e) { if (!Nube.sb) throw e; console.warn('No se ha podido recuperar la sesión (¿sin conexión?)', e) }
       let r;

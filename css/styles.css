@@ -2604,6 +2604,7 @@ h1[tabindex="-1"]:focus {
 
 /* Carga: esqueleto de tarjetas */
 .gt.esq {
+    box-sizing: border-box;
     pointer-events: none;
     min-height: 96px;
     border-color: var(--edge);
@@ -2624,14 +2625,30 @@ h1[tabindex="-1"]:focus {
     background: var(--line)
 }
 
+/* Una línea de texto más en el esqueleto, como las tarjetas reales */
+.gt.esq em {
+    display: block;
+    width: 50%;
+    height: 12px;
+    border-radius: var(--r-pill);
+    background: var(--line)
+}
+
+/* Brillo que recorre las piezas, escalonado de tarjeta en tarjeta */
 @media (prefers-reduced-motion:no-preference) {
-    .gt.esq {
-        animation: esq 1.2s ease-in-out infinite alternate
+    .gt.esq .gl,
+    .gt.esq strong,
+    .gt.esq em {
+        background-image: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--card) 70%, transparent) 50%, transparent 70%);
+        background-size: 250% 100%;
+        background-repeat: no-repeat;
+        animation: esq 1.4s ease-in-out infinite;
+        animation-delay: calc(var(--k, 0) * .09s)
     }
 
     @keyframes esq {
-        from { opacity: .55 }
-        to { opacity: 1 }
+        from { background-position: 120% 0 }
+        to { background-position: -120% 0 }
     }
 }
 
