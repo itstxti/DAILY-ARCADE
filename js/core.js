@@ -18,7 +18,7 @@ const shuf = (a, r) => { for (let i = a.length - 1; i > 0; i--) { const j = Math
 const nz = k => k.toLowerCase() === 'ñ' ? 'ñ' : k.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const mmss = ms => { const s = Math.floor(ms / 1e3); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') };
 let S = { res: {}, pr: {}, me: { n: 'Invitado', v: 'public' } }; try { S = Object.assign(S, JSON.parse(localStorage.getItem('da2') || '{}')) } catch (e) { }
-S.set = Object.assign({ cb: false, tm: true, hl: true, vib: false, th: 'auto' }, S.set);
+S.set = Object.assign({ cb: false, tm: true, hl: true, vib: false, snd: false, th: 'auto' }, S.set);
 const sv = () => { try { localStorage.setItem('da2', JSON.stringify(S)) } catch (e) { } };
 /* S.uid = cuenta a la que pertenecen los datos de este navegador (null = invitado). */
 /* Semilla del puzle (SD): el reto de hoy o, en un duelo, la semilla de la ronda (la elige el servidor). Los juegos generan con SD, no con DAY.
@@ -35,8 +35,24 @@ const restaurar = () => GAMES.forEach(g => { const r = (S.res[DAY] || {})[g.id];
 const Anim = { f: new Set(), once(k) { this.f.add(k) }, has(k) { return this.f.has(k) }, clear() { this.f.clear() } };
 /* Vibración opcional (Ajustes → Juegos) al terminar: patrón corto si ganas, uno largo si no. Solo en dispositivos que la admiten. */
 const vibra = o => { try { if (S.set.vib && navigator.vibrate) navigator.vibrate(o && (o.st == 'won' || o.st == 'completed') ? [30, 50, 30] : [140]) } catch (_) { } };
+/* Sonido opcional (Ajustes → Juegos, apagado por defecto): un arpegio corto si ganas, dos notas bajas si no. Sin archivos: se genera con Web Audio. */
+let AC = null;
+const suena = o => {
+   try {
+      if (!S.set.snd) return;
+      const A = window.AudioContext || window.webkitAudioContext; if (!A) return;
+      AC = AC || new A(); if (AC.state == 'suspended') AC.resume();
+      const gano = o && (o.st == 'won' || o.st == 'completed'), notas = gano ? [523.25, 659.25, 783.99, 1046.5] : [293.66, 233.08], t0 = AC.currentTime;
+      notas.forEach((f, i) => {
+         const osc = AC.createOscillator(), g = AC.createGain(), t = t0 + i * (gano ? .09 : .16);
+         osc.type = gano ? 'triangle' : 'sine'; osc.frequency.value = f;
+         g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.12, t + .015); g.gain.exponentialRampToValueAtTime(.0001, t + (gano ? .22 : .32));
+         osc.connect(g); g.connect(AC.destination); osc.start(t); osc.stop(t + .35)
+      })
+   } catch (_) { }
+};
 const R = g => DU ? DU.res[g] : (S.res[DAY] || {})[g],
-   fin = (g, o) => { if (DU) return Duelo.fin(g, o); Anim.once('fin'); vibra(o); const r0 = streak(); o = penaliza(o); snap(g, o); (S.res[DAY] = S.res[DAY] || {})[g] = o; if (streak() > r0) STUP = true; sv(); Nube.guardarResultado(DAY, g, o) },
+   fin = (g, o) => { if (DU) return Duelo.fin(g, o); Anim.once('fin'); vibra(o); suena(o); const r0 = streak(); o = penaliza(o); snap(g, o); (S.res[DAY] = S.res[DAY] || {})[g] = o; if (streak() > r0) STUP = true; sv(); Nube.guardarResultado(DAY, g, o) },
    prog = g => DU ? (DU.pr[g] = DU.pr[g] || {}) : (S.pr[DAY + g] = S.pr[DAY + g] || {});
 const days = (r = S.res) => Object.keys(r).map(Number).filter(d => Object.keys(r[d]).length);
 function streak() { return runs(days()).cur }
