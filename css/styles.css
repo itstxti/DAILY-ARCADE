@@ -2785,3 +2785,8 @@ h1[tabindex="-1"]:focus {
     background: var(--card);
     color: var(--ink)
 }
+
+/* Inicio: lema de los juegos sin empezar (más suave que el estado) */
+.gt em.tg {
+    font-weight: 600
+}

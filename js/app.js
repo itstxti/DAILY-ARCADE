@@ -232,9 +232,11 @@ const IC = { user: SV('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 
 /* Estado de un juego en el inicio: ok (completado), en (empezado) o nv (sin jugar). */
 const estado = g => R(g.id) ? 'ok' : status(g) == 'Sin jugar' ? 'nv' : 'en';
 const CK = '<span class="ck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>';
+/* Lema corto de cada juego (en las tarjetas sin empezar). Un juego nuevo puede traer el suyo con la propiedad «tag». */
+const TAG = { palabra: 'Adivina la palabra', cifra: 'Descifra la frase', coronas: 'Una corona por color', sudoku: 'Sudoku de 6×6', escalera: 'Cambia una letra por paso', operaciones: 'Llega al número objetivo', camino: 'Une los números en orden', luces: 'Apaga todas las luces', tuberias: 'Une las parejas de color', sopa: 'Encuentra las 6 palabras' };
 function ficha(g) {
-  const e = estado(g), s = status(g);
-  return `<button class="gt ${e}" data-a="go" data-v="${g.id}" aria-label="${g.name}. ${s}"><span class="gl" style="background:var(${g.color})">${g.icon}${e == 'ok' ? CK : ''}</span><strong>${g.name}</strong>${e == 'nv' ? '' : `<em>${s}</em>`}</button>`
+  const e = estado(g), s = status(g), t = g.tag || TAG[g.id] || '';
+  return `<button class="gt ${e}" data-a="go" data-v="${g.id}" aria-label="${g.name}. ${e == 'nv' && t ? t + '. ' : ''}${s}"><span class="gl" style="background:var(${g.color})">${g.icon}${e == 'ok' ? CK : ''}</span><strong>${g.name}</strong>${e == 'nv' ? (t ? `<em class="tg">${t}</em>` : '') : `<em>${s}</em>`}</button>`
 }
 /* Primer juego sin terminar: el botón principal del inicio lleva directo a él. */
 function siguiente() {
