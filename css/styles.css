@@ -89,6 +89,24 @@ body {
     }
 }
 
+/* Pantallas anchas pero bajas (portátil de 768 px, tablet en horizontal): menos margen y tableros que se adaptan a la altura,
+   para ver el tablero y sus controles sin hacer scroll. --bw = ancho máximo de los tableros (ver los juegos). En móvil no se aplica. */
+@media (min-width:700px) and (max-height:900px) {
+    #app {
+        margin-top: 12px;
+        --bw: max(280px, min(372px, calc(100vh - 430px)));
+        --tile: clamp(38px, calc((100vh - 400px) / 6 - 6px), 54px)
+    }
+}
+
+/* Pantallas anchas y altas (tablet en vertical, PC grande): sobra sitio, así que tableros y casillas crecen */
+@media (min-width:700px) and (min-height:901px) {
+    #app {
+        --bw: 460px;
+        --tile: 62px
+    }
+}
+
 /* ---------- Tablet y PC: el inicio aprovecha el ancho ---------- */
 @media (min-width:700px) {
     #app:has(.hl) {
@@ -351,8 +369,8 @@ h2 {
 
 .t {
     position: relative;
-    width: 54px;
-    height: 54px;
+    width: var(--tile, 54px);
+    height: var(--tile, 54px);
     border: 2px solid var(--edge);
     border-radius: var(--r-sm);
     display: grid;
@@ -483,7 +501,7 @@ h2 {
     display: grid;
     gap: 0;
     margin: 12px auto;
-    max-width: 440px;
+    max-width: min(440px, var(--bw, 440px));
     border: 3px solid var(--ink);
     border-radius: var(--r-md);
     overflow: hidden
@@ -1188,7 +1206,7 @@ pre {
 .sd {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    max-width: 372px;
+    max-width: var(--bw, 372px);
     margin: 12px auto;
     border: 3px solid var(--ink);
     border-radius: var(--r-md);
