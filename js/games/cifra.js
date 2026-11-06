@@ -22,15 +22,15 @@
         return shell('Cifrado', b)
     }
     function ck(m) {
-        const p = prog('c'); cini(p); if (R('cifra')) return; if (!sel) { msg = 'Toca primero una letra cifrada.'; return draw() } if (p.lk.includes(sel)) return; p.t0 = p.t0 || Date.now(); msg = ''; p.bad = p.bad.filter(l => l != sel);
-        if (m == 'Del') delete p.a[sel]; else if (m != 'Enter') { p.a[sel] = m; const o = C.ord, i = o.indexOf(sel), nx = o.slice(i + 1).concat(o.slice(0, i)).find(l => !p.a[l]); if (nx) sel = nx }
+        const p = prog('c'); cini(p); if (R('cifra')) return; if (!sel) { msg = 'Toca primero una letra cifrada.'; Sfx.p('error'); return draw() } if (p.lk.includes(sel)) return; p.t0 = p.t0 || Date.now(); msg = ''; p.bad = p.bad.filter(l => l != sel);
+        if (m == 'Del') { if (p.a[sel]) Sfx.p('borra'); delete p.a[sel] } else if (m != 'Enter') { Sfx.p('pon', 3); p.a[sel] = m; const o = C.ord, i = o.indexOf(sel), nx = o.slice(i + 1).concat(o.slice(0, i)).find(l => !p.a[l]); if (nx) sel = nx }
         cdone(p); sv(); draw();
         const f = document.activeElement; if (f && f.matches && f.matches('#app button.c') && sel) { const n = document.querySelector(`#app button.c[data-l="${sel}"]`); if (n && n !== f) n.focus() } // el foco sigue a la letra seleccionada
     }
     function hint() { const p = prog('c'); cini(p); const l = C.ord.find(l => p.a[l] !== C.dec[l]); if (!l) return; p.t0 = p.t0 || Date.now(); p.a[l] = C.dec[l]; p.lk.push(l); p.h++; msg = ''; cdone(p); sv(); draw() }
-    function chk() { const p = prog('c'); cini(p); p.t0 = p.t0 || Date.now(); p.c++; p.bad = C.ord.filter(l => p.a[l] && p.a[l] !== C.dec[l]); msg = p.bad.length ? `${p.bad.length} letra(s) incorrecta(s)` : 'Todo lo asignado es correcto'; sv(); draw() }
+    function chk() { const p = prog('c'); cini(p); p.t0 = p.t0 || Date.now(); p.c++; p.bad = C.ord.filter(l => p.a[l] && p.a[l] !== C.dec[l]); Sfx.p(p.bad.length ? 'error' : 'acierto'); msg = p.bad.length ? `${p.bad.length} letra(s) incorrecta(s)` : 'Todo lo asignado es correcto'; sv(); draw() }
     function giveup() { const p = prog('c'); fin('cifra', { st: 'lost', h: p.h || 0, c: p.c || 0, t: Date.now() - (p.t0 || Date.now()) }); draw() }
-    function csel(b) { if (R('cifra')) return; prog('c').t0 = prog('c').t0 || Date.now(); sel = b.dataset.l; draw() }
+    function csel(b) { if (R('cifra')) return; Sfx.p('tap'); prog('c').t0 = prog('c').t0 || Date.now(); sel = b.dataset.l; draw() }
 
     DailyArcade.register({
         id: 'cifra', name: 'Cifrado', desc: 'Descifra la frase: cada letra esconde otra.', color: '--berry', icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1.2" fill="currentColor"/></svg>',
