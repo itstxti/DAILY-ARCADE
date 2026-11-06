@@ -48,14 +48,14 @@
       const h = x[x.length - 1];
       if (h == i) return false;
       const k = x.indexOf(i);
-      if (k >= 0) { x.length = k + 1; return true }                       // volver atrás
+      if (k >= 0) { x.length = k + 1; Sfx.p('borra'); return true }                       // volver atrás
       if (!ady(h, i)) return false;
       if (unido(t, c)) return false;                               // ya está unido: para seguir hay que retroceder
       if (ex[i] >= 0 && ex[i] != c) return false;                       // no se puede pisar el punto de otro color
       if (ex[i] == c && i != x[0] && i != a && i != b) return false;
       // si la casilla es de otro camino, ese camino se corta desde ahí hasta su final
       t.forEach((y, d) => { if (d != c) { const q = y.indexOf(i); if (q >= 0) y.length = q } });
-      x.push(i); return true
+      x.push(i); Sfx.p(unido(t, c) ? 'acierto' : 'pon', x.length % 14); return true   // al unir una pareja suena distinto
    }
 
    function hacia(t, c, i) {
