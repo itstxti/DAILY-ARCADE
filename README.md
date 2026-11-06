@@ -211,6 +211,7 @@ sw.js               Service Worker
 js/games/           One file per game (+ _plantilla.js)
 js/core.js          Shared utilities, scoring and reference times
 js/sfx.js           Optional sound effects (Web Audio, no audio files)
+js/musica.js        Optional generative background music (Web Audio; key and melody change every day)
 js/teclado.js       Keyboard navigation (focus, arrows, Esc)
 js/duelo.js         Duel client
 supabase/           SQL schema, seed, duels, hardening + login function
