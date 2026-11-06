@@ -22,13 +22,13 @@
     const pshare = r => `Daily Arcade · Palabra #${DAY} ${r.st == 'won' ? r.att : 'X'}/${MAX}\n` + r.g.map(g => ev(g, SOL()).map(v => (S.set.cb ? ['⬛', '🟧', '🟦'] : ['⬛', '🟨', '🟩'])[v]).join('')).join('\n');
     function pk(k) {
         const p = prog('p'); p.g = p.g || []; if (R('palabra')) return; p.cur = p.cur || ''; msg = '';
-        if (k == 'Del') p.cur = p.cur.slice(0, -1);
+        if (k == 'Del') { if (p.cur) Sfx.p('borra'); p.cur = p.cur.slice(0, -1) }
         else if (k == 'Enter') {
             if (p.cur.length < 5) msg = 'Faltan letras'; else if (!OK.has(p.cur) && p.cur != SOL()) msg = 'Esa palabra no está en el diccionario'; else if (p.g.includes(p.cur)) msg = 'Ya probaste esa palabra';
-            if (msg) Anim.once('sk');
-            else { Anim.once('rv'); p.g.push(p.cur); p.cur = ''; const l = p.g[p.g.length - 1]; if (l == SOL()) fin('palabra', { st: 'won', att: p.g.length, g: p.g, t: Date.now() - (p.t0 || Date.now()) }); else if (p.g.length == MAX) fin('palabra', { st: 'lost', att: MAX, g: p.g, t: Date.now() - (p.t0 || Date.now()) }) }
+            if (msg) { Anim.once('sk'); Sfx.p('error') }
+            else { Anim.once('rv'); Sfx.p('revela', 5); p.g.push(p.cur); p.cur = ''; const l = p.g[p.g.length - 1]; if (l == SOL()) fin('palabra', { st: 'won', att: p.g.length, g: p.g, t: Date.now() - (p.t0 || Date.now()) }); else if (p.g.length == MAX) fin('palabra', { st: 'lost', att: MAX, g: p.g, t: Date.now() - (p.t0 || Date.now()) }) }
         }
-        else if (p.cur.length < 5) { p.t0 = p.t0 || Date.now(); p.cur += k; Anim.once('ty') }
+        else if (p.cur.length < 5) { p.t0 = p.t0 || Date.now(); p.cur += k; Anim.once('ty'); Sfx.p('tecla', p.cur.length) }
         sv(); draw()
     }
 
