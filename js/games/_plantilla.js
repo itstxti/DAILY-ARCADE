@@ -19,6 +19,8 @@
      controles({undo,reiniciar,comprobar,pista,rendirme})  barra de botones común (acciones undo, reiniciar, comprobar, pista, rendirme: confirma(fn)); resRendida(nombre) para la tarjeta de partida rendida (st:'lost')
      kb(estado,enter)    teclado en pantalla (botones data-a="k") — solo si usas onKey
      mmss(ms)  avg(array)  utilidades
+     Sfx.p('pon'|'tap'|'borra'|'error'|'acierto'|'tecla'|'corona'|'pista'|'reinicia', n)  efecto de sonido (solo suena si la persona activó «Sonidos» en Ajustes; n cambia el tono).
+                    Deshacer, Reiniciar y Pista ya suenan solos; llama a Sfx.p en tus jugadas: colocar, borrar, acertar, fallar. Ver js/sfx.js
    Botones: cualquier elemento con data-a="nombre" llama a actions.nombre(elemento).
    Ojo: no uses como nombre de acción go, set, copy, k, entrar, registrar, salir, reset, reset-si, reset-no, vis ni usr-*: los usa la app.
    Perfil: todos los juegos enseñan lo mismo (partidas, ganadas, días de racha, victorias seguidas, mejor tiempo y tiempo medio, calculados de lo que guardes con fin(): st y t). Solo si necesitas algo propio, añade stats:(e,w)=>html al registrar (como Palabra con su histograma).

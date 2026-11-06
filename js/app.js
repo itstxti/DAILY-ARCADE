@@ -78,7 +78,7 @@ function ajustes() {
 ${secCuenta()}
 ${msg ? `<p class="msg" role="status">${msg}</p>` : ''}
 <section class="res pb"><h2>Apariencia</h2><div class="st v"><span><b>Tema</b></span>${seg('set', 'th', [['auto', 'Sistema'], ['light', 'Claro'], ['dark', 'Oscuro']], 'Tema')}</div>${sw('cb', 'Paleta para daltónicos', 'Cambia los colores de acierto en Palabra; los símbolos ✓ ● – se mantienen.')}</section>
-<section class="res pb"><h2>Juegos</h2>${sw('tm', 'Mostrar cronómetro', 'En todos los juegos.')}${sw('hl', 'Resaltar conflictos', 'En Coronas, marca filas, columnas y regiones repetidas y coronas que se tocan. En Sudoku, números repetidos.')}${sw('snd', 'Sonidos', 'Un sonido corto al terminar un juego: alegre si aciertas, grave si no.')}${navigator.vibrate ? sw('vib', 'Vibración', 'Una vibración corta al terminar un juego: más suave si aciertas, más larga si no.') : ''}</section>
+<section class="res pb"><h2>Juegos</h2>${sw('tm', 'Mostrar cronómetro', 'En todos los juegos.')}${sw('hl', 'Resaltar conflictos', 'En Coronas, marca filas, columnas y regiones repetidas y coronas que se tocan. En Sudoku, números repetidos.')}${sw('snd', 'Sonidos', 'Efectos al jugar (poner, borrar, acertar, fallar) y al terminar cada juego. Sin descargar nada.')}${navigator.vibrate ? sw('vib', 'Vibración', 'Una vibración corta al terminar un juego: más suave si aciertas, más larga si no.') : ''}</section>
 ${inv() ? '' : `<section class="res pb"><h2>Usuarios bloqueados</h2>${BL === null ? '<p class="cap">Cargando…</p>' : BL.length ? BL.map(b => `<div class="st"><span><b>${esc(b.nombre || '@' + b.usuario)}</b>${b.nombre ? `<small>@${esc(b.usuario)}</small>` : ''}</span><button class="lnk" data-a="bl-un" data-u="${esc(b.usuario)}">Desbloquear</button></div>`).join('') : '<p>No has bloqueado a nadie.</p>'}</section>`}
 ${secInstalar()}
 <section class="res pb"><h2>Datos</h2><p>${inv() ? 'Tus resultados se guardan solo en este navegador.' : 'Tus resultados se guardan en tu cuenta y en este navegador.'}</p>${ask ? '<p class="cf"><b>¿Borrar todos tus resultados?</b> ' + (inv() ? '' : 'Se borrarán también de tu cuenta. ') + 'No se puede deshacer.</p><div class="row cf"><button class="btn dg" data-a="reset-si">Sí, borrar</button><button class="btn" data-a="reset-no">Cancelar</button></div>' : '<div class="row cf"><button class="btn" data-a="reset">Borrar mis resultados</button></div>'}</section></div>`
@@ -265,7 +265,7 @@ function bienvenida() {
   return `<section class="res hola" aria-labelledby="hola-t"><h2 id="hola-t">Bienvenido a Daily Arcade</h2><p>Cada día, ${GAMES.length} minijuegos nuevos. El reto es el mismo para todo el mundo y cambia a medianoche.</p><ul><li>Juega los que quieras: tu racha sube cada día que juegues al menos uno.</li><li>Cada juego explica sus reglas la primera vez.</li><li>Comparte tu resultado sin spoilers.</li></ul><button class="btn pri" data-a="hola">Entendido</button></section>`
 }
 function home() {
-  const up = STUP; STUP = false;
+  const up = STUP; STUP = false; if (up) Sfx.p('racha', 0, .4);
   const st = streak(), f = new Date(D0).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
   /* Dos bloques: .hl (racha, progreso y botón principal) y .hr2 (los juegos). En móvil se apilan; en PC van en dos columnas. */
   return `<div class="hl"><header class="top"><h1>Daily Arcade</h1><span style="display:flex;gap:8px;align-items:center">${Nube.user ? `${Duelo.disponible() ? `<button class="bk ic" data-a="go" data-v="duelos" aria-label="Duelos${Duelo.badge() ? ` (${Duelo.badge()} pendientes)` : ''}" title="Duelos">${IC.du}${Duelo.badge() ? `<span class="nbd" aria-hidden="true">${Duelo.badge()}</span>` : ''}</button>` : ''}<button class="bk ic" data-a="go" data-v="amigos" aria-label="Amigos${nrec() ? ` (${nrec()} solicitudes)` : ''}" title="Amigos">${IC.fr}${nrec() ? `<span class="nbd" aria-hidden="true">${nrec()}</span>` : ''}</button>` : ''}<button class="bk ic" data-a="go" data-v="perfil" aria-label="Perfil" title="Perfil">${IC.user}</button><button class="bk ic" data-a="go" data-v="ajustes" aria-label="Ajustes" title="Ajustes">${IC.cfg}</button></span></header>
@@ -318,7 +318,7 @@ function confeti(c, n) {
 function mostrarResultado(c) {
   if (!c) return;
   const g = cur(), rs = g && R(g.id), gano = rs && (rs.st == 'won' || rs.st == 'completed'), todos = GAMES.every(x => R(x.id));
-  if (todos) confeti(c, 70); else if (gano) confeti(c, 26);
+  if (todos) { confeti(c, 70); Sfx.p('dia', 0, .7) } else if (gano) confeti(c, 26);
   const l = $('#live'), t = c.querySelector('h2'), r = c.querySelector('p:not(.est)');
   if (l) { l.textContent = ''; setTimeout(() => { l.textContent = 'Resultado: ' + (t ? t.textContent : '') + (r ? '. ' + r.textContent : '') }, 50) }
   const rm = matchMedia('(prefers-reduced-motion:reduce)').matches;
@@ -361,6 +361,7 @@ $('#app').addEventListener('keydown', e => { if (e.key == 'Enter' && e.target.ma
 /* Pulso al tocar una casilla o tecla: tras repintar, busca la casilla equivalente (mismos data-*) y le añade .pp una sola vez.
    Se hace aquí y no con :active porque draw() sustituye el botón pulsado. Solo las acciones de casilla/tecla, no Deshacer, Pista, etc. */
 const PULSO = new Set(['cell', 'sc', 'lz', 'pos', 'num', 'op', 'sel']);
+const SFX_A = { undo: 'borra', reiniciar: 'reinicia', pista: 'pista' }; /* sonido de los botones comunes de todos los juegos (ver js/sfx.js) */
 function pulso(b) {
   try {
     const q = Object.entries(b.dataset).map(([k, v]) => `[data-${k.replace(/[A-Z]/g, m => '-' + m.toLowerCase())}="${CSS.escape(v)}"]`).join(''), e = q && $('#app ' + q);
@@ -446,7 +447,7 @@ $('#app').onclick = e => {
     const T = GAMES.length, st = $('#hms'); if (st) st.textContent = hmTxt(+b.dataset.d, +b.dataset.n, T);
     b.parentNode.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'))
   }
-  else if (g) { if (a == 'k') { g.onKey && g.onKey(b.dataset.k); pulso(b) } else if (g.actions && g.actions[a]) { const p0 = penP(prog(g.pk)); g.actions[a](b); if (PULSO.has(a)) pulso(b); const d = penP(prog(g.pk)) - p0, t = $('#tm'); if (d > 0 && t) { const s = document.createElement('span'); s.className = 'tb'; s.textContent = '+' + d + ' s'; t.appendChild(s); setTimeout(() => s.remove(), 1400) } } }
+  else if (g) { if (a == 'k') { g.onKey && g.onKey(b.dataset.k); pulso(b) } else if (g.actions && g.actions[a]) { const p0 = penP(prog(g.pk)); if (SFX_A[a]) Sfx.p(SFX_A[a]); g.actions[a](b); if (PULSO.has(a)) pulso(b); const d = penP(prog(g.pk)) - p0, t = $('#tm'); if (d > 0 && t) { const s = document.createElement('span'); s.className = 'tb'; s.textContent = '+' + d + ' s'; t.appendChild(s); setTimeout(() => s.remove(), 1400) } } }
 };
 $('#app').oninput = e => { if (e.target.id == 'fq') fq = e.target.value };
 $('#app').onkeydown = e => {
