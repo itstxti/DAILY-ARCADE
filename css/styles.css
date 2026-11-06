@@ -2816,3 +2816,13 @@ h1[tabindex="-1"]:focus {
         animation-delay: calc(.12s + var(--k, 0) * .03s)
     }
 }
+
+/* Inicio: juegos completados, agrupados debajo y más discretos */
+.gh {
+    margin: 22px 0 10px;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--mut);
+    letter-spacing: .02em;
+    text-transform: uppercase
+}

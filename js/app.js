@@ -253,11 +253,17 @@ function progreso() {
   const T = GAMES.length, n = GAMES.filter(g => R(g.id)).length, t = n == T;
   return `<div class="hp"><div class="ht"><b>${t ? '¡Todo completado hoy!' : `Hoy: ${n} de ${T}`}</b><span class="hr"><span>${t ? 'Vuelve mañana' : `${T - n} por jugar`}</span></span></div><div class="segs${t ? ' full' : ''}" style="grid-template-columns:repeat(${T},1fr)" role="progressbar" aria-label="Juegos completados hoy" aria-valuemin="0" aria-valuemax="${T}" aria-valuenow="${n}">${GAMES.map((g, k) => `<i${R(g.id) ? ` class="on" style="--c:var(${g.color});--k:${k}"` : ` style="--k:${k}"`}></i>`).join('')}</div></div>`
 }
+/* Cuadrícula del inicio: primero los que faltan; los completados, atenuados y agrupados debajo (si hay de los dos). */
+function juegos() {
+  const hechos = GAMES.filter(g => R(g.id)), faltan = GAMES.filter(g => !R(g.id));
+  if (!hechos.length || !faltan.length) return `<div class="gg">${GAMES.map(ficha).join('')}</div>`;
+  return `<div class="gg">${faltan.map(ficha).join('')}</div><h2 class="gh">Hechos hoy · ${hechos.length}</h2><div class="gg hechos">${hechos.map(ficha).join('')}</div>`
+}
 function home() {
   const st = streak(), f = new Date(D0).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
   return `<header class="top"><h1>Daily Arcade</h1><span style="display:flex;gap:8px;align-items:center">${Nube.user ? `${Duelo.disponible() ? `<button class="bk ic" data-a="go" data-v="duelos" aria-label="Duelos${Duelo.badge() ? ` (${Duelo.badge()} pendientes)` : ''}" title="Duelos">${IC.du}${Duelo.badge() ? `<span class="nbd" aria-hidden="true">${Duelo.badge()}</span>` : ''}</button>` : ''}<button class="bk ic" data-a="go" data-v="amigos" aria-label="Amigos${nrec() ? ` (${nrec()} solicitudes)` : ''}" title="Amigos">${IC.fr}${nrec() ? `<span class="nbd" aria-hidden="true">${nrec()}</span>` : ''}</button>` : ''}<button class="bk ic" data-a="go" data-v="perfil" aria-label="Perfil" title="Perfil">${IC.user}</button><button class="bk ic" data-a="go" data-v="ajustes" aria-label="Ajustes" title="Ajustes">${IC.cfg}</button></span></header>
 <div class="hb"><div class="sn"><b>${st}</b>${st == 1 ? 'día' : 'días'} de racha</div><div><b>Reto nº ${DAY}</b>${f}</div><div><b id="cd">--:--:--</b>próximo reto</div></div>` +
-    avisoInvitado(st) + progreso() + siguiente() + `<div class="gg">${GAMES.map(ficha).join('')}</div>` +
+    avisoInvitado(st) + progreso() + siguiente() + juegos() +
     `<p class="foot">Sin cuenta: los resultados se guardan solo en este navegador. Cada día cambia el reto a medianoche, hora de Madrid.</p>`
 }
 
