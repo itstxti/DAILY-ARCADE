@@ -74,7 +74,10 @@ const siguiente2 = g => {
 /* Instrucciones del juego (propiedad "how" al registrarlo). Abiertas la primera vez; después, plegadas. Se recuerda lo que el jugador abra o cierre. */
 const HW = {};
 const how = () => {
-   const g = cur(); if (!g || !g.how) return ''; const o = HW[g.id] !== undefined ? HW[g.id] : !E(g.id).length;
+   const g = cur(); if (!g || !g.how) return '';
+   /* Abiertas solo la primera vez y hasta la primera jugada: así no empujan el tablero (ni el teclado) fuera de pantalla. Si la persona las abre o cierra, se respeta. */
+   const pr = DU ? DU.pr[g.pk] : S.pr[DAY + g.pk], emp = !!(pr && (pr.t0 || (pr.g && pr.g.length))),
+      o = HW[g.id] !== undefined ? HW[g.id] : !E(g.id).length && !emp;
    return `<details class="how" data-g="${g.id}"${o ? ' open' : ''}><summary>Cómo se juega</summary>${g.demo ? `<div class="dm">${g.demo}</div>` : ''}<ol>${g.how.map(t => `<li><span>${t}</span></li>`).join('')}</ol></details>`
 };
 const shell = (t, b) => DU ? Duelo.shell(t, b) : `<div class="bar"><button class="bk" data-a="go" data-v="home">‹ Inicio</button><h1>${t}</h1></div><p class="sub" style="margin:0 0 8px">Reto nº ${DAY}</p>${how()}${b}`;

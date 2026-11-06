@@ -270,9 +270,11 @@ function draw() {
   const ld = h.includes('Cargando…'), mismo = vk === draw.vk;
   /* 'in' solo al cambiar de pantalla; 'sub' cuando llegan los datos de una pantalla que estaba "Cargando…" */
   app.className = [mismo ? '' : 'in', mismo && draw.ld && !ld ? 'sub' : '', ...Anim.f].join(' ').trim(); draw.vk = vk; draw.ld = ld;
-  const foco = Teclado.guarda(), tenia = !!app.querySelector('.res.rb');
+  const foco = Teclado.guarda(), tenia = !!app.querySelector('.res.rb'), hw = app.querySelector('details.how'), h0 = hw && hw.open ? hw.offsetHeight : 0;
   app.innerHTML = h;
   Teclado.repinta(foco, mismo);
+  /* Si «Cómo se juega» se pliega solo al empezar, el tablero sube: se compensa el scroll para que no se mueva bajo el dedo. */
+  if (mismo && h0 && scrollY > 0) { const n = app.querySelector('details.how'), h1 = n ? n.offsetHeight : 0; if (h1 < h0 - 40) scrollBy(0, h1 - h0) }
   if (mismo && !tenia) mostrarResultado(app.querySelector('.res.rb'));
   Anim.clear(); tick()
 }
