@@ -82,6 +82,46 @@ body {
     padding: 16px 16px 40px
 }
 
+/* Móvil: el hueco de arriba (50 px de margen) es espacio que se necesita para jugar */
+@media (max-width:600px) {
+    #app {
+        margin: 12px auto
+    }
+}
+
+/* ---------- Tablet y PC: el inicio aprovecha el ancho ---------- */
+@media (min-width:700px) {
+    #app:has(.hl) {
+        max-width: 860px
+    }
+
+    .hr2 .gg {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr))
+    }
+}
+
+/* PC: dos columnas, el panel a la izquierda y los 10 juegos a la derecha, sin hacer scroll */
+@media (min-width:1080px) {
+    #app:has(.hl) {
+        max-width: 1140px;
+        display: grid;
+        grid-template-columns: 390px minmax(0, 1fr);
+        column-gap: 32px;
+        align-items: start
+    }
+
+    .hr2 .gg:first-child {
+        margin-top: 4px
+    }
+}
+
+@media (min-width:1080px) and (min-height:820px) {
+    .hl {
+        position: sticky;
+        top: 16px
+    }
+}
+
 button {
     font: inherit;
     color: inherit;
@@ -2363,9 +2403,28 @@ a.btn {
     }
 
     /* ----- Entrada de pantalla: los bloques suben y aparecen en cascada ----- */
-    #app.in>*:not(.gg) {
+    #app.in>*:not(.gg):not(.hl):not(.hr2),
+    #app.in .hl>*,
+    #app.in .hr2>*:not(.gg) {
         animation: da-up var(--da-d) ease-out backwards;
         animation-delay: calc(var(--n, 0) * var(--da-s))
+    }
+
+    #app.in .hl>*:nth-child(2),
+    #app.in .hr2>*:nth-child(2) {
+        --n: 1
+    }
+
+    #app.in .hl>*:nth-child(3) {
+        --n: 2
+    }
+
+    #app.in .hl>*:nth-child(4) {
+        --n: 3
+    }
+
+    #app.in .hl>*:nth-child(n+5) {
+        --n: 4
     }
 
     #app.in>*:nth-child(2) {
