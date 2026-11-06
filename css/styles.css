@@ -2826,3 +2826,18 @@ h1[tabindex="-1"]:focus {
     letter-spacing: .02em;
     text-transform: uppercase
 }
+
+/* Inicio: bienvenida de una sola vez */
+.hola {
+    margin: 0 0 16px;
+    background: color-mix(in srgb, var(--sun) 16%, var(--card))
+}
+
+.hola ul {
+    margin: 8px 0 14px;
+    padding-left: 20px
+}
+
+.hola li {
+    margin: 4px 0
+}

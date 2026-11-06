@@ -259,11 +259,16 @@ function juegos() {
   if (!hechos.length || !faltan.length) return `<div class="gg">${GAMES.map(ficha).join('')}</div>`;
   return `<div class="gg">${faltan.map(ficha).join('')}</div><h2 class="gh">Hechos hoy · ${hechos.length}</h2><div class="gg hechos">${hechos.map(ficha).join('')}</div>`
 }
+/* Bienvenida de una sola vez: solo a quien llega sin ninguna partida ni haberla cerrado antes. */
+function bienvenida() {
+  if (S.set.hola || days().length) return '';
+  return `<section class="res hola" aria-labelledby="hola-t"><h2 id="hola-t">Bienvenido a Daily Arcade</h2><p>Cada día, ${GAMES.length} minijuegos nuevos. El reto es el mismo para todo el mundo y cambia a medianoche.</p><ul><li>Juega los que quieras: tu racha sube cada día que juegues al menos uno.</li><li>Cada juego explica sus reglas la primera vez.</li><li>Comparte tu resultado sin spoilers.</li></ul><button class="btn pri" data-a="hola">Entendido</button></section>`
+}
 function home() {
   const st = streak(), f = new Date(D0).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
   return `<header class="top"><h1>Daily Arcade</h1><span style="display:flex;gap:8px;align-items:center">${Nube.user ? `${Duelo.disponible() ? `<button class="bk ic" data-a="go" data-v="duelos" aria-label="Duelos${Duelo.badge() ? ` (${Duelo.badge()} pendientes)` : ''}" title="Duelos">${IC.du}${Duelo.badge() ? `<span class="nbd" aria-hidden="true">${Duelo.badge()}</span>` : ''}</button>` : ''}<button class="bk ic" data-a="go" data-v="amigos" aria-label="Amigos${nrec() ? ` (${nrec()} solicitudes)` : ''}" title="Amigos">${IC.fr}${nrec() ? `<span class="nbd" aria-hidden="true">${nrec()}</span>` : ''}</button>` : ''}<button class="bk ic" data-a="go" data-v="perfil" aria-label="Perfil" title="Perfil">${IC.user}</button><button class="bk ic" data-a="go" data-v="ajustes" aria-label="Ajustes" title="Ajustes">${IC.cfg}</button></span></header>
 <div class="hb"><div class="sn"><b>${st}</b>${st == 1 ? 'día' : 'días'} de racha</div><div><b>Reto nº ${DAY}</b>${f}</div><div><b id="cd">--:--:--</b>próximo reto</div></div>` +
-    avisoInvitado(st) + progreso() + siguiente() + juegos() +
+    bienvenida() + avisoInvitado(st) + progreso() + siguiente() + juegos() +
     `<p class="foot">Sin cuenta: los resultados se guardan solo en este navegador. Cada día cambia el reto a medianoche, hora de Madrid.</p>`
 }
 
@@ -349,6 +354,7 @@ $('#app').onclick = e => {
   if (a == 'go') { if (b.dataset.v == 'duelos') vd = V == 'amigos' ? 'amigos' : 'home'; if (b.dataset.v == 'cuenta') { vp = V == 'ajustes' || V == 'home' ? V : 'perfil'; cm = 'entrar'; fm = {} } V = b.dataset.v; msg = ''; fs = false; sel = null; hist = []; ask = false; eu = null; en = false; cfm = null; blq = null; fr = undefined; fq = ''; if (V == 'ranking') { RK = { tab: RK.tab, d: DAY, dia: null, rachas: null, err: '' } } draw(); if (V == 'amigos' && Nube.user) cargarAmigos(); if (V == 'ranking' && Nube.user) cargarRanking(); if (V == 'ajustes' && Nube.user) cargarBloqueados(); if (V == 'duelos' && Nube.user) Duelo.abrir() }
   else if (a.startsWith('du-')) Duelo.accion(a, b)
   else if (a == 'set') { const k = b.dataset.k; S.set[k] = k == 'th' ? b.dataset.v : !S.set[k]; sv(); theme(); draw() }
+  else if (a == 'hola') { S.set.hola = true; sv(); draw() }
   else if (a == 'copy') copy();
   else if (a == 'instalar') { if (dip) { dip.prompt(); dip.userChoice.catch(() => { }).then(() => { dip = null; draw() }) } }
   else if (a == 'cm') { cm = b.dataset.v; msg = ''; Anim.once('sub'); draw() }
