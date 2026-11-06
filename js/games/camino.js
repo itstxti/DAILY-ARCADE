@@ -26,7 +26,7 @@
       // números repartidos a lo largo del camino, con algo de desorden pero sin amontonarse
       for (let i = 1; i < NS - 1; i++) { const base = i * (T - 1) / (NS - 1), p = Math.max(1, Math.min(T - 2, Math.round(base + (r() - .5) * 2))); if (!pos.includes(p)) pos.push(p) }
       pos.sort((a, b) => a - b);
-      return { nums: pos.map(p => cam[p]) } // nums[k] = casilla del número k+1
+      return { nums: pos.map(p => cam[p]), cam } // nums[k] = casilla del número k+1
    }
    const P = memoSD(gen); // se regenera si cambia la semilla (SD): reto del día o ronda de duelo
 
@@ -90,8 +90,8 @@
 
    function camino() {
       const p = prog('cm'); ini(p); const r = R('camino'), Z = P();
-      let b = `<div id="cmb" class="cm" data-b="camino" style="${r ? '' : 'touch-action:none;'}max-width:372px;margin:12px auto;border:3px solid var(--ink);border-radius:var(--r-md);overflow:hidden;user-select:none;-webkit-user-select:none">${svgTablero(p.c, !!r)}</div>`;
-      if (r && r.st == 'lost') b += resRendida('Camino'); else if (r) b += res(`¡Camino completado en ${mmss(r.t)}!`, 'Pasaste por las 36 casillas y por todos los números en orden. Vuelve mañana para un reto nuevo.', `Daily Arcade · Camino #${DAY} · 6×6 · ${mmss(r.t)}`);
+      let b = `<div id="cmb" class="cm" data-b="camino" style="${r ? '' : 'touch-action:none;'}max-width:372px;margin:12px auto;border:3px solid var(--ink);border-radius:var(--r-md);overflow:hidden;user-select:none;-webkit-user-select:none">${svgTablero(r && r.st == 'lost' ? Z.cam : p.c, !!r)}</div>`;
+      if (r && r.st == 'lost') b += resRendida('Camino', 'Así se recorría: una línea por las 36 casillas y por los números en orden. Vuelve mañana para un reto nuevo.'); else if (r) b += res(`¡Camino completado en ${mmss(r.t)}!`, 'Pasaste por las 36 casillas y por todos los números en orden. Vuelve mañana para un reto nuevo.', `Daily Arcade · Camino #${DAY} · 6×6 · ${mmss(r.t)}`);
       else b += `${S.set.tm ? tmHtml(p) : ''}<p class="cap" id="cmc" style="text-align:center;margin:0">${p.c.length} / ${T} casillas</p><p class="msg" id="cmm" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, rendirme: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Arrastra desde el 1 (o toca casillas contiguas). También puedes usar las flechas.</p>`;
       return shell('Camino', b)
    }

@@ -57,14 +57,14 @@
 
    function luces() {
       const p = prog('l'); ini(p);
-      const r = R('luces'), Z = P(), b = r ? 0 : estado(p), on = bits(b);
+      const r = R('luces'), Z = P(), lost = r && r.st == 'lost', b = lost ? Z.ini : r ? 0 : estado(p), on = bits(b), sm = lost ? resolver(Z.ini) : 0; /* rendida: se enseña el tablero de partida y las pulsaciones mínimas */
       let z = '';
       for (let i = 0; i < T; i++) {
          const x = i % N, y = i / N | 0, e = (b >> i) & 1;
-         z += `<button class="lz${e ? ' on' : ''}${!r && p.pi === i ? ' pista' : ''}" data-a="lz" data-i="${i}"${r ? ' disabled' : ''} aria-pressed="${!!e}" aria-label="Fila ${y + 1}, columna ${x + 1}, ${e ? 'encendida' : 'apagada'}"></button>`
+         z += `<button class="lz${e ? ' on' : ''}${(!r && p.pi === i) || (lost && (sm >> i) & 1) ? ' pista' : ''}" data-a="lz" data-i="${i}"${r ? ' disabled' : ''} aria-pressed="${!!e}" aria-label="Fila ${y + 1}, columna ${x + 1}, ${e ? 'encendida' : 'apagada'}${lost && (sm >> i) & 1 ? ', pulsar para resolver' : ''}"></button>`
       }
       let h = `<div class="lzb" data-rv="luces" role="group" aria-label="Tablero de luces de 5 por 5">${z}</div>`;
-      if (r && r.st == 'lost') h += resRendida('Luces');
+      if (r && r.st == 'lost') h += resRendida('Luces', `Así se apagaban todas: pulsando las ${bits(sm)} casillas con borde azul. Vuelve mañana para un reto nuevo.`);
       else if (r) {
          const ex = r.n - r.par;
          h += res(`¡Todas apagadas en ${r.n} ${pl(r.n, 'pulsación', 'pulsaciones')}!`, ex <= 0 && !r.h ? `Es el mínimo posible (${r.par}) · Tiempo: ${mmss(r.t)}` : `Mínimo: ${r.par} · Tiempo: ${mmss(r.t)}`,

@@ -7,7 +7,7 @@
         const place = row => { if (row == N) return true; for (const c of shuf([...Array(N).keys()], r)) { if (cols.includes(c) || (row && Math.abs(c - cols[row - 1]) < 2)) continue; cols.push(c); if (place(row + 1)) return true; cols.pop() } return false };
         place(0); const reg = Array(N * N).fill(-1); cols.forEach((c, y) => reg[y * N + c] = y);
         for (let left = N * N - N; left > 0; left--) { const f = []; for (let i = 0; i < N * N; i++)if (reg[i] < 0) { const x = i % N, y = (i / N) | 0;[[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dy]) => { const a = x + dx, b = y + dy; if (a >= 0 && a < N && b >= 0 && b < N && reg[b * N + a] >= 0) f.push([i, reg[b * N + a]]) }) } const [i, v] = f[Math.floor(r() * f.length)]; reg[i] = v }
-        return reg
+        reg.cols = cols.slice(); return reg /* cols[fila] = columna de su corona (la solución) */
     };
     const _g = memoSD(mkG), G = new Proxy([], { get: (_, k) => _g()[k] }); // G[i] = región de la casilla i
     function conf(b) {
@@ -15,13 +15,13 @@
         cr.forEach(i => cr.forEach(j => { if (i < j) { const xi = i % N, yi = (i / N) | 0, xj = j % N, yj = (j / N) | 0; if (xi == xj || yi == yj || G[i] == G[j] || (Math.abs(xi - xj) < 2 && Math.abs(yi - yj) < 2)) { bad.add(i); bad.add(j) } } })); return { bad, n: cr.length }
     }
     function coronas() {
-        const p = prog('o'); p.b = p.b && p.b.length == N * N ? p.b : Array(N * N).fill(0); const r = R('coronas'), { bad } = conf(p.b); let z = '';
+        const p = prog('o'); p.b = p.b && p.b.length == N * N ? p.b : Array(N * N).fill(0); const r = R('coronas'), lost = r && r.st == 'lost', { bad } = conf(p.b); let z = '';
         for (let i = 0; i < N * N; i++) {
             const x = i % N, y = (i / N) | 0, d = (a, b) => a < 0 || b < 0 || a >= N || b >= N || G[b * N + a] != G[i] ? 3 : 1;
-            z += `<button class="z ${S.set.hl && bad.has(i) ? 'cf' : ''}" style="background:${REG[G[i]]};border-width:${d(x, y - 1)}px ${d(x + 1, y)}px ${d(x, y + 1)}px ${d(x - 1, y)}px" data-a="cell" data-i="${i}" aria-label="Fila ${y + 1}, columna ${x + 1}, región ${'ABCDEFGHI'[G[i]]}, ${['vacía', 'marcada', 'corona'][p.b[i]]}${S.set.hl && bad.has(i) ? ', en conflicto' : ''}"><small>${'ABCDEFGHI'[G[i]]}</small>${['', '✕', '♛'][p.b[i]]}</button>`
+            z += `<button class="z ${!lost && S.set.hl && bad.has(i) ? 'cf' : ''}" style="background:${REG[G[i]]};border-width:${d(x, y - 1)}px ${d(x + 1, y)}px ${d(x, y + 1)}px ${d(x - 1, y)}px" data-a="cell" data-i="${i}" aria-label="Fila ${y + 1}, columna ${x + 1}, región ${'ABCDEFGHI'[G[i]]}, ${['vacía', 'marcada', 'corona'][p.b[i]]}${S.set.hl && bad.has(i) ? ', en conflicto' : ''}"><small>${'ABCDEFGHI'[G[i]]}</small>${lost ? (G.cols[y] == x ? '♛' : '') : ['', '✕', '♛'][p.b[i]]}</button>`
         }
         let b = `<div class="bd2" data-rv="coronas" role="group" aria-label="Tablero de coronas" style="grid-template-columns:repeat(${N},1fr)">${z}</div>`;
-        if (r && r.st == 'lost') b += resRendida('Coronas'); else if (r) b += res(`¡Completado en ${mmss(r.t)}!`, `Tablero de ${N}×${N}. Vuelve mañana para un reto nuevo.`, `Daily Arcade · Coronas #${DAY} · ${N}×${N} · ${mmss(r.t)}`);
+        if (r && r.st == 'lost') b += resRendida('Coronas', 'Así se resolvía: una corona por fila, columna y color. Vuelve mañana para un reto nuevo.'); else if (r) b += res(`¡Completado en ${mmss(r.t)}!`, `Tablero de ${N}×${N}. Vuelve mañana para un reto nuevo.`, `Daily Arcade · Coronas #${DAY} · ${N}×${N} · ${mmss(r.t)}`);
         else b += `${S.set.tm ? tmHtml(p) : ''}${controles({ undo: 1, reiniciar: 1, rendirme: 1 })}<p class="msg">Toca una casilla: vacía → ✕ → corona.</p>`;
         return shell('Coronas', b)
     }

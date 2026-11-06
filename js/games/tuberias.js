@@ -27,7 +27,7 @@
       const tr = []; let i = 0;
       L.forEach(l => { tr.push(cam.slice(i, i + l)); i += l });
       shuf(tr, r); // los colores se reparten al azar entre los tramos; los extremos de cada tramo son los puntos de ese color
-      return { pares: tr.map(x => [x[0], x[x.length - 1]]) }
+      return { pares: tr.map(x => [x[0], x[x.length - 1]]), tr }
    }
    const P = memoSD(gen); // se regenera si cambia la semilla (SD): reto del día o ronda de duelo
 
@@ -99,8 +99,8 @@
 
    function tuberias() {
       const p = prog('t'); ini(p); const r = R('tuberias');
-      let b = `<div id="tbb" class="cm" data-b="tuberias"${r ? '' : ' tabindex="0" role="application" aria-label="Tablero de tuberías. Flechas para mover el cursor, Enter sobre un punto para empezar a trazar y de nuevo Enter para soltar, Esc para soltar."'} style="${r ? '' : 'touch-action:none;'}max-width:372px;margin:12px auto;border:3px solid var(--ink);border-radius:var(--r-md);overflow:hidden;user-select:none;-webkit-user-select:none">${svgTablero(p.t, !!r)}</div>${r ? '' : '<span class="sr" id="tbl" aria-live="polite"></span>'}`;
-      if (r && r.st == 'lost') b += resRendida('Tuberías'); else if (r) b += res(`¡Tuberías unidas en ${mmss(r.t)}!`, `Las ${K} parejas están unidas y el tablero está lleno. Vuelve mañana para un reto nuevo.`, `Daily Arcade · Tuberías #${DAY} · 6×6 · ${K} colores · ${mmss(r.t)}`);
+      let b = `<div id="tbb" class="cm" data-b="tuberias"${r ? '' : ' tabindex="0" role="application" aria-label="Tablero de tuberías. Flechas para mover el cursor, Enter sobre un punto para empezar a trazar y de nuevo Enter para soltar, Esc para soltar."'} style="${r ? '' : 'touch-action:none;'}max-width:372px;margin:12px auto;border:3px solid var(--ink);border-radius:var(--r-md);overflow:hidden;user-select:none;-webkit-user-select:none">${svgTablero(r && r.st == 'lost' ? P().tr : p.t, !!r)}</div>${r ? '' : '<span class="sr" id="tbl" aria-live="polite"></span>'}`;
+      if (r && r.st == 'lost') b += resRendida('Tuberías', 'Así se unían todas las parejas rellenando el tablero. Vuelve mañana para un reto nuevo.'); else if (r) b += res(`¡Tuberías unidas en ${mmss(r.t)}!`, `Las ${K} parejas están unidas y el tablero está lleno. Vuelve mañana para un reto nuevo.`, `Daily Arcade · Tuberías #${DAY} · 6×6 · ${K} colores · ${mmss(r.t)}`);
       else b += `${S.set.tm ? tmHtml(p) : ''}<p class="cap" id="tbc" style="text-align:center;margin:0">${info(p.t)}</p><p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, rendirme: 1 })}<p class="foot" style="margin-top:8px;text-align:center">Arrastra desde un punto. Si cruzas otro camino, lo cortas. Con teclado: flechas y Enter.</p>`;
       return shell('Tuberías', b)
    }
