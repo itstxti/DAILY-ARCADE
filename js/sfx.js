@@ -5,14 +5,15 @@
    Para añadir uno, escribe su receta en EF; el resto (volumen, límite de repetición, ajustes) ya está resuelto. */
 const Sfx = (() => {
    let ac = null; const ult = {};
-   const ctx = () => {
-      if (!S.set.snd) return null;
+   /* Un único AudioContext para toda la web (efectos y música). */
+   const base = () => {
       try {
          const A = window.AudioContext || window.webkitAudioContext; if (!A) return null;
-         ac = ac || new A(); if (ac.state == 'suspended') ac.resume();
+         ac = ac || new A(); if (ac.state == 'suspended') ac.resume().catch(() => { });
          return ac
       } catch (_) { return null }
    };
+   const ctx = () => S.set.snd ? base() : null;
    /* Una nota: frecuencia f (que puede deslizarse hasta f2), a los t segundos, durante d, con volumen v. */
    const nota = (c, f, t, d, o = {}) => {
       const osc = c.createOscillator(), g = c.createGain(), v = o.v == null ? .08 : o.v, t0 = c.currentTime + t;
@@ -39,6 +40,7 @@ const Sfx = (() => {
    const gana = (c, t) => [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => nota(c, f, t + i * .09, .22, { tipo: 'triangle', v: .12 }));
    const pierde = (c, t) => [293.66, 233.08].forEach((f, i) => nota(c, f, t + i * .16, .32, { tipo: 'sine', v: .12 }));
    return {
+      base,
       p(nombre, n, retraso) {
          try {
             const e = EF[nombre]; if (!e) return;

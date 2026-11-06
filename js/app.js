@@ -78,7 +78,7 @@ function ajustes() {
 ${secCuenta()}
 ${msg ? `<p class="msg" role="status">${msg}</p>` : ''}
 <section class="res pb"><h2>Apariencia</h2><div class="st v"><span><b>Tema</b></span>${seg('set', 'th', [['auto', 'Sistema'], ['light', 'Claro'], ['dark', 'Oscuro']], 'Tema')}</div>${sw('cb', 'Paleta para daltónicos', 'Cambia los colores de acierto en Palabra; los símbolos ✓ ● – se mantienen.')}</section>
-<section class="res pb"><h2>Juegos</h2>${sw('tm', 'Mostrar cronómetro', 'En todos los juegos.')}${sw('hl', 'Resaltar conflictos', 'En Coronas, marca filas, columnas y regiones repetidas y coronas que se tocan. En Sudoku, números repetidos.')}${sw('snd', 'Sonidos', 'Efectos al jugar (poner, borrar, acertar, fallar) y al terminar cada juego. Sin descargar nada.')}${navigator.vibrate ? sw('vib', 'Vibración', 'Una vibración corta al terminar un juego: más suave si aciertas, más larga si no.') : ''}</section>
+<section class="res pb"><h2>Juegos</h2>${sw('tm', 'Mostrar cronómetro', 'En todos los juegos.')}${sw('hl', 'Resaltar conflictos', 'En Coronas, marca filas, columnas y regiones repetidas y coronas que se tocan. En Sudoku, números repetidos.')}${sw('mus', 'Música', 'Música suave de fondo, distinta cada día y más tranquila dentro de los juegos. Se pausa sola si cambias de pestaña.')}${sw('snd', 'Sonidos', 'Efectos al jugar (poner, borrar, acertar, fallar) y al terminar cada juego. Sin descargar nada.')}${navigator.vibrate ? sw('vib', 'Vibración', 'Una vibración corta al terminar un juego: más suave si aciertas, más larga si no.') : ''}</section>
 ${inv() ? '' : `<section class="res pb"><h2>Usuarios bloqueados</h2>${BL === null ? '<p class="cap">Cargando…</p>' : BL.length ? BL.map(b => `<div class="st"><span><b>${esc(b.nombre || '@' + b.usuario)}</b>${b.nombre ? `<small>@${esc(b.usuario)}</small>` : ''}</span><button class="lnk" data-a="bl-un" data-u="${esc(b.usuario)}">Desbloquear</button></div>`).join('') : '<p>No has bloqueado a nadie.</p>'}</section>`}
 ${secInstalar()}
 <section class="res pb"><h2>Datos</h2><p>${inv() ? 'Tus resultados se guardan solo en este navegador.' : 'Tus resultados se guardan en tu cuenta y en este navegador.'}</p>${ask ? '<p class="cf"><b>¿Borrar todos tus resultados?</b> ' + (inv() ? '' : 'Se borrarán también de tu cuenta. ') + 'No se puede deshacer.</p><div class="row cf"><button class="btn dg" data-a="reset-si">Sí, borrar</button><button class="btn" data-a="reset-no">Cancelar</button></div>' : '<div class="row cf"><button class="btn" data-a="reset">Borrar mis resultados</button></div>'}</section></div>`
@@ -291,7 +291,7 @@ function draw() {
   /* Si «Cómo se juega» se pliega solo al empezar, el tablero sube: se compensa el scroll para que no se mueva bajo el dedo. */
   if (mismo && h0 && scrollY > 0) { const n = app.querySelector('details.how'), h1 = n ? n.offsetHeight : 0; if (h1 < h0 - 40) scrollBy(0, h1 - h0) }
   if (mismo && !tenia) mostrarResultado(app.querySelector('.res.rb'));
-  Anim.clear(); tick()
+  Anim.clear(); tick(); Musica.sync()
 }
 /* Cambio de día con la web abierta: nunca se recarga a mitad de partida. Se avisa y la persona decide cuándo pasar al reto nuevo. */
 function avisoNuevoDia() {

@@ -18,7 +18,7 @@ const shuf = (a, r) => { for (let i = a.length - 1; i > 0; i--) { const j = Math
 const nz = k => k.toLowerCase() === 'ñ' ? 'ñ' : k.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const mmss = ms => { const s = Math.floor(ms / 1e3); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') };
 let S = { res: {}, pr: {}, me: { n: 'Invitado', v: 'public' } }; try { S = Object.assign(S, JSON.parse(localStorage.getItem('da2') || '{}')) } catch (e) { }
-S.set = Object.assign({ cb: false, tm: true, hl: true, vib: false, snd: false, th: 'auto' }, S.set);
+S.set = Object.assign({ cb: false, tm: true, hl: true, vib: false, snd: false, mus: false, th: 'auto' }, S.set);
 const sv = () => { try { localStorage.setItem('da2', JSON.stringify(S)) } catch (e) { } };
 /* S.uid = cuenta a la que pertenecen los datos de este navegador (null = invitado). */
 /* Semilla del puzle (SD): el reto de hoy o, en un duelo, la semilla de la ronda (la elige el servidor). Los juegos generan con SD, no con DAY.
@@ -36,7 +36,7 @@ const Anim = { f: new Set(), once(k) { this.f.add(k) }, has(k) { return this.f.h
 /* Vibración opcional (Ajustes → Juegos) al terminar: patrón corto si ganas, uno largo si no. Solo en dispositivos que la admiten. */
 const vibra = o => { try { if (S.set.vib && navigator.vibrate) navigator.vibrate(o && (o.st == 'won' || o.st == 'completed') ? [30, 50, 30] : [140]) } catch (_) { } };
 const R = g => DU ? DU.res[g] : (S.res[DAY] || {})[g],
-   fin = (g, o) => { if (DU) return Duelo.fin(g, o); Anim.once('fin'); vibra(o); Sfx.fin(o, Anim.has('rv') ? .5 : 0); /* en Palabra, tras girar las casillas */ const r0 = streak(); o = penaliza(o); snap(g, o); (S.res[DAY] = S.res[DAY] || {})[g] = o; if (streak() > r0) STUP = true; sv(); Nube.guardarResultado(DAY, g, o) },
+   fin = (g, o) => { if (DU) return Duelo.fin(g, o); Anim.once('fin'); vibra(o); Musica.duck(1.8); Sfx.fin(o, Anim.has('rv') ? .5 : 0); /* en Palabra, tras girar las casillas */ const r0 = streak(); o = penaliza(o); snap(g, o); (S.res[DAY] = S.res[DAY] || {})[g] = o; if (streak() > r0) STUP = true; sv(); Nube.guardarResultado(DAY, g, o) },
    prog = g => DU ? (DU.pr[g] = DU.pr[g] || {}) : (S.pr[DAY + g] = S.pr[DAY + g] || {});
 const days = (r = S.res) => Object.keys(r).map(Number).filter(d => Object.keys(r[d]).length);
 function streak() { return runs(days()).cur }
