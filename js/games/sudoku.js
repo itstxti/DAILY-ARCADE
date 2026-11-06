@@ -68,15 +68,15 @@
    function sc(b) {
       if (R('sudoku')) return;
       const p = prog('s'); ini(p); p.t0 = p.t0 || Date.now();
-      sel = +b.dataset.i; msg = ''; sv(); draw()
+      sel = +b.dataset.i; msg = ''; Sfx.p('tap'); sv(); draw()
    }
 
    function poner(v) {
       const p = prog('s'); ini(p);
       if (R('sudoku')) return;
-      if (sel == null) { msg = 'Toca primero una casilla.'; return draw() }
+      if (sel == null) { msg = 'Toca primero una casilla.'; Sfx.p('error'); return draw() }
       if (P().giv[sel] || p.g[sel] == v) return;
-      p.t0 = p.t0 || Date.now(); hist.push(p.g.slice()); p.g[sel] = v; p.bad = []; msg = '';
+      p.t0 = p.t0 || Date.now(); hist.push(p.g.slice()); p.g[sel] = v; p.bad = []; msg = ''; if (v) Sfx.p('pon', v); else Sfx.p('borra');
       if (p.g.every((x, i) => x == P().sol[i])) fin('sudoku', { st: 'completed', t: Date.now() - p.t0, c: p.c || 0 });
       sv(); draw()
    }
@@ -103,6 +103,7 @@
       p.t0 = p.t0 || Date.now(); p.c = (p.c || 0) + 1;
       const { giv, sol } = P();
       p.bad = TODAS.filter(i => !giv[i] && p.g[i] && p.g[i] != sol[i]);
+      Sfx.p(p.bad.length ? 'error' : 'acierto');
       msg = p.bad.length ? `${p.bad.length} ${pl(p.bad.length, 'casilla incorrecta', 'casillas incorrectas')}` : 'Todo lo que has puesto es correcto';
       sv(); draw()
    }
