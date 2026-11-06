@@ -335,10 +335,13 @@ function toast(m, ms = 1800) {
   let e = $('#toast'); if (!e) { e = document.createElement('div'); e.id = 'toast'; e.setAttribute('role', 'status'); document.body.appendChild(e) }
   e.textContent = m; e.className = 'on'; clearTimeout(toast.t); toast.t = setTimeout(() => { e.className = '' }, ms)
 }
+/* Enlace a la web para que quien recibe el resultado pueda jugar: solo con http(s) (no en file://). */
+const enlace = () => /^https?:$/.test(location.protocol) ? location.origin + location.pathname.replace(/index\.html$/, '') : '';
 async function enviar(t, b, pre) {
-  if (CAN_SHARE) { try { await navigator.share({ text: t }); return } catch (e) { if (e && e.name == 'AbortError') return } }
-  try { await navigator.clipboard.writeText(t); toast('Copiado'); b.innerHTML = IC_OK; setTimeout(() => { b.innerHTML = CAN_SHARE ? IC_SH : IC_CP }, 1800) }
-  catch (e) { if (pre) { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Texto seleccionado: cópialo') } else prompt('Copia tu resumen:', t) }
+  const u = enlace(), tu = u ? t + '\n' + u : t;
+  if (CAN_SHARE) { try { await navigator.share(u ? { text: t, url: u } : { text: t }); return } catch (e) { if (e && e.name == 'AbortError') return } }
+  try { await navigator.clipboard.writeText(tu); toast('Copiado'); b.innerHTML = IC_OK; setTimeout(() => { b.innerHTML = CAN_SHARE ? IC_SH : IC_CP }, 1800) }
+  catch (e) { if (pre) { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Texto seleccionado: cópialo') } else prompt('Copia tu resumen:', tu) }
 }
 function copy() { return enviar($('#sh').textContent, $('[data-a=copy]'), $('#sh')) }
 /* Instalar como app (PWA) */
