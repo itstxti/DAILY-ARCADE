@@ -235,8 +235,11 @@ const CK = '<span class="ck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d
 /* Lema corto de cada juego (en las tarjetas sin empezar). Un juego nuevo puede traer el suyo con la propiedad «tag». */
 const TAG = { palabra: 'Adivina la palabra', cifra: 'Descifra la frase', coronas: 'Una corona por color', sudoku: 'Sudoku de 6×6', escalera: 'Cambia una letra por paso', operaciones: 'Llega al número objetivo', camino: 'Une los números en orden', luces: 'Apaga todas las luces', tuberias: 'Une las parejas de color', sopa: 'Encuentra las 6 palabras' };
 function ficha(g) {
-  const e = estado(g), s = status(g), t = g.tag || TAG[g.id] || '';
-  return `<button class="gt ${e}" data-a="go" data-v="${g.id}" aria-label="${g.name}. ${e == 'nv' && t ? t + '. ' : ''}${s}"><span class="gl" style="background:var(${g.color})">${g.icon}${e == 'ok' ? CK : ''}</span><strong>${g.name}</strong>${e == 'nv' ? (t ? `<em class="tg">${t}</em>` : '') : `<em>${s}</em>`}</button>`
+  const e = estado(g), s = status(g), t = g.tag || TAG[g.id] || '', r = R(g.id), n = r && g.status ? estrellas(g.id, r) : null,
+    /* Las estrellas van en su propia línea: status() las añade al final como « · ★★★☆☆» (3 caracteres de separador + 5 de estrellas) */
+    txt = n ? s.slice(0, -(3 + estTxt(n).length)) : s,
+    est = n ? `<span class="es2" aria-hidden="true"><b>${'★'.repeat(n)}</b><i>${'☆'.repeat(5 - n)}</i></span>` : '';
+  return `<button class="gt ${e}" data-a="go" data-v="${g.id}" aria-label="${g.name}. ${e == 'nv' && t ? t + '. ' : ''}${s}"><span class="gl" style="background:var(${g.color})">${g.icon}${e == 'ok' ? CK : ''}</span><strong>${g.name}</strong>${e == 'nv' ? (t ? `<em class="tg">${t}</em>` : '') : `<em>${txt}${est}</em>`}</button>`
 }
 /* Primer juego sin terminar: el botón principal del inicio lleva directo a él. */
 function siguiente() {

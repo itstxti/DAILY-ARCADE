@@ -107,36 +107,107 @@ body {
     }
 }
 
-/* ---------- Tablet y PC: el inicio aprovecha el ancho ---------- */
+/* ---------- Tablet y PC: el inicio aprovecha el ancho ----------
+   Hay 10 juegos: solo 2 y 5 columnas los reparten sin dejar una fila coja (con 3 o 4 salía 3+3+3+1 o 4+4+2). */
 @media (min-width:700px) {
     #app:has(.hl) {
         max-width: 860px
     }
 
+    /* Tablet en vertical: 2 columnas, y cada tarjeta en horizontal (icono a la izquierda) para que 5 filas quepan sin scroll */
     .hr2 .gg {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr))
+        grid-template-columns: repeat(2, minmax(0, 1fr))
     }
-}
 
-/* PC: dos columnas, el panel a la izquierda y los 10 juegos a la derecha, sin hacer scroll */
-@media (min-width:1080px) {
-    #app:has(.hl) {
-        max-width: 1140px;
+    .hr2 .gt {
         display: grid;
-        grid-template-columns: 390px minmax(0, 1fr);
-        column-gap: 32px;
-        align-items: start
+        grid-template-columns: 52px minmax(0, 1fr);
+        grid-template-rows: auto auto;
+        align-content: center;
+        align-items: center;
+        column-gap: 14px;
+        row-gap: 2px;
+        padding: 14px
     }
 
-    .hr2 .gg:first-child {
-        margin-top: 4px
+    .hr2 .gt .gl {
+        grid-row: 1 / span 2;
+        margin: 0
+    }
+
+    .hr2 .gt strong {
+        align-self: end
+    }
+
+    .hr2 .gt em {
+        align-self: start
     }
 }
 
-@media (min-width:1080px) and (min-height:820px) {
+/* Tablet en horizontal y PC: cabecera a todo el ancho, resumen y progreso en una fila, y los 10 juegos en 5 columnas x 2 filas */
+@media (min-width:900px) {
+    #app:has(.hl) {
+        max-width: 1140px
+    }
+
     .hl {
-        position: sticky;
-        top: 16px
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-areas: "top top" "hola hola" "av av" "hb hp" "sg sg";
+        column-gap: 28px;
+        align-items: end
+    }
+
+    .hl>.top {
+        grid-area: top
+    }
+
+    .hl>.hola {
+        grid-area: hola
+    }
+
+    .hl>.av2 {
+        grid-area: av
+    }
+
+    .hl>.hb {
+        grid-area: hb;
+        margin: 8px 0 20px
+    }
+
+    .hl>.hp {
+        grid-area: hp;
+        margin: 8px 0 20px
+    }
+
+    .hl>.sg {
+        grid-area: sg
+    }
+
+    .hr2 .gg {
+        grid-template-columns: repeat(5, minmax(0, 1fr))
+    }
+
+    /* Tarjetas otra vez en vertical: con 5 columnas son estrechas y alargadas */
+    .hr2 .gt {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 12px
+    }
+
+    .hr2 .gt .gl {
+        margin-bottom: 2px
+    }
+
+    .hr2 .gt strong,
+    .hr2 .gt em {
+        align-self: auto
+    }
+
+    .hr2 .foot {
+        margin-top: 20px
     }
 }
 
@@ -2964,4 +3035,22 @@ h1[tabindex="-1"]:focus {
         transform-origin: left center;
         animation: da-racha .9s cubic-bezier(.3, .7, .3, 1) .45s backwards
     }
+}
+
+/* Inicio: las estrellas de cada tarjeta, en su propia línea (así todas las tarjetas tienen la misma altura de texto) */
+.gt em .es2 {
+    display: block;
+    margin-top: 2px;
+    letter-spacing: .06em;
+    white-space: nowrap
+}
+
+.gt em .es2 b {
+    font-weight: inherit;
+    color: var(--ink)
+}
+
+.gt em .es2 i {
+    font-style: normal;
+    opacity: .45
 }
