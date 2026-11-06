@@ -299,8 +299,24 @@ function avisoNuevoDia() {
   e.querySelector('button').onclick = () => location.reload(); document.body.appendChild(e)
 }
 /* Al terminar una partida, la tarjeta de resultado puede quedar bajo el pliegue en móvil: se desplaza hasta ella y se anuncia. */
+/* Confeti breve: piezas CSS animadas con la Web Animations API (sin librerías), solo si no se pide menos movimiento. n = cantidad. */
+function confeti(c, n) {
+  if (matchMedia('(prefers-reduced-motion:reduce)').matches || !c.animate) return;
+  const r = c.getBoundingClientRect(), x0 = r.left + r.width / 2, y0 = Math.min(Math.max(r.top + 30, 60), innerHeight - 120),
+    cs = ['--sun', '--mint', '--berry', '--sky', '--lime', '--pink', '--orange'], box = document.createElement('div');
+  box.setAttribute('aria-hidden', 'true'); box.className = 'cft'; document.body.appendChild(box);
+  for (let i = 0; i < n; i++) {
+    const e = document.createElement('i'), a = Math.random() * Math.PI - Math.PI, v = 90 + Math.random() * (n > 30 ? 260 : 170), dx = Math.cos(a) * v, dy = Math.sin(a) * v - 30, g = 160 + Math.random() * 120, rot = (Math.random() - .5) * 720;
+    e.style.cssText = `left:${x0}px;top:${y0}px;background:var(${cs[i % cs.length]});width:${6 + Math.random() * 5}px;height:${8 + Math.random() * 6}px;border-radius:${Math.random() < .3 ? '50%' : '2px'}`;
+    box.appendChild(e);
+    e.animate([{ transform: 'translate(0,0) rotate(0)', opacity: 1 }, { transform: `translate(${dx}px,${dy}px) rotate(${rot / 2}deg)`, opacity: 1, offset: .45 }, { transform: `translate(${dx * 1.25}px,${dy + g}px) rotate(${rot}deg)`, opacity: 0 }], { duration: 900 + Math.random() * 600, easing: 'cubic-bezier(.2,.7,.4,1)', fill: 'forwards' })
+  }
+  setTimeout(() => box.remove(), 1700)
+}
 function mostrarResultado(c) {
   if (!c) return;
+  const g = cur(), rs = g && R(g.id), gano = rs && (rs.st == 'won' || rs.st == 'completed'), todos = GAMES.every(x => R(x.id));
+  if (todos) confeti(c, 70); else if (gano) confeti(c, 26);
   const l = $('#live'), t = c.querySelector('h2'), r = c.querySelector('p:not(.est)');
   if (l) { l.textContent = ''; setTimeout(() => { l.textContent = 'Resultado: ' + (t ? t.textContent : '') + (r ? '. ' + r.textContent : '') }, 50) }
   const rm = matchMedia('(prefers-reduced-motion:reduce)').matches;

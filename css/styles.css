@@ -2841,3 +2841,18 @@ h1[tabindex="-1"]:focus {
 .hola li {
     margin: 4px 0
 }
+
+/* Confeti (ver confeti() en app.js) */
+.cft {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 70
+}
+
+.cft i {
+    position: absolute;
+    display: block;
+    will-change: transform, opacity
+}
