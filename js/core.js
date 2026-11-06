@@ -62,7 +62,15 @@ const compBtn = (a, l) => `<button class="btn ib" data-a="${a}" aria-label="${l}
 /* Línea discreta bajo el resultado cuando hubo ayudas: «3:13 + 195 s de ayudas», igual que el desglose del cronómetro. */
 const penNota = () => { const g = cur(), r = g && R(g.id); return r && r.pen ? `<p class="cap" style="margin:-6px 0 10px">${mmss(r.tr)} + ${Math.round(r.pen / 1000)} s de ayudas</p>` : '' };
 const res = (t, d, s) => { if (DU) return Duelo.res(t); const g = cur(), n = g && estrellas(g.id, R(g.id)), e = n ? estTxt(n) : '';
-   return `<section class="res rb"><h2>${t}</h2>${compBtn('copy', CAN_SHARE ? 'Compartir resultado' : 'Copiar resultado')}${n == null ? '' : `<p class="est" aria-label="${n} de 5 estrellas">${estTxt(n)}</p>`}<p>${d}</p>${penNota()}<div class="pw"><pre id="sh">${s}${e ? ' · ' + e : ''}</pre></div></section>` };
+   return `<section class="res rb"><h2>${t}</h2>${compBtn('copy', CAN_SHARE ? 'Compartir resultado' : 'Copiar resultado')}${n == null ? '' : `<p class="est" aria-label="${n} de 5 estrellas">${estTxt(n)}</p>`}<p>${d}</p>${penNota()}<div class="pw"><pre id="sh">${s}${e ? ' · ' + e : ''}</pre></div>${siguiente2(g)}</section>` };
+/* Siguiente paso tras terminar un juego: el próximo sin jugar (empezando por el que sigue al actual) o, si ya están los 10, el cierre del día. */
+const siguiente2 = g => {
+   if (!g) return '';
+   const i = GAMES.findIndex(x => x.id == g.id), orden = [...GAMES.slice(i + 1), ...GAMES.slice(0, i)], n = orden.find(x => !R(x.id));
+   if (n) return `<button class="btn pri full sg2" data-a="go" data-v="${n.id}">Siguiente: ${n.name}</button><p class="cap sg3">${GAMES.filter(x => R(x.id)).length} de ${GAMES.length} hechos hoy</p>`;
+   const st = streak();
+   return `<div class="cierre"><b>¡Los ${GAMES.length} retos de hoy, completados!</b><span>Racha: ${st} ${st == 1 ? 'día' : 'días'}. Próximo reto en <b id="cd">--:--:--</b></span><button class="btn pri full" data-a="go" data-v="home">Volver al inicio</button></div>`
+};
 /* Instrucciones del juego (propiedad "how" al registrarlo). Abiertas la primera vez; después, plegadas. Se recuerda lo que el jugador abra o cierre. */
 const HW = {};
 const how = () => {

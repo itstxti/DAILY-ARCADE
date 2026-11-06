@@ -2749,3 +2749,39 @@ h1[tabindex="-1"]:focus {
     text-align: center;
     pointer-events: none
 }
+
+/* Tras terminar un juego: siguiente reto o cierre del día */
+.sg2 {
+    margin-top: 14px
+}
+
+.sg3 {
+    text-align: center;
+    margin: 8px 0 0
+}
+
+.cierre {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 14px;
+    text-align: center;
+    background: var(--sun);
+    color: #14213D;
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md)
+}
+
+.cierre span {
+    font-size: 14px
+}
+
+.cierre #cd {
+    font-variant-numeric: tabular-nums
+}
+
+.cierre .btn {
+    background: var(--card);
+    color: var(--ink)
+}
