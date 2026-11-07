@@ -1,0 +1,32 @@
+/* ---------- Dado rodante: dado 3D (ver «Dado 3D» en js/games/dado.js) ----------
+   Estructura: .dzw (casilla, con sombra dura) > .dz3 (perspectiva propia) > .dzv (vista inclinada) > .dzc (orientación, matrix3d desde JS) > 6 × .dzf (caras).
+   --ds = arista del dado (60 % de una casilla). Usa unidades de contenedor (cqw): el tablero .ddb es el contenedor.
+   Sin soporte, el dado queda en un tamaño fijo. */
+.ddb { position: relative; --ds: 34px }
+@supports (width: 1cqw) {
+    .ddb { container-type: inline-size; --ds: calc(100cqw / var(--n, 6) * .8) }
+}
+
+.dzw { position: absolute; pointer-events: none; filter: drop-shadow(2px 3px 0 var(--sh)) }
+.dz3 { position: absolute; inset: 0; transform: perspective(calc(var(--ds) * 6)); transform-style: preserve-3d }
+/* Vista inclinada: se ven tres caras (arriba, delante/sur y derecha/este). --dz-inc = inclinación (grados); más alto = más 3D, más bajo = más plano */
+.dzv { position: absolute; left: 50%; top: 50%; width: var(--ds); height: var(--ds); margin: calc(var(--ds) / -2) 0 0 calc(var(--ds) / -2); transform-style: preserve-3d; transform: rotateX(var(--dz-inc, 0deg)) rotateY(calc(var(--dz-inc, 0deg) * -1)) }
+.dzc { position: absolute; inset: 0; transform-style: preserve-3d }
+
+.dzf {
+    position: absolute; inset: 0; box-sizing: border-box;
+    display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); padding: calc(var(--ds) * .13);
+    background: linear-gradient(135deg, rgb(255 255 255 / .2), rgb(0 0 0 / .12)), var(--sky);
+    border: 2px solid var(--ink); border-radius: calc(var(--ds) * .16);
+    backface-visibility: hidden
+}
+/* Puntos: del color del texto sobre sky, como el número del dado de antes */
+.dzf i { place-self: center; width: calc(var(--ds) * .15); aspect-ratio: 1; border-radius: 50%; background: var(--on-sky) }
+
+/* Posición de cada cara en el dado inicial (1 arriba, 2 al norte, 3 al este; opuestas suman 7) */
+.dzf1 { transform: translateZ(calc(var(--ds) / 2)) }
+.dzf2 { transform: rotateX(90deg) translateZ(calc(var(--ds) / 2)) }
+.dzf3 { transform: rotateY(90deg) translateZ(calc(var(--ds) / 2)) }
+.dzf4 { transform: rotateY(-90deg) translateZ(calc(var(--ds) / 2)) }
+.dzf5 { transform: rotateX(-90deg) translateZ(calc(var(--ds) / 2)) }
+.dzf6 { transform: rotateY(180deg) translateZ(calc(var(--ds) / 2)) }
