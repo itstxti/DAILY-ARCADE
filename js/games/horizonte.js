@@ -132,7 +132,21 @@
       id: 'horizonte', name: 'Horizonte', desc: 'Coloca edificios del 1 al 4 según cuántos se ven desde cada borde.', color: '--mint', tag: 'Cuenta los edificios que se ven',
       icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18M5 21V12h4v9M9 21V5h5v16M14 21v-7h5v7"/></svg>',
       how: ['Rellena la cuadrícula con edificios de altura <b>1 a 4</b>, sin repetir altura en ninguna <b>fila</b> ni <b>columna</b>.', 'Cada número del borde indica <b>cuántos edificios se ven</b> desde ese lado: uno alto <b>tapa</b> a los más bajos que tiene detrás.', 'Toca una casilla y elige su altura. Los números del borde se ponen en verde si se cumplen y en rojo si no.'],
-      demo: '<p class="cap">Fila de 4 vista desde la izquierda: <b>1 3 2 4</b> → se ven 3 edificios (el 1, el 3 y el 4); el 2 queda tapado por el 3.</p>',
+      demo: (() => {
+         const A = [1, 3, 2, 4], xs = [62, 108, 154, 200], ve = [1, 1, 0, 1], f = "font-family:'Bricolage Grotesque',system-ui,sans-serif;text-anchor:middle";
+         let z = `<svg viewBox="0 0 250 124" role="img" aria-label="Cuatro edificios de alturas 1, 3, 2 y 4 vistos desde la izquierda: se ven el 1, el 3 y el 4; el 2 queda tapado por el 3." style="display:block;width:100%;max-width:300px;margin:6px auto">`;
+         z += `<path d="M6 46q14-15 28 0q-14 15-28 0z" style="fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round"/><circle cx="20" cy="46" r="4.5" style="fill:var(--ink)"/>`
+            + `<path d="M40 46h14m-5-5l5 5-5 5" style="fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"/>`
+            + `<text x="20" y="78" style="${f};fill:var(--mint);font-weight:800;font-size:22px">3</text>`
+            + `<path d="M56 100h190" style="stroke:var(--ink);stroke-width:2"/>`;
+         A.forEach((h, k) => {
+            const y = 100 - h * 20;
+            z += `<rect x="${xs[k]}" y="${y}" width="38" height="${h * 20}" rx="3" style="${ve[k] ? 'fill:color-mix(in srgb,var(--mint) 38%,var(--card));stroke:var(--ink)' : 'fill:none;stroke:var(--edge);stroke-dasharray:4 3'};stroke-width:2"/>`
+               + `<text x="${xs[k] + 19}" y="${y + (h == 1 ? 15 : 20)}" style="${f};fill:var(--ink);font-weight:800;font-size:16px;${ve[k] ? '' : 'opacity:.55'}">${h}</text>`
+               + `<text x="${xs[k] + 19}" y="116" style="${f};fill:${ve[k] ? 'var(--mint)' : 'var(--edge)'};font-weight:700;font-size:11px">${ve[k] ? 'se ve' : 'tapado'}</text>`
+         });
+         return `<p class="cap">Mirando desde la izquierda, un edificio solo se ve si es <b>más alto que todos los de delante</b>:</p>${z}</svg><p class="cap">Fila <b>1 · 3 · 2 · 4</b>: se ven 3 edificios (el 1, el 3 y el 4). El 2 queda tapado por el 3, por eso la pista es un <b>3</b>.</p>`
+      })(),
       pk: 'hz',
       digits: true,
       render: horizonte,
