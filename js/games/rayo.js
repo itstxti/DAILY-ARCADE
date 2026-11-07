@@ -75,8 +75,8 @@
          // 2) solo cuentan los espejos que toca el rayo
          for (let i = 0; i < NN; i++)if (!T.vis.has(i)) m[i] = 0;
          const usados = m.filter(v => v).length; if (usados < MLO || usados > MHI || T.vis.size < 10) continue;
-         // 3) gemas sobre casillas del camino sin espejo; bloques fuera del camino
-         const camino = shuf([...T.vis].filter(i => !m[i]), r), fuera = shuf([...Array(NN).keys()].filter(i => !T.vis.has(i)), r), g = GLO + rnd(GHI - GLO + 1);
+         // 3) gemas sobre casillas del camino sin espejo y fuera de la recta inicial del láser (así ninguna empieza encendida); bloques fuera del camino
+         const T0 = trazar(base, Array(NN).fill(0)), camino = shuf([...T.vis].filter(i => !m[i] && !T0.vis.has(i)), r), fuera = shuf([...Array(NN).keys()].filter(i => !T.vis.has(i)), r), g = GLO + rnd(GHI - GLO + 1);
          if (camino.length < g || fuera.length < BLQ) continue;
          const Z = { n, r0, exit: T.salida, gems: camino.slice(0, g).sort((a, b) => a - b), walls: fuera.slice(0, BLQ).sort((a, b) => a - b) };
          // 4) mínimo de espejos y soluciones por fuerza bruta
