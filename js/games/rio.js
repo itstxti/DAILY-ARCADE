@@ -81,28 +81,30 @@
          return vivo && !B.has(i) ? `<button class="rdc${cl}" data-a="rdc" data-i="${i}" aria-label="${lab}">${ic}</button>` : `<${vivo ? 'button disabled' : 'span'} class="rdc${cl}"${vivo ? ` aria-label="${lab}"` : ''}>${ic}</${vivo ? 'button' : 'span'}>`
       };
       const pts = r => r.map(i => `${(i % n + .5).toFixed(2)},${(Math.floor(i / n) + .5).toFixed(2)}`).join(' ');
-      return `<div class="rdb" data-rv="rd-tab" role="group" aria-label="Tablero de ${n} por ${n}. El manantial está en la fila ${Math.floor(Z.s / n) + 1}, columna ${Z.s % n + 1}; el mar, en la fila ${Math.floor(Z.t / n) + 1}, columna ${Z.t % n + 1}.">`
-         + `<svg class="rdo" viewBox="0 0 ${n} ${n}" aria-hidden="true">${mostrar ? `<polyline class="rdl sol" points="${pts(mostrar)}"/>` : ''}<polyline class="rdl" points="${pts(c)}"/></svg>`
-         + `<div class="rdg" style="--n:${n}">${Array.from({ length: n * n }, (_, i) => celda(i)).join('')}</div></div>`
+      const inner = `<svg class="rdo" viewBox="0 0 ${n} ${n}" aria-hidden="true">${mostrar ? `<polyline class="rdl sol" points="${pts(mostrar)}"/>` : ''}<polyline class="rdl" points="${pts(c)}"/></svg>`
+         + `<div class="rdg" style="--n:${n}">${Array.from({ length: n * n }, (_, i) => celda(i)).join('')}</div>`;
+      return { inner, wrap: `<div class="rdb"${vivo ? ' data-b="rio" style="touch-action:none;user-select:none;-webkit-user-select:none"' : ''} data-rv="rd-tab" role="group" aria-label="Tablero de ${n} por ${n}. El manantial está en la fila ${Math.floor(Z.s / n) + 1}, columna ${Z.s % n + 1}; el mar, en la fila ${Math.floor(Z.t / n) + 1}, columna ${Z.t % n + 1}.">${inner}</div>` }
    }
+   const tab = (Z, c, vivo, mostrar) => tablero(Z, c, vivo, mostrar).wrap, interior = (Z, c, vivo, mostrar) => tablero(Z, c, vivo, mostrar).inner;
+   const cuenta = (Z, c) => `Fichas de agua: <b>${c.length - 1}</b> · Pueblos: <b>${vistos(Z, c)}</b> de ${Z.towns.length}`;
 
    function rio() {
       const p = prog('rd'); ini(p);
-      const r = R('rio'), Z = P(), lost = r && r.st == 'lost', c = lost ? Z.sol : p.c, v = vistos(Z, c);
-      let b = tablero(Z, c, !r, null);
-      b += `<p class="cap" style="text-align:center;margin:0" aria-live="polite">Fichas de agua: <b>${c.length - 1}</b> · Pueblos: <b>${v}</b> de ${Z.towns.length}</p>`;
+      const r = R('rio'), Z = P(), lost = r && r.st == 'lost', c = lost ? Z.sol : p.c;
+      let b = tab(Z, c, !r, null);
+      b += `<p class="cap" style="text-align:center;margin:0" id="rdn" aria-live="polite">${cuenta(Z, c)}</p>`;
       if (lost) b += resRendida('Dominó de ríos', 'Este era el único río posible. Vuelve mañana para un reto nuevo.');
       else if (r) b += res(`¡El río llega al mar en ${mmss(r.t)}!`, `Pasa por ${Z.towns.length} ${pls(Z.towns.length, 'pueblo', 'pueblos')} con ${c.length - 1} fichas. Vuelve mañana para un reto nuevo.`,
          `Daily Arcade · Dominó de ríos #${DAY} · ${mmss(r.t)}${r.h ? ' · ' + r.h + pls(r.h, ' pista', ' pistas') : ''}`);
-      else b += `<p class="cap" style="text-align:center;margin:0">Toca una casilla vecina a la cabeza del río para añadir una ficha. Toca una casilla del río para volver a ella.</p>`
-         + `${S.set.tm ? tmHtml(p) : ''}<p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, pista: 1, rendirme: 1 })}`;
+      else b += `<p class="cap" style="text-align:center;margin:0">Arrastra el dedo desde la cabeza del río para dibujarlo (o toca casillas vecinas). Vuelve atrás sobre el río para borrarlo.</p>`
+         + `${S.set.tm ? tmHtml(p) : ''}<p class="msg" id="rdm" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, pista: 1, rendirme: 1 })}`;
       return shell('Dominó de ríos', b)
    }
 
    function revisa(p) { const Z = P(); if (completo(Z, p.c)) fin('rio', { st: 'completed', t: Date.now() - p.t0, h: p.h || 0, c: 0 }) }
 
    function rdc(b) {
-      if (R('rio')) return;
+      if (R('rio') || sup) return;
       const p = prog('rd'); ini(p); p.t0 = p.t0 || Date.now(); const i = +b.dataset.i, Z = P(), cab = p.c[p.c.length - 1], k = p.c.indexOf(i);
       if (k >= 0) {                                                          // casilla del río: se retrocede hasta ella
          if (k == p.c.length - 1) return;
@@ -113,6 +115,62 @@
       hist.push(p.c.slice()); p.c.push(i); msg = ''; Sfx.p('pon', p.c.length);
       revisa(p); sv(); draw()
    }
+
+   /* ----- Arrastre: dibujar el río con el dedo o el ratón (como Camino y Tuberías) -----
+      Un gesto = un solo paso en «Deshacer». Al arrastrar hacia atrás sobre la casilla anterior se borra la última ficha;
+      tocar una casilla del río sigue retrocediendo hasta ella. El clic/teclado sobre los botones sigue funcionando (rdc). */
+   let arr = false, sup = false, snap = null, cambio = false;
+   const A = $('#app');
+   const casilla = (e, el) => { const q = el.getBoundingClientRect(), x = Math.floor((e.clientX - q.left) / q.width * NG), y = Math.floor((e.clientY - q.top) / q.height * NG); return x < 0 || y < 0 || x >= NG || y >= NG ? -1 : y * NG + x };
+   const cambia = () => { if (!cambio) { hist.push(snap); cambio = true } };
+   function pinta() {
+      const p = prog('rd'); ini(p);
+      const b = $('[data-b="rio"]'); if (b) b.innerHTML = interior(P(), p.c, true, null);
+      const t = $('#rdn'); if (t) t.innerHTML = cuenta(P(), p.c);
+      const m = $('#rdm'); if (m) m.textContent = msg
+   }
+   /* Lleva la cabeza del río hacia la casilla i (si está lejos, avanza en línea recta casilla a casilla hasta donde se pueda). */
+   function extiende(p, i) {
+      const Z = P(), B = new Set(Z.rocks); let ch = false;
+      for (let g = 0; g < NN; g++) {
+         const cab = p.c[p.c.length - 1];
+         if (p.c.length > 1 && p.c[p.c.length - 2] == i) { cambia(); p.c.pop(); Sfx.p('borra'); ch = true; break }   // volver sobre la casilla anterior borra la última ficha
+         if (cab == i || cab == Z.t || p.c.includes(i)) break;
+         let q = i;
+         if (!NB[cab].includes(i)) { const dx = (i % NG) - (cab % NG), dy = Math.floor(i / NG) - Math.floor(cab / NG); q = Math.abs(dx) >= Math.abs(dy) ? cab + Math.sign(dx) : cab + Math.sign(dy) * NG }
+         if (B.has(q) || p.c.includes(q)) break;
+         cambia(); p.c.push(q); Sfx.p('pon', p.c.length); ch = true;
+         if (q == i) break
+      }
+      return ch
+   }
+   function termina(p) { revisa(p); if (R('rio')) { arr = false; sv(); draw(); return true } return false }
+   A.addEventListener('pointerdown', e => {
+      if (V != 'rio' || R('rio')) return;
+      const b = e.target.closest('[data-b="rio"]'); if (!b) return;
+      const i = casilla(e, b); if (i < 0) return;
+      const p = prog('rd'); ini(p); e.preventDefault();
+      try { b.setPointerCapture(e.pointerId) } catch (x) { }
+      sup = true; snap = p.c.slice(); cambio = false; p.t0 = p.t0 || Date.now();
+      const Z = P(), cab = p.c[p.c.length - 1], k = p.c.indexOf(i);
+      if (Z.rocks.includes(i)) return;
+      arr = true;
+      if (k >= 0) { if (k < p.c.length - 1) { cambia(); p.c = p.c.slice(0, k + 1); msg = ''; Sfx.p('borra') } }
+      else if (cab == Z.t) { arr = false; msg = 'El río ya ha llegado al mar: toca una casilla del río para retroceder.'; Sfx.p('error') }
+      else if (!NB[cab].includes(i)) { arr = false; msg = 'La ficha tiene que tocar la cabeza del río (en horizontal o vertical).'; Sfx.p('error') }
+      else { msg = ''; extiende(p, i) }
+      if (!termina(p)) { sv(); pinta() }
+   });
+   A.addEventListener('pointermove', e => {
+      if (!arr || V != 'rio' || R('rio')) return;
+      const b = $('[data-b="rio"]'); if (!b) return;
+      const i = casilla(e, b); if (i < 0) return;
+      const p = prog('rd'); ini(p);
+      if (extiende(p, i)) { msg = ''; if (!termina(p)) pinta() }
+   });
+   const suelta = () => { const a = arr; arr = false; setTimeout(() => { sup = false }, 0); if (a && V == 'rio' && !R('rio')) sv() };
+   A.addEventListener('pointerup', suelta); A.addEventListener('pointercancel', suelta);
+
    function undo() { const p = prog('rd'); ini(p); if (R('rio') || !hist.length) return; p.c = hist.pop(); msg = ''; sv(); draw() }
    function reiniciar() { const p = prog('rd'); ini(p); if (R('rio') || p.c.length < 2) return; hist.push(p.c.slice()); p.c = [P().s]; msg = ''; sv(); draw() }   // el tiempo y las pistas siguen contando
    /* Pista: vuelve atrás hasta donde el río coincide con la solución y añade la ficha siguiente. */
@@ -132,8 +190,8 @@
    DailyArcade.register({
       id: 'rio', name: 'Dominó de ríos', desc: 'Lleva el agua al mar pasando por todos los pueblos.', color: '--aqua', tag: 'Lleva el agua al mar',
       icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5c3 0 3 4 6 4s3-4 6-4M4 12c3 0 3 4 6 4s3-4 6-4M4 19c3 0 3-4 6-4s3 4 6 4"/></svg>',
-      how: ['Coloca <b>fichas de agua</b> desde el <b>manantial</b> (la gota) hasta el <b>mar</b>, una casilla vecina cada vez.', 'El río tiene que pasar por <b>todos los pueblos</b>, no puede pisar <b>rocas</b> ni cruzarse consigo mismo.', 'Toca una casilla del río para <b>retroceder</b> hasta ella. Cada reto tiene una única solución.'],
-      demo: `<div class="rdd" aria-hidden="true">${tablero(EJ, EJC, false, null)}</div><p class="cap">El río baja por el pueblo, rodea las rocas y llega al mar.</p>`,
+      how: ['Coloca <b>fichas de agua</b> desde el <b>manantial</b> (la gota) hasta el <b>mar</b>, una casilla vecina cada vez.', 'El río tiene que pasar por <b>todos los pueblos</b>, no puede pisar <b>rocas</b> ni cruzarse consigo mismo.', '<b>Arrastra el dedo</b> desde el manantial para dibujar el río (o toca casillas contiguas). Vuelve atrás sobre el río, o toca una casilla suya, para <b>retroceder</b>. Cada reto tiene una única solución.'],
+      demo: `<div class="rdd" aria-hidden="true">${tab(EJ, EJC, false, null)}</div><p class="cap">El río baja por el pueblo, rodea las rocas y llega al mar.</p>`,
       pk: 'rd',
       render: rio,
       actions: { rdc, undo, reiniciar, pista, rendirme: confirma(rendirse) },
