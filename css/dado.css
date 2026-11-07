@@ -10,7 +10,7 @@
 .dzw { position: absolute; pointer-events: none; filter: drop-shadow(2px 3px 0 var(--sh)) }
 .dz3 { position: absolute; inset: 0; transform: perspective(calc(var(--ds) * 6)); transform-style: preserve-3d }
 /* Vista inclinada: se ven tres caras (arriba, delante/sur y derecha/este). --dz-inc = inclinación (grados); más alto = más 3D, más bajo = más plano */
-.dzv { position: absolute; left: 50%; top: 50%; width: var(--ds); height: var(--ds); margin: calc(var(--ds) / -2) 0 0 calc(var(--ds) / -2); transform-style: preserve-3d; transform: rotateX(var(--dz-inc, 15deg)) rotateY(calc(var(--dz-inc, 15deg) * -1)) }
+.dzv { position: absolute; left: 50%; top: 50%; width: var(--ds); height: var(--ds); margin: calc(var(--ds) / -2) 0 0 calc(var(--ds) / -2); transform-style: preserve-3d; transform: rotateX(var(--dz-inc, 5deg)) rotateY(calc(var(--dz-inc, 5deg) * -1)) }
 .dzc { position: absolute; inset: 0; transform-style: preserve-3d }
 
 .dzf {
