@@ -4226,3 +4226,57 @@ span.ryc {
 .ecp .ecd:nth-child(4) { grid-column: 1; grid-row: 2 }
 .ecp .ecd:nth-child(5) { grid-column: 2; grid-row: 2 }
 .ecp .ecd:nth-child(6) { grid-column: 3; grid-row: 2 }
+
+/* ---------- Faros ---------- */
+.frb { display: grid; max-width: var(--bw, 372px); margin: 12px auto; border: 3px solid var(--ink); border-radius: var(--r-md); overflow: hidden; background: var(--card) }
+.fc, .fw { aspect-ratio: 1; padding: 0; border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 0; display: grid; place-items: center; position: relative }
+.fc { background: var(--card); color: var(--ink); cursor: pointer }
+.fc.lit { background: color-mix(in srgb, var(--sun) 38%, var(--card)) }
+.fc svg { width: 72%; height: 72%; fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linecap: round }
+.fc.lamp svg circle { fill: var(--sun) }
+.fc.mk::after { content: ''; width: 22%; aspect-ratio: 1; border-radius: 50%; background: color-mix(in srgb, var(--ink) 45%, transparent) }
+.fc.cf { box-shadow: inset 0 0 0 3px var(--berry) }
+.fc:disabled { cursor: default }
+.fc:focus-visible { outline: 3px solid var(--sky); outline-offset: -3px }
+.fw { background: var(--ink); color: var(--card); font-size: clamp(18px, 6vw, 28px); font-weight: 800 }
+.fw.ok { box-shadow: inset 0 0 0 3px var(--mint) }
+.fw.bd { box-shadow: inset 0 0 0 3px var(--berry); background-image: repeating-linear-gradient(135deg, transparent 0 5px, color-mix(in srgb, var(--berry) 55%, transparent) 5px 8px) }
+
+/* ---------- Dado rodante ---------- */
+.ddb { max-width: var(--bw, 372px); margin: 12px auto; border: 3px solid var(--ink); border-radius: var(--r-md); overflow: hidden; background: var(--card) }
+.ddq { fill: none; stroke: color-mix(in srgb, var(--edge) 45%, transparent); stroke-width: .03 }
+.ddr { fill: var(--line) }
+.ddi { fill: var(--edge) }
+.ddn { fill: color-mix(in srgb, var(--sky) 22%, var(--card)); stroke: var(--ink); stroke-width: .05 }
+.ddn.ok { fill: color-mix(in srgb, var(--mint) 35%, var(--card)) }
+.ddt { fill: var(--ink); font: 800 .42px 'Bricolage Grotesque', system-ui, sans-serif; text-anchor: middle; dominant-baseline: central }
+.ddv { fill: none; stroke: var(--mint); stroke-width: .06; stroke-linecap: round; stroke-linejoin: round }
+.ddm { fill: none; stroke: var(--ink); stroke-width: .05; stroke-dasharray: .12 .1 }
+.ddm.ok { fill: color-mix(in srgb, var(--mint) 35%, var(--card)); stroke-dasharray: none }
+.ddf { fill: var(--berry); stroke: var(--ink); stroke-width: .04; stroke-linejoin: round; stroke-linecap: round }
+.ddd { fill: var(--sky); stroke: var(--ink); stroke-width: .06 }
+.dd1 { fill: var(--on-sky); font: 800 .44px 'Bricolage Grotesque', system-ui, sans-serif; text-anchor: middle; dominant-baseline: central }
+.dd2 { fill: var(--on-sky); font: 700 .17px 'Bricolage Grotesque', system-ui, sans-serif; text-anchor: middle; dominant-baseline: central; opacity: .85 }
+.ddp { display: grid; grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(2, 52px); gap: 6px; justify-content: center; margin: 10px auto }
+.ddp .ddd2 { padding: 0; font-size: 1.4rem; line-height: 1 }
+.ddp .ddd2:nth-child(2) { grid-column: 2; grid-row: 1 }
+.ddp .ddd2:nth-child(4) { grid-column: 1; grid-row: 2 }
+.ddp .ddd2:nth-child(5) { grid-column: 2; grid-row: 2 }
+.ddp .ddd2:nth-child(6) { grid-column: 3; grid-row: 2 }
+.ddd2.pista { box-shadow: 0 0 0 4px var(--sky) }
+
+/* ---------- Horizonte ---------- */
+.hzb { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); max-width: var(--bw, 372px); margin: 12px auto }
+.hzb::after { content: ''; position: absolute; left: calc(100% / 6); top: calc(100% / 6); width: calc(100% * 4 / 6); height: calc(100% * 4 / 6); border: 3px solid var(--ink); border-radius: var(--r-md); pointer-events: none }
+.hzc { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; gap: 2px; font-weight: 800; font-size: clamp(16px, 5.5vw, 24px); color: var(--ink) }
+.hzc i { font-style: normal; font-size: .6em; opacity: .55 }
+.hzc.ok { color: var(--mint) }
+.hzc.bd { color: var(--berry); text-decoration: line-through }
+.hzx { position: relative; isolation: isolate; aspect-ratio: 1; padding: 0; border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 0; background: var(--card); color: var(--ink); font-size: clamp(22px, 8vw, 34px); font-weight: 800; display: grid; place-items: center; overflow: hidden }
+.hzx::after { content: ''; position: absolute; z-index: -1; left: 14%; right: 14%; bottom: 0; height: calc(var(--h, 0) * 12%); background: color-mix(in srgb, var(--ink) 16%, transparent); border-radius: 3px 3px 0 0; pointer-events: none }
+.hzx.g { background: var(--line) }
+.hzx.eq { background: rgba(62, 111, 224, .22) }
+.hzx.cf { box-shadow: inset 0 0 0 3px var(--berry) }
+.hzx.sel { box-shadow: inset 0 0 0 4px var(--sky) }
+.hzx:focus-visible { outline-offset: -4px }
+.hzx:disabled { cursor: default }

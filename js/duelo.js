@@ -8,7 +8,7 @@
 const Duelo = (() => {
   const D = { lista: null, cfg: { invitacion: 300, rondas: 5, victorias: 3 }, off: 0, dentro: null, key: '', conf: false, cargando: false, ult: 0, envOk: 0, ban: '', fallos: 0, hasta: 0, noDisp: false };
   const now = () => Date.now() + D.off; /* hora del servidor */
-  const POR_INTENTOS = { palabra: ['intento', 'intentos'], escalera: ['paso', 'pasos'], luces: ['pulsación', 'pulsaciones'], operaciones: ['operación', 'operaciones'] };
+  const POR_INTENTOS = { palabra: ['intento', 'intentos'], escalera: ['paso', 'pasos'], luces: ['pulsación', 'pulsaciones'], operaciones: ['operación', 'operaciones'], dado: ['movimiento', 'movimientos'] };
   const gj = id => GAMES.find(g => g.id == id);
   const nj = id => (gj(id) || { name: id }).name;
   const nom = u => esc((u && (u.nombre || '@' + u.usuario)) || 'Rival');

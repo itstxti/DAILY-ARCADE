@@ -3,7 +3,7 @@
 # DAILY ARCADE
 
 <p>
-  A browser-based collection of <strong>17 daily puzzle games</strong>.<br>
+  A browser-based collection of <strong>27 daily puzzle games</strong>.<br>
   A new challenge every day, streaks, friends rankings and live duels.
 </p>
 
@@ -97,6 +97,9 @@
 | **Dominó de ríos** | Lay water tiles from the spring to the sea, passing through every marked town, without crossing yourself or stepping on rocks. The generator brute-forces the puzzle so every daily river has exactly one solution (5×5 on Mon/Tue, 6×6 otherwise). Not part of the duels. |
 | **Eco**            | Two boards, two characters: you on the left, your mirrored echo on the right. Every move you make is repeated by the echo mirrored left/right; if one bumps into a rock it stays put. Get both onto their exits at once. Each daily puzzle is solved by breadth-first search over (you, echo) positions, so it is always solvable and needs coordination (6×6, 5×5 on Mon/Tue). Arrow keys supported. Not part of the duels. |
 | **Parcelas**       | Split the 6×6 board into rectangles: each holds exactly one number, which is its number of cells; together they cover the whole board (one unique solution, checked by brute force). |
+| **Faros**          | Place lamps so every free cell is lit. A lamp shines in a straight line up to a wall; lamps cannot see each other, and a numbered wall says how many lamps touch it. The generator removes numbers while brute force still finds exactly one solution (5×5 on Mon/Tue, 6×6 otherwise). |
+| **Dado rodante**   | Roll a die across the board, one cell at a time. A numbered cell can only be stepped on with that number on top; step on all of them, then reach the flag. Each daily board is solved by breadth-first search over (cell, die orientation, numbered cells visited), so it is always solvable and the die forces detours. |
+| **Horizonte**      | 4×4 skyscrapers: heights 1–4 with no repeats in any row or column, and each number on the edge tells how many buildings are visible from there. The generator checks against all 576 Latin squares that the clues leave exactly one solution. |
 
 ## Tech Stack
 
@@ -196,6 +199,9 @@ The whole app can be used without a mouse.
 | Sopa de letras | `Tab` to the board, arrows move the cursor, `Enter` on the first and on the last letter, `Esc` cancels. |
 | Tuberías | `Tab` to the board, arrows move the cursor, `Enter` on a dot starts a pipe, arrows extend (or go back along) it, `Enter`/`Esc` release. |
 | Parcelas | `Tab` to the board, arrows move the cursor, `Enter` on one corner and again on the opposite one places the plot, `Del` removes the plot under the cursor, `Esc` cancels. |
+| Faros | `Tab` to the board, arrows move the cursor, `Enter`/`Space` cycle lamp → mark → empty, `X` toggles the «no lamp here» mark. |
+| Dado rodante | Arrow keys roll the die. |
+| Horizonte | `Tab` to the board, arrows select the cell, digits `1`–`4` set the height, `Backspace`/`Del` clears it. |
 
 Games that need the arrow keys for themselves register with `flechas: true`. Board containers opt in to the single tab stop with `data-rv="name"`.
 

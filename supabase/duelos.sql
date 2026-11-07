@@ -6,7 +6,7 @@
 --   2. El rival acepta o rechaza (duelo_responder). Al aceptar empieza el duelo; el retador también puede cancelarla.
 --   3. Se juegan hasta 5 rondas, cada una con un juego distinto elegido al azar por el SERVIDOR (misma semilla para los dos).
 --      Gana la ronda quien lo resuelve con mejor puntuación: en Palabra, menos intentos (y el tiempo desempata); en el resto,
---      menos tiempo, con penalización en segundos por cada paso extra (Escalera, Luces, Operaciones) y por cada pista (ver duelo_peso y duelo_clave).
+--      menos tiempo, con penalización en segundos por cada paso extra (Escalera, Luces, Operaciones, Dado rodante) y por cada pista (ver duelo_peso y duelo_clave).
 --      Quien se rinde o no resuelve pierde la ronda. Si no resuelve ninguno, la ronda queda en tablas.
 --   4. Gana el duelo quien llega primero a 3 rondas (cfg.victorias), o quien tenga más tras 5 rondas.
 --   5. duelo_rendirse termina el duelo al instante. Si alguien no juega dos rondas seguidas se da por abandonado.
@@ -28,7 +28,7 @@ $$ select jsonb_build_object(
      'rondas', 5,         -- rondas máximas
      'victorias', 3,      -- rondas para ganar antes de tiempo
      'holgura', 4000,     -- ms que se le perdonan a cada jugador por latencia al empezar la ronda
-     'pista_ms', 15000,   -- penalización por cada pista (Escalera, Luces, Cifrado, Sopa, Sospechosos, Balanza, Parcelas); el navegador la enseña en el botón
+     'pista_ms', 15000,   -- penalización por cada pista (Escalera, Luces, Cifrado, Sopa, Sospechosos, Balanza, Parcelas, Faros, Dado rodante, Horizonte); el navegador la enseña en el botón
      'comprobar_ms', 5000, -- penalización por cada comprobación (Cifrado, Sudoku, Sospechosos, Balanza, Intruso: cada fallo)
      'historial_pagina', 10, -- duelos que enseña el historial de entrada y cuántos más con «Ver más»
      'historial_max', 30,    -- máximo de duelos que se pueden ver en el historial
@@ -36,7 +36,7 @@ $$ select jsonb_build_object(
 $$;
 
 create or replace function duelo_juegos() returns text[] language sql immutable as
-$$ select array['palabra','cifra','coronas','sudoku','escalera','operaciones','camino','luces','tuberias','sopa','sospechosos','balanza','intruso','mezcla','siluetas','rayo','cronologia','pais','parcelas'] $$;
+$$ select array['palabra','cifra','coronas','sudoku','escalera','operaciones','camino','luces','tuberias','sopa','sospechosos','balanza','intruso','mezcla','siluetas','rayo','cronologia','pais','parcelas','faros','dado','horizonte'] $$;
 
 -- Palabra se puntúa por intentos (menos = mejor) y el tiempo desempata. El resto se puntúan con UN solo número, un "tiempo equivalente"
 -- (tiempo + penalizaciones), y gana el menor. Que sea un tiempo permite cerrar la ronda en cuanto el rival ya no puede mejorarlo.
@@ -45,7 +45,7 @@ $$ select jg <> 'palabra' $$;
 
 -- Segundos (en ms) que cuesta cada paso, pulsación u operación en los juegos que los cuentan. Más peso = importa más ser económico que rápido.
 create or replace function duelo_peso(jg text) returns bigint language sql immutable as
-$$ select case jg when 'escalera' then 10000 when 'luces' then 5000 when 'operaciones' then 10000 else 0 end $$;
+$$ select case jg when 'escalera' then 10000 when 'luces' then 5000 when 'operaciones' then 10000 when 'dado' then 3000 else 0 end $$;
 
 -- ───── Tablas ─────
 create table if not exists duelos(
@@ -126,10 +126,10 @@ begin
     ult := dat->'g'->>(jsonb_array_length(dat->'g') - 1);
     if ult is distinct from ct->>'p' then return null; end if;
     pri := jsonb_array_length(dat->'g');
-  elsif jg in ('escalera','luces','operaciones') then
-    -- Cada paso suma duelo_peso(). Una pista cuesta pista_ms: en Luces se suma entera; en Escalera la pista ya cuenta como un paso, así que se añade solo la diferencia.
+  elsif jg in ('escalera','luces','operaciones','dado') then
+    -- Cada paso suma duelo_peso(). Una pista cuesta pista_ms: en Luces y Dado rodante se suma entera; en Escalera la pista ya cuenta como un paso, así que se añade solo la diferencia.
     n := case when duelo_num(dat, 'n') = 0 then 99 else least(duelo_num(dat, 'n'), 99) end;
-    pen := n * duelo_peso(jg) + case when jg = 'luces' then least(duelo_num(dat, 'h'), 20) * vp
+    pen := n * duelo_peso(jg) + case when jg in ('luces','dado') then least(duelo_num(dat, 'h'), 20) * vp
                                      when jg = 'escalera' then least(duelo_num(dat, 'h'), 20) * greatest(vp - duelo_peso('escalera'), 0) else 0 end;
   elsif jg = 'cifra' then
     -- pistas y comprobaciones declaradas por el navegador (h, c); si no vienen (cliente antiguo), 1 punto perdido = 1 s
@@ -139,7 +139,7 @@ begin
     pen := least(duelo_num(dat, 'h'), 20) * vp;
   elsif jg = 'sudoku' then
     pen := least(duelo_num(dat, 'c'), 100) * vc;                 -- cada comprobación suma comprobar_ms
-  elsif jg in ('sospechosos','balanza','intruso','mezcla','siluetas','rayo','cronologia','pais','parcelas') then
+  elsif jg in ('sospechosos','balanza','intruso','mezcla','siluetas','rayo','cronologia','pais','parcelas','faros','horizonte') then
     pen := least(duelo_num(dat, 'h'), 20) * vp + least(duelo_num(dat, 'c'), 100) * vc;   -- pistas y comprobaciones
   end if;
   return pri * 1000000000 + least(t + pen, 999999999);
