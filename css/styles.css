@@ -3445,3 +3445,102 @@ h1[tabindex="-1"]:focus {
 .inb.mini .inc {
     cursor: default
 }
+
+/* ---------- Mezcla ---------- */
+.mzs {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin: 14px 0 8px
+}
+
+.mzs figure {
+    flex: 1;
+    max-width: 170px;
+    margin: 0;
+    text-align: center
+}
+
+.mzs figcaption {
+    margin-top: 4px;
+    font-size: .85rem;
+    font-weight: 700;
+    color: var(--mut)
+}
+
+.mzc {
+    height: 110px;
+    box-sizing: border-box;
+    border: 3px solid var(--ink);
+    border-radius: var(--r-md)
+}
+
+/* Mezcla vacía: sin color todavía */
+.mzc.e {
+    background: var(--card);
+    border-style: dashed
+}
+
+.mzp {
+    display: grid;
+    gap: 6px;
+    margin: 10px 0
+}
+
+.mzr {
+    display: grid;
+    grid-template-columns: 28px 1fr 44px 36px 44px;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md)
+}
+
+.mzd {
+    width: 24px;
+    height: 24px;
+    box-sizing: border-box;
+    border: 2px solid var(--ink);
+    border-radius: 50%
+}
+
+.mzb {
+    min-height: 44px;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--ink);
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md);
+    cursor: pointer
+}
+
+.mzb:disabled {
+    opacity: .4;
+    cursor: default
+}
+
+.mzn {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums
+}
+
+/* Ejemplo de «Cómo se juega» */
+.mzs.mini {
+    align-items: center;
+    gap: 10px
+}
+
+.mzs.mini .mzc {
+    width: 64px;
+    height: 64px
+}
+
+.mzs.mini span {
+    font-size: 1.4rem;
+    font-weight: 800
+}
