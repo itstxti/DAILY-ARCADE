@@ -3863,3 +3863,136 @@ span.ryc {
         to { stroke-dashoffset: 0 }
     }
 }
+
+/* ---------- Carátula ---------- */
+.car {
+    display: block;
+    width: min(100%, 300px);
+    aspect-ratio: 2 / 3;
+    margin: 10px auto;
+    box-sizing: border-box;
+    border: 3px solid var(--ink);
+    border-radius: var(--r-md);
+    background: var(--card);
+    image-rendering: pixelated
+}
+
+/* Al terminar se enseña el póster nítido */
+.car.full {
+    image-rendering: auto
+}
+
+.cart {
+    margin: 0;
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 800
+}
+
+.cart small {
+    font-weight: 600;
+    color: var(--mut)
+}
+
+.carh,
+.carg {
+    margin: 8px 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px
+}
+
+.carh li {
+    padding: 5px 10px;
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-pill)
+}
+
+/* Intento fallido: tachado y con borde discontinuo (no depende solo del color) */
+.carg li {
+    padding: 4px 10px;
+    font-size: .9rem;
+    color: var(--mut);
+    text-decoration: line-through;
+    border: 2px dashed var(--edge);
+    border-radius: var(--r-pill)
+}
+
+.carf {
+    position: relative;
+    margin: 10px 0 4px
+}
+
+.carin {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 48px;
+    padding: 10px 14px;
+    font: inherit;
+    font-size: 1rem;
+    color: var(--ink);
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md)
+}
+
+.carsug {
+    display: grid;
+    gap: 4px;
+    margin-top: 4px
+}
+
+.carsug:empty {
+    display: none
+}
+
+.carsg {
+    min-height: 44px;
+    padding: 8px 14px;
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    color: var(--ink);
+    background: var(--card);
+    border: 2px solid var(--edge);
+    border-radius: var(--r-md);
+    cursor: pointer
+}
+
+.carsg small {
+    color: var(--mut);
+    font-weight: 600
+}
+
+.carat {
+    margin-top: 14px;
+    text-align: center;
+    font-size: .75rem
+}
+
+/* Ejemplo de «Cómo se juega»: una escena inventada a 3 resoluciones */
+.card-demo {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 8px 0
+}
+
+.cd {
+    display: grid;
+    grid-template-columns: repeat(var(--n), 1fr);
+    width: 84px;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: 2px solid var(--ink);
+    border-radius: var(--r-sm)
+}
+
+.cd i {
+    display: block
+}

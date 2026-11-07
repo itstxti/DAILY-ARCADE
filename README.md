@@ -3,7 +3,7 @@
 # DAILY ARCADE
 
 <p>
-  A browser-based collection of <strong>16 daily puzzle games</strong>.<br>
+  A browser-based collection of <strong>17 daily puzzle games</strong>.<br>
   A new challenge every day, streaks, friends rankings and live duels.
 </p>
 
@@ -89,6 +89,7 @@
 | **Mezcla**         | Match a target colour by mixing drops of 4 base paints, using as few drops as possible. |
 | **Siluetas**       | Build a cube figure that fits both its front and side shadows with the minimum number of cubes. |
 | **Rayo**           | Place a limited number of mirrors so the laser lights every gem and reaches the exit. |
+| **Carátula**       | Guess the movie from its pixelated poster (needs a free TMDB API key, see below). |
 
 ## Tech Stack
 
@@ -155,7 +156,7 @@ npx serve
    * `supabase/duelos.sql`
    * `supabase/endurecimiento.sql`
 
-   Already have a database? Run `supabase/juegos_sospechosos_balanza.sql` and `supabase/juegos_intruso_mezcla_siluetas.sql` and `supabase/juego_rayo.sql`, then `duelos.sql` and `endurecimiento.sql` again (all are idempotent).
+   Already have a database? Run `supabase/juegos_sospechosos_balanza.sql` and `supabase/juegos_intruso_mezcla_siluetas.sql` and `supabase/juego_rayo.sql` and `supabase/juego_caratula.sql`, then `duelos.sql` and `endurecimiento.sql` again (all are idempotent).
 3. Copy your *Project URL* and *publishable/anon* key into `js/config.js`. Never use the `service_role` key.
 4. Sign up in the app, then make yourself an admin:
 
@@ -227,3 +228,10 @@ supabase/           SQL schema, seed, duels, hardening + login function
 
 > [!WARNING]
 > `supabase/seed.sql` and `local/` contain the solutions for the coming months. 
+
+## Carátula (TMDB)
+
+Carátula loads each day's poster live from [TMDB](https://www.themoviedb.org); no image is stored in this repository (the list in `content/peliculas.js` only holds titles and years).
+To enable it, create a free API key at <https://www.themoviedb.org/settings/api> and set `window.TMDB_KEY` in `js/config.js`. Without a key the game simply does not appear.
+The key is used from the browser, so it is visible to visitors: use the revocable v3 key. TMDB requires attribution (already shown in the game) and its logo in the credits of your site.
+Carátula is not part of the duels: it depends on TMDB being reachable and on each deployment having its own key.
