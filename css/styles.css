@@ -4132,3 +4132,47 @@ span.ryc {
     height: 120px;
     padding: 8px
 }
+
+/* ---------- Pokémon ---------- */
+.pks {
+    display: grid;
+    place-items: center;
+    width: min(100%, 300px);
+    aspect-ratio: 1;
+    margin: 10px auto;
+    box-sizing: border-box;
+    padding: 14px;
+    background: #f4f1e8;                       /* fondo claro fijo (también en modo oscuro) para que la silueta negra se vea */
+    border: 3px solid var(--ink);
+    border-radius: var(--r-md)
+}
+
+.pks img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    filter: brightness(0);
+    transition: filter .6s
+}
+
+/* Al terminar se enseña el dibujo con sus colores */
+.pks.on img {
+    filter: none
+}
+
+/* Ejemplo de «Cómo se juega» */
+.pks.mini {
+    width: 120px
+}
+
+.pks.mini svg {
+    display: block;
+    width: 100%;
+    height: 100%
+}
+
+.pks.mini svg path {
+    fill: #14213d
+}
