@@ -95,6 +95,7 @@
 | **Pokémon**        | Guess the Pokémon from its black silhouette (generations 1–5; names in `content/pokemon.js` from PokeAPI; artwork loaded live from PokeAPI's sprites repo via jsDelivr, nothing stored here). Not part of the duels. Pokémon is a trademark of Nintendo, Game Freak and Creatures: this is an unofficial fan project. |
 | **Más o menos**    | Higher or lower: two items face off and you pick which has more (country population from REST Countries, daily Wikipedia page views from the Wikimedia API, mountain heights, river lengths). 10 rounds, the same for everyone each day, ends at the first mistake. Live data is fetched when you play, nothing is stored here. Not part of the duels. |
 | **Dominó de ríos** | Lay water tiles from the spring to the sea, passing through every marked town, without crossing yourself or stepping on rocks. The generator brute-forces the puzzle so every daily river has exactly one solution (5×5 on Mon/Tue, 6×6 otherwise). Not part of the duels. |
+| **Eco**            | Two boards, two characters: you on the left, your mirrored echo on the right. Every move you make is repeated by the echo mirrored left/right; if one bumps into a rock it stays put. Get both onto their exits at once. Each daily puzzle is solved by breadth-first search over (you, echo) positions, so it is always solvable and needs coordination (6×6, 5×5 on Mon/Tue). Arrow keys supported. Not part of the duels. |
 
 ## Tech Stack
 

@@ -4207,3 +4207,22 @@ span.ryc {
 .rdc.lit .rdk circle { fill: var(--sun) }
 .rdr { width: 70%; height: 70%; fill: var(--mut); stroke: var(--mut); stroke-width: .6; stroke-linejoin: round }
 .rdd { --bw: 220px; max-width: 220px; margin: 0 auto }
+
+/* ---------- Eco ---------- */
+.ecw { display: flex; gap: 14px; justify-content: center; margin: 10px auto; max-width: 440px }
+.ecf { flex: 1 1 0; min-width: 0; margin: 0; text-align: center }
+.ecf svg { display: block; width: 100%; height: auto; background: var(--card); border: 2px solid var(--ink); border-radius: var(--r-md) }
+.ecf figcaption { font-weight: 700; margin-top: 4px }
+.ecq { fill: none; stroke: color-mix(in srgb, var(--edge) 45%, transparent); stroke-width: .03 }
+.ecb { fill: var(--line) }
+.ece { fill: none; stroke: var(--ink); stroke-width: .1 }
+.ece.ok { fill: var(--mint); stroke: var(--mint) }
+.ect.u1 { fill: var(--sky) }
+.ect.u2 { fill: var(--berry) }
+.ect { stroke: var(--card); stroke-width: .06 }
+.ecp { display: grid; grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(2, 52px); gap: 6px; justify-content: center; margin: 10px auto }
+.ecp .ecd { padding: 0; font-size: 1.4rem; line-height: 1 }
+.ecp .ecd:nth-child(2) { grid-column: 2; grid-row: 1 }
+.ecp .ecd:nth-child(4) { grid-column: 1; grid-row: 2 }
+.ecp .ecd:nth-child(5) { grid-column: 2; grid-row: 2 }
+.ecp .ecd:nth-child(6) { grid-column: 3; grid-row: 2 }
