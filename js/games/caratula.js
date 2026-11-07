@@ -1,13 +1,14 @@
 /* Juego: Carátula — se enseña el póster de una película muy pixelado y hay que adivinar cuál es. Cada fallo (o cada «Saltar»)
    aclara la imagen un nivel; con 6 fallos se acaba. Las pistas dan el año, el género y la forma del título.
    El reto sale de la fecha: se elige una película de la lista (content/peliculas.js, solo títulos y años) y su póster se
-   carga EN DIRECTO desde TMDB al jugar (no se guarda ninguna imagen en el repositorio). Hace falta una clave gratuita de TMDB en
-   js/config.js (window.TMDB_KEY); sin ella el juego no se muestra. La victoria se comprueba por reglas: el título que se
+   carga EN DIRECTO desde TMDB al jugar (no se guarda ninguna imagen en el repositorio). Los datos se piden a /api/tmdb (api/tmdb.js),
+   una función de Vercel que guarda la clave de TMDB en el servidor (variable TMDB_KEY): la clave nunca llega al navegador.
+   Si window.TMDB_PROXY está vacío (js/config.js), el juego no se muestra. La victoria se comprueba por reglas: el título que se
    escribe es el de la película del día (se compara por título normalizado, sin tildes ni mayúsculas, con sus alias).
    Este producto usa la API de TMDB pero no está respaldado ni certificado por TMDB. */
 (function () {
-   const KEY = window.TMDB_KEY, LISTA = window.PELIS || [];
-   if (!KEY || !LISTA.length) { console.info('Carátula: falta window.TMDB_KEY en js/config.js (o content/peliculas.js); el juego no se muestra.'); return }
+   const PROXY = window.TMDB_PROXY, LISTA = window.PELIS || [];
+   if (!PROXY || !LISTA.length) { console.info('Carátula: window.TMDB_PROXY vacío en js/config.js (o falta content/peliculas.js); el juego no se muestra.'); return }
    const INTENTOS = 6, NIVELES = [5, 7, 11, 18, 30, 54];                  // fallos permitidos y ancho (en píxeles) de la imagen en cada nivel
    const GEN = { 28: 'Acción', 12: 'Aventura', 16: 'Animación', 35: 'Comedia', 80: 'Crimen', 99: 'Documental', 18: 'Drama', 10751: 'Familia', 14: 'Fantasía', 36: 'Historia', 27: 'Terror', 10402: 'Música', 9648: 'Misterio', 10749: 'Romance', 878: 'Ciencia ficción', 10770: 'Película de TV', 53: 'Suspense', 10752: 'Bélica', 37: 'Western' };
    const pls = (n, a, b) => n == 1 ? a : b;
@@ -17,10 +18,11 @@
    const P = memoSD(() => Math.floor(rng(SD * 89 + 17)() * LISTA.length)); // índice de la película (se regenera si cambia la semilla SD)
 
    /* ---------- Datos de TMDB (se piden al abrir el juego; si falla, se puede reintentar) ---------- */
-   const CARGA = {};                                                       // índice → { est: 'cargando' | 'ok' | 'error', img, gens, err }
+   const CARGA = {};                                                       // índice → { est: 'cargando' | 'ok' | 'error' | 'sinclave', img, gens, err }
    async function consulta(orig, anyo) {
-      const u = `https://api.themoviedb.org/3/search/movie?api_key=${encodeURIComponent(KEY)}&language=es-ES&include_adult=false&query=${encodeURIComponent(orig)}${anyo ? '&primary_release_year=' + anyo : ''}`;
-      const r = await fetch(u); if (!r.ok) throw new Error('TMDB ' + r.status);
+      const r = await fetch(`${PROXY}?query=${encodeURIComponent(orig)}${anyo ? '&year=' + anyo : ''}`);
+      if (r.status == 503) throw Object.assign(new Error('TMDB_KEY sin configurar en el servidor'), { sinClave: true });
+      if (!r.ok) throw new Error('TMDB ' + r.status);
       return ((await r.json()).results || []).filter(x => x.poster_path)
    }
    async function buscar(i) {
@@ -35,7 +37,7 @@
       let c = CARGA[i];
       if (!c) {
          c = CARGA[i] = { est: 'cargando' };
-         buscar(i).then(d => Object.assign(c, d, { est: 'ok' })).catch(e => { console.warn(e); c.est = 'error' })
+         buscar(i).then(d => Object.assign(c, d, { est: 'ok' })).catch(e => { console.warn(e); c.est = e.sinClave ? 'sinclave' : 'error' })
             .then(() => { const g = cur(); if (g && g.id == 'caratula') draw() })
       }
       return c
@@ -56,6 +58,7 @@
       const p = prog('ca'); ini(p);
       const r = R('caratula'), i = P(), c = dato(i), [orig, es, anyo] = LISTA[i];
       if (c.est == 'cargando') return shell('Carátula', '<p class="cap" style="text-align:center">Cargando…</p>');
+      if (c.est == 'sinclave') return shell('Carátula', '<p class="cap" style="text-align:center">Carátula no está disponible por ahora.</p>');
       if (c.est == 'error') return shell('Carátula', `<p class="cap" style="text-align:center">No se ha podido cargar el póster de hoy (¿sin conexión?).</p><div class="row ctl"><button class="btn pri" data-a="cr">Reintentar</button></div>`);
       if (!r && !p.t0) { p.t0 = Date.now(); sv() }
       const fin_ = !!r, fallos = p.g.length, w = fin_ ? c.img.naturalWidth : NIVELES[Math.min(fallos, NIVELES.length - 1)], h = Math.round(w * c.img.naturalHeight / c.img.naturalWidth);
