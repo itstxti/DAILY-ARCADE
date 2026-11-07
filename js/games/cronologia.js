@@ -39,7 +39,7 @@
    const ini = p => { if (typeof p.r != 'number') { p.r = 0; p.o = []; p.bad = []; p.hr = -1; p.h = 0; p.c = 0 } };
 
    /* Resumen final: las 5 rondas con su orden correcto y sus años. */
-   const resumen = () => `<div class="crs" aria-label="Soluciones de las 5 rondas">${P().map((z, k) => `<ol class="crl" aria-label="Ronda ${k + 1}">${z.ord.map(j => `<li><b>${anyo(LISTA[j][0])}</b> ${esc(LISTA[j][1])}</li>`).join('')}</ol>`).join('')}</div>`;
+   const resumen = () => `<div class="crs" aria-label="Soluciones de las 5 rondas">${P().map((z, k) => `<section class="crg"><h3 class="crh">Ronda ${k + 1}</h3><ol class="crl" aria-label="Ronda ${k + 1}">${z.ord.map(j => `<li><b>${anyo(LISTA[j][0])}</b> ${esc(LISTA[j][1])}</li>`).join('')}</ol></section>`).join('')}</div>`;
 
    function cronologia() {
       const p = prog('cn'); ini(p);
@@ -69,7 +69,6 @@
       if (p.o.includes(j) || p.bad.includes(j)) return;
       if (j != sig) { p.bad.push(j); p.c = (p.c || 0) + 1; msg = `Hay uno más antiguo. +${Duelo.coste('comprobar')} s`; Sfx.p('error'); sv(); return draw() }
       p.o.push(j); p.bad = []; msg = ''; Sfx.p('acierto');
-      if (p.o.length == N - 1) p.o.push(Z.ord[N - 1]);                   // el último queda solo: se coloca solo
       if (p.o.length >= N) {
          p.r++; p.o = []; p.hr = -1;
          if (p.r >= RONDAS) fin('cronologia', { st: 'completed', t: Date.now() - p.t0, h: p.h || 0, c: p.c || 0 })
@@ -93,7 +92,7 @@
    DailyArcade.register({
       id: 'cronologia', name: 'Cronología', desc: 'Ordena sucesos históricos del más antiguo al más reciente.', color: '--sun', tag: 'Ordena los sucesos por fecha',
       icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18"/><circle cx="6" cy="12" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="18" cy="12" r="2.2"/><path d="M6 9V5M12 15v4M18 9V5"/></svg>',
-      how: ['En cada ronda hay <b>4 sucesos</b> de la historia, mezclados.', 'Toca siempre el <b>más antiguo</b> de los que quedan. Si aciertas, se coloca y se ve su año; si no, suma segundos.', 'Son 5 rondas. Si dudas, la <b>pista</b> dice de qué siglo es el más antiguo.'],
+      how: ['En cada ronda hay <b>4 sucesos</b> de la historia, mezclados.', 'Toca siempre el <b>más antiguo</b> de los que quedan. Si aciertas, se coloca y se ve su año; si no, suma segundos. Hay que tocar los 4, también el último.', 'Son 5 rondas. Si dudas, la <b>pista</b> dice de qué siglo es el más antiguo.'],
       demo: `<p class="cap">Se tocan de más antiguo a más reciente y cada uno enseña su año:</p><ol class="crl crm" aria-hidden="true"><li class="ok"><b>1492</b> Colón llega a América</li><li class="ok"><b>1789</b> Toma de la Bastilla</li><li class="ok"><b>1969</b> El hombre pisa la Luna</li></ol>`,
       pk: 'cn',
       render: cronologia,
