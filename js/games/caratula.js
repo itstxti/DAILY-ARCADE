@@ -1,5 +1,6 @@
-/* Juego: Carátula — se enseña el póster de una película muy pixelado y hay que adivinar cuál es. Cada fallo (o cada «Saltar»)
-   aclara la imagen un nivel; con 6 fallos se acaba. Las pistas dan el año, el género y la forma del título.
+/* Juego: Carátula — se enseña el póster de una película muy pixelado, dividido en una cuadrícula de 3×3 zonas, y hay que adivinar
+   cuál es. Cada fallo (o cada «Saltar») quita los píxeles de una zona (se ve nítida); con 6 fallos se acaba. El orden en que se
+   destapan las zonas sale de la fecha. Las pistas dan el año, el género y la forma del título.
    El reto sale de la fecha: se elige una película de la lista (content/peliculas.js, solo títulos y años) y su póster se
    carga EN DIRECTO desde TMDB al jugar (no se guarda ninguna imagen en el repositorio). Los datos se piden a /api/tmdb (api/tmdb.js),
    una función de Vercel que guarda la clave de TMDB en el servidor (variable TMDB_KEY): la clave nunca llega al navegador.
@@ -9,7 +10,9 @@
 (function () {
    const PROXY = window.TMDB_PROXY, LISTA = window.PELIS || [];
    if (!PROXY || !LISTA.length) { console.info('Carátula: window.TMDB_PROXY vacío en js/config.js (o falta content/peliculas.js); el juego no se muestra.'); return }
-   const INTENTOS = 6, NIVELES = [5, 7, 11, 18, 30, 54];                  // fallos permitidos y ancho (en píxeles) de la imagen en cada nivel
+   const INTENTOS = 6, N = 3, PIX = 15;                                    // fallos permitidos · cuadrícula de N×N zonas · ancho (en píxeles) de la imagen pixelada
+   /* Orden en que se destapan las 9 zonas (0..8, fila a fila): mezcla de la fecha. */
+   const ORDEN = memoSD(() => { const r = rng(SD * 53 + 5), a = [0, 1, 2, 3, 4, 5, 6, 7, 8]; for (let k = 8; k > 0; k--) { const j = Math.floor(r() * (k + 1)); [a[k], a[j]] = [a[j], a[k]] } return a });
    const GEN = { 28: 'Acción', 12: 'Aventura', 16: 'Animación', 35: 'Comedia', 80: 'Crimen', 99: 'Documental', 18: 'Drama', 10751: 'Familia', 14: 'Fantasía', 36: 'Historia', 27: 'Terror', 10402: 'Música', 9648: 'Misterio', 10749: 'Romance', 878: 'Ciencia ficción', 10770: 'Película de TV', 53: 'Suspense', 10752: 'Bélica', 37: 'Western' };
    const pls = (n, a, b) => n == 1 ? a : b;
    const norm = t => String(t).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
@@ -46,12 +49,23 @@
    /* Progreso: p.g = intentos fallidos (índice de la película probada, o -1 si se saltó) · p.h = pistas · p.c = fallos. */
    const ini = p => { if (!Array.isArray(p.g)) { p.g = []; p.h = 0; p.c = 0 } };
 
-   /* Dibuja el póster en el canvas: pequeño (pixelado) según el nivel o a tamaño completo al terminar. El navegador lo amplía sin suavizar. */
+   /* Dibuja el póster en el canvas (siempre a tamaño completo): todo pixelado, con las zonas ya destapadas nítidas, o entero y nítido al
+      terminar. La versión pixelada se hace reduciendo la imagen a PIX píxeles de ancho y ampliándola sin suavizar. */
    function pinta() {
       const cv = document.querySelector('canvas.car'); if (!cv) return;
       const c = CARGA[+cv.dataset.i]; if (!c || !c.img) return;
-      const x = cv.getContext('2d'); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
-      x.clearRect(0, 0, cv.width, cv.height); x.drawImage(c.img, 0, 0, cv.width, cv.height)
+      const W = cv.width, H = cv.height, abre = +cv.dataset.z, x = cv.getContext('2d');
+      x.clearRect(0, 0, W, H); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
+      if (cv.dataset.f == '1') return void x.drawImage(c.img, 0, 0, W, H);
+      const gh = Math.max(N, Math.round(PIX * H / W / N) * N), ch = document.createElement('canvas'); ch.width = PIX; ch.height = gh;
+      ch.getContext('2d').drawImage(c.img, 0, 0, PIX, gh);
+      x.imageSmoothingEnabled = false; x.drawImage(ch, 0, 0, W, H);
+      x.imageSmoothingEnabled = true;
+      const zw = W / N, zh = H / N, iw = c.img.naturalWidth / N, ih = c.img.naturalHeight / N;
+      ORDEN().slice(0, abre).forEach(z => { const cx = z % N, cy = Math.floor(z / N); x.drawImage(c.img, cx * iw, cy * ih, iw, ih, cx * zw, cy * zh, zw, zh) });
+      x.strokeStyle = 'rgba(255,255,255,.55)'; x.lineWidth = 2; x.beginPath();    // rejilla 3×3
+      for (let k = 1; k < N; k++) { x.moveTo(k * zw, 0); x.lineTo(k * zw, H); x.moveTo(0, k * zh); x.lineTo(W, k * zh) }
+      x.stroke()
    }
 
    function caratula() {
@@ -61,9 +75,9 @@
       if (c.est == 'sinclave') return shell('Carátula', '<p class="cap" style="text-align:center">Carátula no está disponible por ahora.</p>');
       if (c.est == 'error') return shell('Carátula', `<p class="cap" style="text-align:center">No se ha podido cargar el póster de hoy (¿sin conexión?).</p><div class="row ctl"><button class="btn pri" data-a="cr">Reintentar</button></div>`);
       if (!r && !p.t0) { p.t0 = Date.now(); sv() }
-      const fin_ = !!r, fallos = p.g.length, w = fin_ ? c.img.naturalWidth : NIVELES[Math.min(fallos, NIVELES.length - 1)], h = Math.round(w * c.img.naturalHeight / c.img.naturalWidth);
+      const fin_ = !!r, fallos = Math.min(p.g.length, N * N), w = 500, h = Math.round(w * c.img.naturalHeight / c.img.naturalWidth);
       setTimeout(pinta, 0);
-      let b = `<canvas class="car${fin_ ? ' full' : ''}" data-i="${i}" width="${w}" height="${h}" role="img" aria-label="${fin_ ? 'Carátula de ' + es : `Carátula pixelada, nivel de detalle ${Math.min(fallos, NIVELES.length - 1) + 1} de ${NIVELES.length}`}"></canvas>`;
+      let b = `<canvas class="car" data-i="${i}" data-z="${fallos}" data-f="${fin_ ? 1 : 0}" width="${w}" height="${h}" role="img" aria-label="${fin_ ? 'Carátula de ' + es : `Carátula pixelada en 9 zonas, ${fallos} ${pls(fallos, 'zona nítida', 'zonas nítidas')}`}"></canvas>`;
       const pistas = [`Año: <b>${anyo}</b>`, c.gens.length ? `Género: <b>${c.gens.join(', ')}</b>` : `Década: <b>${Math.floor(anyo / 10) * 10}</b>`, (() => { const pal = es.trim().split(/\s+/).length; return `Título: <b>${es[0].toUpperCase()}…</b> · ${pal} ${pls(pal, 'palabra', 'palabras')} · ${es.replace(/[^A-Za-zÀ-ÿ0-9]/g, '').length} letras` })()];
       if (r) {
          b += `<p class="cart">${esc(es)} <small>(${anyo})</small></p>`;
@@ -72,7 +86,7 @@
          else b += res(`¡Era «${es}»! En ${mmss(r.t)}`, `${r.c ? r.c + pls(r.c, ' fallo', ' fallos') + ' antes de acertar' : 'A la primera'}. Vuelve mañana para un reto nuevo.`,
             `Daily Arcade · Carátula #${DAY} · ${mmss(r.t)}${r.c ? ' · ' + r.c + pls(r.c, ' fallo', ' fallos') : ''}${r.h ? ' · ' + r.h + pls(r.h, ' pista', ' pistas') : ''}`)
       } else {
-         b += `<p class="cap" style="text-align:center;margin:0" aria-live="polite">Intento <b>${fallos + 1}</b> de ${INTENTOS}. Cada fallo aclara la imagen y suma ${Duelo.coste('comprobar')} s.</p>`;
+         b += `<p class="cap" style="text-align:center;margin:0" aria-live="polite">Intento <b>${fallos + 1}</b> de ${INTENTOS}. Cada fallo destapa una zona y suma ${Duelo.coste('comprobar')} s.</p>`;
          if (p.h) b += `<ul class="carh" aria-label="Pistas">${pistas.slice(0, p.h).map(x => `<li>${x}</li>`).join('')}</ul>`;
          if (fallos) b += `<ol class="carg" aria-label="Intentos fallidos">${p.g.map(k => `<li>${k < 0 ? 'Saltado' : esc(LISTA[k][1])}</li>`).join('')}</ol>`;
          b += `<div class="carf"><input id="car-in" class="carin" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Escribe el título…" aria-label="Título de la película" aria-controls="car-sug"><div id="car-sug" class="carsug" role="group" aria-label="Sugerencias"></div></div>`
@@ -104,7 +118,7 @@
 
    function ck() {
       if (R('caratula')) return;
-      const p = prog('ca'); ini(p); p.t0 = p.t0 || Date.now(); msg = 'Imagen más nítida.'; falla(p, -1);
+      const p = prog('ca'); ini(p); p.t0 = p.t0 || Date.now(); msg = 'Zona destapada.'; falla(p, -1);
       if (R('caratula')) msg = ''; sv(); draw()
    }
 
@@ -142,12 +156,14 @@
    DailyArcade.register({
       id: 'caratula', name: 'Carátula', desc: 'Adivina la película por su póster pixelado.', color: '--sky', tag: 'Adivina la película por su póster',
       icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="2.5" width="13" height="19" rx="1.5"/><path d="M8.5 6.5h7M8.5 9.5h7"/><circle cx="12" cy="15.5" r="2.6"/></svg>',
-      how: ['Se enseña el <b>póster</b> de una película muy pixelado. Escribe el título y elige una de las sugerencias.', 'Cada <b>fallo</b> (o cada «Saltar») aclara la imagen y suma segundos. Con 6 fallos se acaba.', 'Si te atascas, la <b>pista</b> da el año, el género y la forma del título.'],
+      how: ['Se enseña el <b>póster</b> de una película muy pixelado y dividido en <b>9 zonas</b>. Escribe el título y elige una de las sugerencias.', 'Cada <b>fallo</b> (o cada «Saltar») quita los píxeles de una zona y suma segundos. Con 6 fallos se acaba.', 'Si te atascas, la <b>pista</b> da el año, el género y la forma del título.'],
       demo: (() => {
-         /* Escena inventada (cielo, sol y colina) vista a 3 resoluciones: así se ve el efecto sin usar ningún póster real */
+         /* Escena inventada (cielo, sol y colina) en 3×3 zonas: pixelada, con 2 zonas nítidas y con 5, sin usar ningún póster real */
          const col = (u, v) => (u - .65) ** 2 + (v - .38) ** 2 < .03 ? '#f6c026' : v > .72 + .07 * Math.sin(u * 7) ? '#3f9d63' : `hsl(${215 - v * 150} 70% ${62 + v * 18}%)`;
-         const mos = n => `<span class="cd" style="--n:${n}">${Array.from({ length: n * n }, (_, k) => `<i style="background:${col(((k % n) + .5) / n, (Math.floor(k / n) + .5) / n)}"></i>`).join('')}</span>`;
-         return `<p class="cap">La imagen empieza como un puñado de píxeles y se va aclarando con cada fallo:</p><div class="card-demo" aria-hidden="true">${[4, 8, 16].map(mos).join('')}</div>`
+         const zona = (z, nit) => { const n = nit ? 8 : 2, cx = z % 3, cy = Math.floor(z / 3);
+            return `<b class="cz" style="--n:${n}">${Array.from({ length: n * n }, (_, k) => `<i style="background:${col((cx + ((k % n) + .5) / n) / 3, (cy + (Math.floor(k / n) + .5) / n) / 3)}"></i>`).join('')}</b>` };
+         const pan = ab => `<span class="cd">${Array.from({ length: 9 }, (_, z) => zona(z, ab.includes(z))).join('')}</span>`;
+         return `<p class="cap">La imagen empieza pixelada y cada fallo deja nítida una zona más:</p><div class="card-demo" aria-hidden="true">${[[], [4, 1], [4, 1, 6, 8, 2]].map(pan).join('')}</div>`
       })(),
       pk: 'ca',
       render: caratula,
