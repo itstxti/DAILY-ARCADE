@@ -3848,7 +3848,8 @@ span.ryc {
 
 /* Ejemplo de «Cómo se juega» */
 .ryd .ryb {
-    width: min(100%, 220px)
+    width: 220px;
+    max-width: 100%
 }
 
 @media (prefers-reduced-motion:no-preference) {
