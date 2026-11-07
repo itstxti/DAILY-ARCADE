@@ -3663,3 +3663,64 @@ h1[tabindex="-1"]:focus {
 .sic:disabled {
     cursor: default
 }
+
+/* Siluetas: ejemplo visual de «Cómo se juega» (una capa y las sombras que proyecta) */
+.sid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px 14px;
+    margin: 8px 0
+}
+
+.sid figure {
+    margin: 0;
+    text-align: center
+}
+
+.sid figcaption {
+    margin-top: 4px;
+    font-size: .8rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--mut)
+}
+
+.sid figcaption small {
+    font-weight: 600
+}
+
+.sid .sig {
+    width: 100px
+}
+
+.sid .sic {
+    cursor: default
+}
+
+.sid .sis {
+    width: 84px
+}
+
+.sid2 {
+    display: flex;
+    gap: 12px
+}
+
+.sia {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--mut)
+}
+
+/* En pantallas estrechas la flecha apunta hacia abajo: capa arriba, sombras debajo */
+@media (max-width:420px) {
+    .sia {
+        flex-basis: 100%;
+        text-align: center;
+        transform: rotate(90deg);
+        height: 1.6rem;
+        line-height: 1.6rem
+    }
+}

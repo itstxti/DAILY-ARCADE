@@ -141,7 +141,14 @@
       id: 'siluetas', name: 'Siluetas', desc: 'Construye la figura que proyecta esas dos sombras.', color: '--lime', tag: 'Construye con las sombras',
       icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7.5 4.2v8.6L12 20l-7.5-4.2V7.2z"/><path d="M12 11.5v8.5M4.5 7.2L12 11.5l7.5-4.3"/></svg>',
       how: ['Te enseñan la <b>sombra frontal</b> y la <b>lateral</b> (vista desde la derecha) de una figura de cubos.', 'Constrúyela por <b>capas</b>: la 1 es la base y cada una se ve desde arriba. Toca una casilla para poner o quitar un cubo.', 'Las dos sombras tienen que coincidir y con los <b>menos cubos posibles</b>. Comprobar te dice qué capas no cuadran.'],
-      demo: `<p class="cap">Si en una capa la sombra frontal marca las columnas 1 y 3 y la lateral solo una fila, hacen falta 2 cubos en esa fila, uno bajo cada columna.</p>`,
+      demo: (() => {
+         /* Ejemplo: una capa con 3 cubos. Columnas usadas: 2 y 4 (sombra frontal, 2 oscuras). Filas usadas: las 3 de delante (sombra lateral, 3 oscuras). */
+         const cub = [[3, 1], [2, 3], [1, 3]], celdas = rango.map(y => rango.map(x => `<span class="sic${cub.some(([a, b]) => a == y && b == x) ? ' on' : ''}"></span>`).join('')).join('');
+         const sh = on => rango.map(z => rango.map(i => `<span${z == N - 1 && on.includes(i) ? ' class="on"' : ''}></span>`).join('')).join('');
+         return `<div class="sid" aria-hidden="true"><figure><div class="sig">${celdas}</div><figcaption>Capa 1<br><small>vista desde arriba<br>(delante, abajo)</small></figcaption></figure><div class="sia">→</div>`
+            + `<div class="sid2"><figure><div class="sis">${sh([1, 3])}</div><figcaption>Frontal</figcaption></figure><figure><div class="sis">${sh([0, 1, 2])}</div><figcaption>Lateral</figcaption></figure></div></div>`
+            + `<p class="cap">Esta capa de ejemplo proyecta 2 columnas oscuras en la sombra frontal y 3 posiciones en la lateral. Hacen falta <b>3 cubos</b>: el mayor de los dos números, colocando cada cubo en una columna y una fila oscuras.</p>`
+      })(),
       pk: 'si',
       render: siluetas,
       actions: { sc, undo, reiniciar, comprobar, pista, rendirme: confirma(rendirse) },
