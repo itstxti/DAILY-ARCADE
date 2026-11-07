@@ -3,7 +3,7 @@
 # DAILY ARCADE
 
 <p>
-  A browser-based collection of <strong>10 daily puzzle games</strong>.<br>
+  A browser-based collection of <strong>12 daily puzzle games</strong>.<br>
   A new challenge every day, streaks, friends rankings and live duels.
 </p>
 
@@ -83,6 +83,8 @@
 | **Luces**          | Turn off all the lights with as few presses as possible.          |
 | **Tuberías**       | Connect the matching pairs of dots and fill the whole board.      |
 | **Sopa de letras** | Find the 6 hidden words in the grid.                              |
+| **Sospechosos**    | Work out who was where, with what, from 5–6 clues (one unique solution). |
+| **Balanza**        | Place the weights so the beam balances: weight × distance on both sides. |
 
 ## Tech Stack
 
@@ -148,6 +150,8 @@ npx serve
    * `supabase/seed.sql`
    * `supabase/duelos.sql`
    * `supabase/endurecimiento.sql`
+
+   Already have a database? Run `supabase/juegos_sospechosos_balanza.sql`, then `duelos.sql` and `endurecimiento.sql` again (all are idempotent).
 3. Copy your *Project URL* and *publishable/anon* key into `js/config.js`. Never use the `service_role` key.
 4. Sign up in the app, then make yourself an admin:
 

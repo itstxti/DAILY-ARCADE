@@ -3067,3 +3067,315 @@ h1[tabindex="-1"]:focus {
     font-style: normal;
     opacity: .45
 }
+
+/* ---------- Sospechosos ---------- */
+.sph {
+    margin: 16px 0 6px;
+    font-size: .8rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--mut)
+}
+
+.spcl {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 6px
+}
+
+.spc {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 12px;
+    text-align: left;
+    font: inherit;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md);
+    cursor: pointer
+}
+
+/* Pista tachada: además de atenuarse lleva una raya, así no depende solo del tono */
+.spc.x {
+    opacity: .6;
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    border-style: dashed
+}
+
+.spb {
+    display: grid;
+    gap: 6px
+}
+
+.spr {
+    display: grid;
+    grid-template-columns: minmax(64px, .8fr) 1fr 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    font: inherit;
+    color: var(--ink);
+    text-align: left;
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md);
+    cursor: pointer
+}
+
+.spr.sel {
+    background: var(--lav);
+    color: #14213D;
+    box-shadow: 0 3px 0 var(--sh)
+}
+
+.spr:disabled {
+    cursor: default
+}
+
+.spv {
+    padding: 5px 8px;
+    text-align: center;
+    font-weight: 700;
+    border: 2px solid var(--edge);
+    border-radius: var(--r-sm);
+    background: var(--card);
+    color: var(--ink)
+}
+
+.spv.e {
+    border-style: dashed;
+    color: var(--mut);
+    font-weight: 600
+}
+
+.spv.fx {
+    background: color-mix(in srgb, var(--mint) 18%, var(--card));
+    border-color: var(--mint)
+}
+
+/* Dato que la comprobación vio mal: borde rojo y marca «!» (no depende solo del color) */
+.spv.bd {
+    border-color: var(--berry);
+    color: var(--berry-tx)
+}
+
+.spv.bd::after {
+    content: " !";
+    font-weight: 800
+}
+
+.spr.sel .spv {
+    background: #fff;
+    color: #14213D
+}
+
+.spr.sel .spv.bd {
+    color: #B8284D
+}
+
+.spr.sel .spv.e {
+    color: #3A4666
+}
+
+.spg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px
+}
+
+.spch {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 76px;
+    min-height: 44px;
+    padding: 6px 12px;
+    font: inherit;
+    font-weight: 700;
+    color: var(--ink);
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md);
+    cursor: pointer
+}
+
+.spch small {
+    font-size: .7rem;
+    font-weight: 600;
+    color: var(--mut)
+}
+
+.spch.on {
+    background: var(--lav);
+    color: #14213D
+}
+
+.spch.on small {
+    color: #3A4666
+}
+
+.spch.used {
+    border-style: dashed
+}
+
+.spch:disabled {
+    opacity: .5;
+    cursor: default
+}
+
+/* ---------- Balanza ---------- */
+.bz {
+    /* Hueco arriba y abajo para que la viga inclinada (hasta ±7°) no pise el texto de alrededor */
+    margin: 38px 4px 40px
+}
+
+.bzb {
+    transform: rotate(var(--a, 0deg));
+    transform-origin: 50% 100%;
+    transition: transform .5s cubic-bezier(.3, .7, .3, 1)
+}
+
+.bzr,
+.bzd {
+    display: grid;
+    grid-template-columns: repeat(var(--n), minmax(0, 1fr))
+}
+
+.bzr {
+    align-items: end
+}
+
+.bzs {
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: 62px;
+    padding: 0 1px;
+    border: 0;
+    background: transparent;
+    border-radius: var(--r-xs)
+}
+
+/* Hueco vacío: una marca discreta; con una pesa elegida se resalta como destino */
+.bzs:not(.fx):empty::before {
+    content: "";
+    width: 70%;
+    height: 8px;
+    border-radius: var(--r-xs);
+    border: 2px dashed var(--edge);
+    box-sizing: border-box
+}
+
+.bzs.tg {
+    background: color-mix(in srgb, var(--aqua) 22%, transparent);
+    outline: 2px dashed var(--aqua);
+    outline-offset: -2px
+}
+
+.bzk {
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    width: 100%;
+    height: calc(18px + var(--h) * .1px);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: #14213D;
+    background: var(--aqua);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-xs) var(--r-xs) 0 0
+}
+
+.bzk.fix {
+    background: var(--line);
+    color: var(--ink);
+    border-style: dashed
+}
+
+.bzk.lk {
+    background: var(--mint);
+    color: #fff
+}
+
+.bzbar {
+    height: 10px;
+    background: var(--ink);
+    border-radius: var(--r-pill)
+}
+
+.bzc {
+    position: relative
+}
+
+.bzd {
+    margin-top: 4px;
+    text-align: center;
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--mut);
+    font-variant-numeric: tabular-nums
+}
+
+/* Apoyo triangular bajo el centro de la viga */
+.bzp {
+    width: 0;
+    margin: -2px auto 0;
+    border-left: 16px solid transparent;
+    border-right: 16px solid transparent;
+    border-bottom: 22px solid var(--ink);
+    transform: translateY(-34px);
+    margin-bottom: -22px;
+    pointer-events: none
+}
+
+.bz.ok .bzbar {
+    background: var(--mint)
+}
+
+.bzt2 {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 8px;
+    min-height: 64px;
+    margin: 16px 0 8px
+}
+
+.bzy {
+    min-width: 52px;
+    padding: 4px;
+    border: 2px solid transparent;
+    border-radius: var(--r-md);
+    background: transparent
+}
+
+.bzy .bzk {
+    border-radius: var(--r-xs)
+}
+
+.bzy.sel {
+    border-color: var(--ink);
+    background: var(--card);
+    box-shadow: 0 3px 0 var(--sh)
+}
+
+/* Ejemplo de «Cómo se juega» */
+.bz.mini .bzs {
+    height: 48px
+}
+
+@media (prefers-reduced-motion:reduce) {
+    .bzb {
+        transition: none
+    }
+}
