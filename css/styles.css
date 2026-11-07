@@ -3997,3 +3997,88 @@ span.ryc {
 .cz i {
     display: block
 }
+
+/* ---------- Cronología ---------- */
+.crl {
+    display: grid;
+    gap: 6px;
+    margin: 10px 0;
+    padding: 0;
+    list-style: none
+}
+
+.crl li {
+    padding: 8px 12px;
+    font-size: .95rem;
+    line-height: 1.3;
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md)
+}
+
+.crl li b {
+    display: inline-block;
+    min-width: 4.2em;
+    margin-right: 6px;
+    font-weight: 800
+}
+
+/* Los ya colocados de la ronda: línea de tiempo con borde de acento */
+.crl li.ok {
+    border-left-width: 8px;
+    border-left-color: var(--mint)
+}
+
+.crp:empty {
+    display: none
+}
+
+.crb {
+    display: grid;
+    gap: 8px;
+    margin: 12px 0
+}
+
+.crc {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    font: inherit;
+    font-weight: 700;
+    line-height: 1.3;
+    text-align: left;
+    color: inherit;
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md);
+    cursor: pointer
+}
+
+/* Descartado en este paso: atenuado y con borde discontinuo (no depende solo del tono) */
+.crc.x {
+    opacity: .5;
+    border-style: dashed;
+    cursor: default
+}
+
+.crc small {
+    font-weight: 400
+}
+
+/* Soluciones de las 5 rondas al terminar */
+.crs {
+    display: grid;
+    gap: 14px;
+    margin: 12px 0
+}
+
+.crs .crl {
+    margin: 0
+}
+
+/* Ejemplo de «Cómo se juega» */
+.crm {
+    max-width: 320px;
+    margin-inline: auto
+}
