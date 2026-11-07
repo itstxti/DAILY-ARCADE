@@ -4069,8 +4069,24 @@ span.ryc {
 /* Soluciones de las 5 rondas al terminar */
 .crs {
     display: grid;
-    gap: 14px;
+    gap: 16px;
     margin: 12px 0
+}
+
+.crg {
+    padding: 12px;
+    background: var(--card);
+    border: 2px solid var(--edge);
+    border-radius: var(--r-md)
+}
+
+.crh {
+    margin: 0 0 8px;
+    font-size: .8rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--mut)
 }
 
 .crs .crl {
