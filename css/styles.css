@@ -3388,7 +3388,7 @@ h1[tabindex="-1"]:focus {
 
 .inb {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
     margin: 12px auto;
     max-width: 340px
@@ -3397,6 +3397,7 @@ h1[tabindex="-1"]:focus {
 .inc {
     position: relative;
     display: block;
+    min-width: 0;
     aspect-ratio: 1;
     padding: 6px;
     box-sizing: border-box;
@@ -3406,10 +3407,13 @@ h1[tabindex="-1"]:focus {
     cursor: pointer
 }
 
+/* El dibujo no aporta tamaño propio (Safari le daba el de su viewBox y las tarjetas se salían): se ajusta al hueco de la tarjeta */
 .inc svg {
+    position: absolute;
+    inset: 6px;
     display: block;
-    width: 100%;
-    height: 100%
+    width: calc(100% - 12px);
+    height: calc(100% - 12px)
 }
 
 .inc svg path {
@@ -3438,8 +3442,9 @@ h1[tabindex="-1"]:focus {
 
 /* Ejemplo de «Cómo se juega» */
 .inb.mini {
-    grid-template-columns: repeat(4, 1fr);
-    max-width: 240px
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 240px;
+    max-width: 100%
 }
 
 .inb.mini .inc {
