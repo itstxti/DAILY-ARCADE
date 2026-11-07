@@ -12,7 +12,7 @@
    const pls = (n, a, b) => n == 1 ? a : b;
    const anyo = y => y < 0 ? `${-y} a. C.` : String(y);
    const ROM = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
-   const siglo = y => y < 0 ? 'antes de Cristo' : `el siglo ${ROM[Math.ceil(y / 100)]}`;
+   const siglo = y => y < 0 ? 'antes de Cristo' : `del siglo ${ROM[Math.ceil(y / 100)]}`;
 
    function ronda(r, k, usados) {
       const rnd = n => Math.floor(r() * n);
@@ -56,7 +56,7 @@
                const x = p.bad.includes(j);
                return `<button class="crc${x ? ' x' : ''}" data-a="cq" data-j="${j}"${x ? ' disabled' : ''}>${esc(LISTA[j][1])}${x ? ' <small>(no es el más antiguo)</small>' : ''}</button>`
             }).join('')}</div>`
-            + `<p class="cap" style="text-align:center;margin:0">Cada fallo suma ${Duelo.coste('comprobar')} s.${p.hr == p.r ? ` <b>Pista:</b> el más antiguo es de ${siglo(LISTA[sig][0])}.` : ''}</p>`
+            + `<p class="cap" style="text-align:center;margin:0">Cada fallo suma ${Duelo.coste('comprobar')} s.${p.hr == p.r ? ` <b>Pista:</b> el más antiguo es ${LISTA[sig][0] < 0 ? 'de ' : ''}${siglo(LISTA[sig][0])}.` : ''}</p>`
             + `${S.set.tm ? tmHtml(p) : ''}<p class="msg" role="status">${msg}</p>${controles({ pista: 1, rendirme: 1 })}`
       }
       return shell('Cronología', b)
