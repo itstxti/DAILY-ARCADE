@@ -69,7 +69,7 @@ create table resultados(
   datos jsonb not null,
   creado timestamptz not null default now(),
   primary key (user_id, dia, juego),
-  constraint resultados_juego_valido check (juego in ('palabra','cifra','coronas','sudoku','escalera','operaciones','camino','luces','tuberias','sopa','sospechosos','balanza','intruso','mezcla','siluetas','rayo','caratula','cronologia','pais','pokemon','masmenos','rio','eco')),
+  constraint resultados_juego_valido check (juego in ('palabra','cifra','coronas','sudoku','escalera','operaciones','camino','luces','tuberias','sopa','sospechosos','balanza','intruso','mezcla','siluetas','rayo','caratula','cronologia','pais','pokemon','masmenos','rio','eco','parcelas')),
   constraint resultados_datos_validos check (jsonb_typeof(datos) = 'object' and octet_length(datos::text) <= 4000)
 );
 alter table resultados enable row level security;
