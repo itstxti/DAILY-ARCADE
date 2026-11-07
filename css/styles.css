@@ -3379,3 +3379,69 @@ h1[tabindex="-1"]:focus {
         transition: none
     }
 }
+
+/* ---------- Intruso ---------- */
+.inr {
+    margin: 10px 0 0;
+    text-align: center
+}
+
+.inb {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 12px auto;
+    max-width: 340px
+}
+
+.inc {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    padding: 6px;
+    box-sizing: border-box;
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md);
+    cursor: pointer
+}
+
+.inc svg {
+    display: block;
+    width: 100%;
+    height: 100%
+}
+
+.inc svg path {
+    stroke: var(--ink);
+    stroke-width: 2;
+    stroke-linejoin: round
+}
+
+/* Patrón descartado: atenuado y con una cruz (no depende solo del tono) */
+.inc.x {
+    opacity: .4;
+    border-style: dashed;
+    cursor: default
+}
+
+.inc.x::after {
+    content: "✕";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--ink)
+}
+
+/* Ejemplo de «Cómo se juega» */
+.inb.mini {
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 240px
+}
+
+.inb.mini .inc {
+    cursor: default
+}
