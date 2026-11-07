@@ -466,7 +466,14 @@ addEventListener('keydown', e => {
 });
 (async () => {
   if (Nube.activo) {
-    $('#app').innerHTML = `<h1>Daily Arcade</h1><p class="sub" role="status">Cargando el reto de hoy…</p><div class="gg" aria-hidden="true">${GAMES.map((_, k) => `<div class="gt esq" style="--k:${k}"><span class="gl"></span><strong></strong><em></em></div>`).join('')}</div>`;
+    /* El esqueleto repite la estructura real del inicio (.hl con cabecera, resumen, progreso y botón principal; .hr2 con los juegos):
+       así cada tamaño de pantalla (móvil, tablet, PC) usa su propia cuadrícula y, al cargar, no se mueve nada. */
+    const bar = (w, h = 12, m = 0) => `<span class="esl" style="width:${w}%;height:${h}px;margin-top:${m}px"></span>`;
+    $('#app').innerHTML = `<div class="hl"><header class="top"><h1>Daily Arcade</h1></header><p class="vh" role="status">Cargando el reto de hoy…</p>`
+      + `<div class="hb" aria-hidden="true">${[0, 1, 2].map(() => `<div>${bar(45, 18)}${bar(75, 12, 6)}</div>`).join('')}</div>`
+      + `<div class="hp" aria-hidden="true"><div class="ht">${bar(38, 16)}${bar(22)}</div><div class="segs" style="grid-template-columns:repeat(${GAMES.length},1fr)">${GAMES.map((_, k) => `<i style="--k:${k}"></i>`).join('')}</div></div>`
+      + `<div class="esl sg" aria-hidden="true" style="height:52px;margin:0 0 16px;border-radius:var(--r-lg)"></div></div>`
+      + `<div class="hr2" aria-hidden="true"><div class="gg">${GAMES.map((_, k) => `<div class="gt esq" style="--k:${k}"><span class="gl"></span><strong></strong><em></em></div>`).join('')}</div></div>`;
     try {
       try { await Nube.init() } catch (e) { if (!Nube.sb) throw e; console.warn('No se ha podido recuperar la sesión (¿sin conexión?)', e) }
       let r;

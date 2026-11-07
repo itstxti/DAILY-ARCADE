@@ -2767,7 +2767,7 @@ h1[tabindex="-1"]:focus {
 .gt.esq {
     box-sizing: border-box;
     pointer-events: none;
-    min-height: 96px;
+    min-height: 130px;
     border-color: var(--edge);
     box-shadow: none
 }
@@ -2786,6 +2786,13 @@ h1[tabindex="-1"]:focus {
     background: var(--line)
 }
 
+/* Tablet en vertical: las tarjetas reales van en horizontal y son más bajas */
+@media (min-width:700px) and (max-width:899px) {
+    .gt.esq {
+        min-height: 88px
+    }
+}
+
 /* Una línea de texto más en el esqueleto, como las tarjetas reales */
 .gt.esq em {
     display: block;
@@ -2795,8 +2802,17 @@ h1[tabindex="-1"]:focus {
     background: var(--line)
 }
 
+/* Línea de texto del esqueleto del resumen y del progreso (misma pieza que en las tarjetas) */
+.esl {
+    display: block;
+    height: 12px;
+    border-radius: var(--r-pill);
+    background: var(--line)
+}
+
 /* Brillo que recorre las piezas, escalonado de tarjeta en tarjeta */
 @media (prefers-reduced-motion:no-preference) {
+    .esl,
     .gt.esq .gl,
     .gt.esq strong,
     .gt.esq em {
