@@ -3379,3 +3379,266 @@ h1[tabindex="-1"]:focus {
         transition: none
     }
 }
+
+/* ---------- Intruso ---------- */
+.inr {
+    margin: 10px 0 0;
+    text-align: center
+}
+
+.inb {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 12px auto;
+    max-width: 340px
+}
+
+.inc {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    padding: 6px;
+    box-sizing: border-box;
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md);
+    cursor: pointer
+}
+
+.inc svg {
+    display: block;
+    width: 100%;
+    height: 100%
+}
+
+.inc svg path {
+    stroke: var(--ink);
+    stroke-width: 2;
+    stroke-linejoin: round
+}
+
+/* Patrón descartado: atenuado y con una cruz (no depende solo del tono) */
+.inc.x {
+    opacity: .4;
+    border-style: dashed;
+    cursor: default
+}
+
+.inc.x::after {
+    content: "✕";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--ink)
+}
+
+/* Ejemplo de «Cómo se juega» */
+.inb.mini {
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 240px
+}
+
+.inb.mini .inc {
+    cursor: default
+}
+
+/* ---------- Mezcla ---------- */
+.mzs {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin: 14px 0 8px
+}
+
+.mzs figure {
+    flex: 1;
+    max-width: 170px;
+    margin: 0;
+    text-align: center
+}
+
+.mzs figcaption {
+    margin-top: 4px;
+    font-size: .85rem;
+    font-weight: 700;
+    color: var(--mut)
+}
+
+.mzc {
+    height: 110px;
+    box-sizing: border-box;
+    border: 3px solid var(--ink);
+    border-radius: var(--r-md)
+}
+
+/* Mezcla vacía: sin color todavía */
+.mzc.e {
+    background: var(--card);
+    border-style: dashed
+}
+
+.mzp {
+    display: grid;
+    gap: 6px;
+    margin: 10px 0
+}
+
+.mzr {
+    display: grid;
+    grid-template-columns: 28px 1fr 44px 36px 44px;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md)
+}
+
+.mzd {
+    width: 24px;
+    height: 24px;
+    box-sizing: border-box;
+    border: 2px solid var(--ink);
+    border-radius: 50%
+}
+
+.mzb {
+    min-height: 44px;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--ink);
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md);
+    cursor: pointer
+}
+
+.mzb:disabled {
+    opacity: .4;
+    cursor: default
+}
+
+.mzn {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums
+}
+
+/* Ejemplo de «Cómo se juega» */
+.mzs.mini {
+    align-items: center;
+    gap: 10px
+}
+
+.mzs.mini .mzc {
+    width: 64px;
+    height: 64px
+}
+
+.mzs.mini span {
+    font-size: 1.4rem;
+    font-weight: 800
+}
+
+/* ---------- Siluetas ---------- */
+.sit2 {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin: 12px 0 8px
+}
+
+.sit2 figure {
+    margin: 0;
+    text-align: center
+}
+
+.sit2 figcaption {
+    margin-top: 4px;
+    font-size: .85rem;
+    font-weight: 700;
+    color: var(--mut)
+}
+
+.sit2 figcaption small {
+    font-weight: 600
+}
+
+.sis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    width: 120px;
+    padding: 3px;
+    box-sizing: border-box;
+    border: 3px solid var(--ink);
+    border-radius: var(--r-md);
+    background: var(--card)
+}
+
+.sis span {
+    aspect-ratio: 1;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--edge) 22%, var(--card))
+}
+
+.sis span.on {
+    background: var(--ink)
+}
+
+.sip {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px 14px;
+    margin: 12px 0
+}
+
+.sit {
+    margin: 0 0 4px;
+    font-size: .8rem;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--mut)
+}
+
+.sit.bd {
+    color: var(--berry-tx)
+}
+
+.sig {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px
+}
+
+.sic {
+    aspect-ratio: 1;
+    padding: 0;
+    box-sizing: border-box;
+    background: var(--card);
+    border: 2px solid var(--edge);
+    border-radius: var(--r-sm);
+    cursor: pointer
+}
+
+.sic.on {
+    background: var(--sky);
+    border-color: var(--ink);
+    box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .18)
+}
+
+/* Cubo fijado por una pista: otro color y una marca (no depende solo del tono) */
+.sic.fx {
+    background: var(--mint);
+    border-style: dashed
+}
+
+.sic:disabled {
+    cursor: default
+}

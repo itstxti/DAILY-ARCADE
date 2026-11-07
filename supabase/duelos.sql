@@ -29,14 +29,14 @@ $$ select jsonb_build_object(
      'victorias', 3,      -- rondas para ganar antes de tiempo
      'holgura', 4000,     -- ms que se le perdonan a cada jugador por latencia al empezar la ronda
      'pista_ms', 15000,   -- penalización por cada pista (Escalera, Luces, Cifrado, Sopa, Sospechosos, Balanza); el navegador la enseña en el botón
-     'comprobar_ms', 5000, -- penalización por cada comprobación (Cifrado, Sudoku, Sospechosos, Balanza)
+     'comprobar_ms', 5000, -- penalización por cada comprobación (Cifrado, Sudoku, Sospechosos, Balanza, Intruso: cada fallo)
      'historial_pagina', 10, -- duelos que enseña el historial de entrada y cuántos más con «Ver más»
      'historial_max', 30,    -- máximo de duelos que se pueden ver en el historial
      'historial_dias', 90)   -- los duelos terminados más antiguos se borran solos
 $$;
 
 create or replace function duelo_juegos() returns text[] language sql immutable as
-$$ select array['palabra','cifra','coronas','sudoku','escalera','operaciones','camino','luces','tuberias','sopa','sospechosos','balanza'] $$;
+$$ select array['palabra','cifra','coronas','sudoku','escalera','operaciones','camino','luces','tuberias','sopa','sospechosos','balanza','intruso','mezcla','siluetas'] $$;
 
 -- Palabra se puntúa por intentos (menos = mejor) y el tiempo desempata. El resto se puntúan con UN solo número, un "tiempo equivalente"
 -- (tiempo + penalizaciones), y gana el menor. Que sea un tiempo permite cerrar la ronda en cuanto el rival ya no puede mejorarlo.
@@ -139,7 +139,7 @@ begin
     pen := least(duelo_num(dat, 'h'), 20) * vp;
   elsif jg = 'sudoku' then
     pen := least(duelo_num(dat, 'c'), 100) * vc;                 -- cada comprobación suma comprobar_ms
-  elsif jg in ('sospechosos','balanza') then
+  elsif jg in ('sospechosos','balanza','intruso','mezcla','siluetas') then
     pen := least(duelo_num(dat, 'h'), 20) * vp + least(duelo_num(dat, 'c'), 100) * vc;   -- pistas y comprobaciones
   end if;
   return pri * 1000000000 + least(t + pen, 999999999);
