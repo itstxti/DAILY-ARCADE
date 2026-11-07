@@ -4206,7 +4206,7 @@ span.ryc {
 .rdc.on .rdk circle { fill: var(--aqua) }
 .rdc.lit .rdk circle { fill: var(--sun) }
 .rdr { width: 70%; height: 70%; fill: var(--mut); stroke: var(--mut); stroke-width: .6; stroke-linejoin: round }
-.rdd { --bw: 220px; max-width: 220px; margin: 0 auto }
+.rdd { --bw: 220px; width: 220px; max-width: 100%; margin: 0 auto }
 
 /* ---------- Eco ---------- */
 .ecw { display: flex; gap: 14px; justify-content: center; margin: 10px auto; max-width: 440px }
