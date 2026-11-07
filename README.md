@@ -89,7 +89,7 @@
 | **Mezcla**         | Match a target colour by mixing drops of 4 base paints, using as few drops as possible. |
 | **Siluetas**       | Build a cube figure that fits both its front and side shadows with the minimum number of cubes. |
 | **Rayo**           | Place a limited number of mirrors so the laser lights every gem and reaches the exit. |
-| **Carátula**       | Guess the movie from its pixelated poster (needs a free TMDB API key, see below). |
+| **Carátula**       | Guess the movie from its pixelated poster (needs a `TMDB_KEY` env var in Vercel, see below). |
 
 ## Tech Stack
 
@@ -232,6 +232,7 @@ supabase/           SQL schema, seed, duels, hardening + login function
 ## Carátula (TMDB)
 
 Carátula loads each day's poster live from [TMDB](https://www.themoviedb.org); no image is stored in this repository (the list in `content/peliculas.js` only holds titles and years).
-To enable it, create a free API key at <https://www.themoviedb.org/settings/api> and set `window.TMDB_KEY` in `js/config.js`. Without a key the game simply does not appear.
-The key is used from the browser, so it is visible to visitors: use the revocable v3 key. TMDB requires attribution (already shown in the game) and its logo in the credits of your site.
+The browser never talks to TMDB with a key: it calls `/api/tmdb` (`api/tmdb.js`, a Vercel serverless function) which adds the key on the server.
+To enable it, create a free API key (the v3 "API Key", not the Read Access Token) at <https://www.themoviedb.org/settings/api> and add it in Vercel → Settings → Environment Variables as `TMDB_KEY`, then redeploy. Without it the game shows "not available" and nothing leaks.
+Locally, a plain static server does not run `/api/*`: use `vercel dev`, or set `window.TMDB_PROXY = ''` in `js/config.js` to hide the game. TMDB requires attribution (already shown in the game) and its logo in the credits of your site.
 Carátula is not part of the duels: it depends on TMDB being reachable and on each deployment having its own key.
