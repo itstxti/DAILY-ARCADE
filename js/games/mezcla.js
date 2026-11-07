@@ -5,7 +5,7 @@
    (a ojo no se distingue). La puntuación va por cercanía y por gotas: cada gota por encima del mínimo suma 3 s al tiempo.
    La victoria se comprueba por reglas (distancia ≤ TOL), no contra una solución guardada. */
 (function () {
-   const MAXG = 12, TOL = 12, TOPE = 120, EXTRA = 3000;                  // gotas máximas, distancia para ganar, distancia del 0 % y ms por gota de más
+   const MAXG = 12, TOL = 12, TOPE = 200, EXTRA = 3000;                  // gotas máximas, distancia para ganar, distancia del 0 % y ms por gota de más
    const PINT = [['Rojo', [222, 48, 62]], ['Amarillo', [247, 199, 38]], ['Azul', [38, 98, 220]], ['Blanco', [250, 250, 250]]];
    const FACIL = WD == 1 || WD == 2;                                      // lunes y martes: 2 pinturas y pocas gotas
    const pls = (n, a, b) => n == 1 ? a : b;
