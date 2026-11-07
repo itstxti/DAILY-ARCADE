@@ -36,7 +36,7 @@ $$ select jsonb_build_object(
 $$;
 
 create or replace function duelo_juegos() returns text[] language sql immutable as
-$$ select array['palabra','cifra','coronas','sudoku','escalera','operaciones','camino','luces','tuberias','sopa','sospechosos','balanza','intruso','mezcla','siluetas','rayo','cronologia'] $$;
+$$ select array['palabra','cifra','coronas','sudoku','escalera','operaciones','camino','luces','tuberias','sopa','sospechosos','balanza','intruso','mezcla','siluetas','rayo','cronologia','pais'] $$;
 
 -- Palabra se puntúa por intentos (menos = mejor) y el tiempo desempata. El resto se puntúan con UN solo número, un "tiempo equivalente"
 -- (tiempo + penalizaciones), y gana el menor. Que sea un tiempo permite cerrar la ronda en cuanto el rival ya no puede mejorarlo.
@@ -139,7 +139,7 @@ begin
     pen := least(duelo_num(dat, 'h'), 20) * vp;
   elsif jg = 'sudoku' then
     pen := least(duelo_num(dat, 'c'), 100) * vc;                 -- cada comprobación suma comprobar_ms
-  elsif jg in ('sospechosos','balanza','intruso','mezcla','siluetas','rayo','cronologia') then
+  elsif jg in ('sospechosos','balanza','intruso','mezcla','siluetas','rayo','cronologia','pais') then
     pen := least(duelo_num(dat, 'h'), 20) * vp + least(duelo_num(dat, 'c'), 100) * vc;   -- pistas y comprobaciones
   end if;
   return pri * 1000000000 + least(t + pen, 999999999);
