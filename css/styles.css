@@ -3233,7 +3233,8 @@ h1[tabindex="-1"]:focus {
 
 /* ---------- Balanza ---------- */
 .bz {
-    margin: 14px 0 6px
+    /* Hueco arriba y abajo para que la viga inclinada (hasta ±7°) no pise el texto de alrededor */
+    margin: 38px 4px 40px
 }
 
 .bzb {
