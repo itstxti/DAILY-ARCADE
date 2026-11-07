@@ -3067,3 +3067,166 @@ h1[tabindex="-1"]:focus {
     font-style: normal;
     opacity: .45
 }
+
+/* ---------- Sospechosos ---------- */
+.sph {
+    margin: 16px 0 6px;
+    font-size: .8rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--mut)
+}
+
+.spcl {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 6px
+}
+
+.spc {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 12px;
+    text-align: left;
+    font: inherit;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md);
+    cursor: pointer
+}
+
+/* Pista tachada: además de atenuarse lleva una raya, así no depende solo del tono */
+.spc.x {
+    opacity: .6;
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    border-style: dashed
+}
+
+.spb {
+    display: grid;
+    gap: 6px
+}
+
+.spr {
+    display: grid;
+    grid-template-columns: minmax(64px, .8fr) 1fr 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    font: inherit;
+    color: var(--ink);
+    text-align: left;
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md);
+    cursor: pointer
+}
+
+.spr.sel {
+    background: var(--lav);
+    color: #14213D;
+    box-shadow: 0 3px 0 var(--sh)
+}
+
+.spr:disabled {
+    cursor: default
+}
+
+.spv {
+    padding: 5px 8px;
+    text-align: center;
+    font-weight: 700;
+    border: 2px solid var(--edge);
+    border-radius: var(--r-sm);
+    background: var(--card);
+    color: var(--ink)
+}
+
+.spv.e {
+    border-style: dashed;
+    color: var(--mut);
+    font-weight: 600
+}
+
+.spv.fx {
+    background: color-mix(in srgb, var(--mint) 18%, var(--card));
+    border-color: var(--mint)
+}
+
+/* Dato que la comprobación vio mal: borde rojo y marca «!» (no depende solo del color) */
+.spv.bd {
+    border-color: var(--berry);
+    color: var(--berry-tx)
+}
+
+.spv.bd::after {
+    content: " !";
+    font-weight: 800
+}
+
+.spr.sel .spv {
+    background: #fff;
+    color: #14213D
+}
+
+.spr.sel .spv.bd {
+    color: #B8284D
+}
+
+.spr.sel .spv.e {
+    color: #3A4666
+}
+
+.spg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px
+}
+
+.spch {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 76px;
+    min-height: 44px;
+    padding: 6px 12px;
+    font: inherit;
+    font-weight: 700;
+    color: var(--ink);
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: var(--r-md);
+    cursor: pointer
+}
+
+.spch small {
+    font-size: .7rem;
+    font-weight: 600;
+    color: var(--mut)
+}
+
+.spch.on {
+    background: var(--lav);
+    color: #14213D
+}
+
+.spch.on small {
+    color: #3A4666
+}
+
+.spch.used {
+    border-style: dashed
+}
+
+.spch:disabled {
+    opacity: .5;
+    cursor: default
+}
