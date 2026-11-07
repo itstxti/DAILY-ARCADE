@@ -3724,3 +3724,141 @@ h1[tabindex="-1"]:focus {
         line-height: 1.6rem
     }
 }
+
+/* ---------- Rayo ---------- */
+.ryb {
+    position: relative;
+    width: min(100%, var(--bw, 372px));
+    aspect-ratio: 1;
+    margin: 6px auto
+}
+
+/* El tablero ocupa el centro; el margen de una casilla alrededor es para el emisor y la salida */
+.ryg {
+    position: absolute;
+    inset: 12.5%;
+    display: grid;
+    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+    border: 2px solid var(--ink);
+    border-radius: var(--r-sm);
+    overflow: hidden;
+    background: var(--card)
+}
+
+.ryc {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background: transparent;
+    border: 1px solid color-mix(in srgb, var(--edge) 45%, transparent);
+    border-radius: 0;
+    cursor: pointer
+}
+
+.ryc:disabled,
+span.ryc {
+    cursor: default
+}
+
+.ryc.fx {
+    background: color-mix(in srgb, var(--mint) 22%, transparent)
+}
+
+.ryc svg {
+    position: absolute;
+    inset: 12%;
+    width: 76%;
+    height: 76%
+}
+
+.rym path {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.6;
+    stroke-linecap: round
+}
+
+.ryk path {
+    fill: var(--card);
+    stroke: var(--ink);
+    stroke-width: .8;
+    stroke-linejoin: round
+}
+
+.ryk .ryb2 {
+    fill: none;
+    stroke-dasharray: 1 1
+}
+
+/* Gema encendida: se rellena y se agranda el detalle (no depende solo del color) */
+.ryc.lit .ryk path {
+    fill: var(--sun)
+}
+
+.ryc.lit .ryk .ryb2 {
+    fill: var(--ink);
+    stroke-dasharray: none
+}
+
+.ryw {
+    position: absolute;
+    inset: 14%;
+    border-radius: var(--r-xs);
+    background: var(--ink)
+}
+
+/* Capa del rayo, el emisor y la salida, encima del tablero (no recibe toques) */
+.ryo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none
+}
+
+.ryl {
+    fill: none;
+    stroke: var(--berry);
+    stroke-width: .13;
+    stroke-linecap: round;
+    stroke-linejoin: round
+}
+
+.rye {
+    fill: var(--ink)
+}
+
+.ryx {
+    fill: var(--card);
+    stroke: var(--ink);
+    stroke-width: .1
+}
+
+.ryx2 {
+    fill: var(--ink)
+}
+
+/* Salida alcanzada por el rayo */
+.ryx.ok {
+    fill: var(--mint)
+}
+
+/* Ejemplo de «Cómo se juega» */
+.ryd .ryb {
+    width: min(100%, 220px)
+}
+
+@media (prefers-reduced-motion:no-preference) {
+    .ryl {
+        stroke-dasharray: 60;
+        animation: ryl .35s ease-out
+    }
+
+    @keyframes ryl {
+        from { stroke-dashoffset: 60 }
+        to { stroke-dashoffset: 0 }
+    }
+}
