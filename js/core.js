@@ -111,7 +111,7 @@ const kTiempos = w => { const t = w.map(x => x.t).filter(x => typeof x == 'numbe
    0 = rendida. Resuelta: de 1 a 5 según el tiempo (ya con la penalización de ayudas) frente al tiempo de referencia del juego (segundos, REF):
    hasta 1×REF → 5, 1,5× → 4, 2× → 3, 3× → 2, más → 1. Palabra (5 intentos) se mide por intentos: 1 → 5, 2 → 4, 3 → 3, 4 → 2, 5 → 1 (las antiguas de 6 intentos también dan 1).
    Los tiempos de referencia son un punto de partida: ajústalos aquí, en un único sitio. */
-const REF = { cifra: 120, coronas: 30, sudoku: 100, escalera: 20, operaciones: 15, camino: 20, luces: 40, tuberias: 15, sopa: 30, sospechosos: 60, balanza: 40, intruso: 40, mezcla: 40 };
+const REF = { cifra: 120, coronas: 30, sudoku: 100, escalera: 20, operaciones: 15, camino: 20, luces: 40, tuberias: 15, sopa: 30, sospechosos: 60, balanza: 40, intruso: 40, mezcla: 40, siluetas: 60 };
 const estrellas = (id, r) => {
    if (!r) return null; if (r.st != 'won' && r.st != 'completed') return 0;
    if (id == 'palabra') return typeof r.att == 'number' && r.att >= 1 ? [5, 4, 3, 2, 1, 1][Math.min(r.att, 6) - 1] : null;
