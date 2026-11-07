@@ -4,7 +4,7 @@
    Sin soporte, el dado queda en un tamaño fijo. */
 .ddb { position: relative; --ds: 34px }
 @supports (width: 1cqw) {
-    .ddb { container-type: inline-size; --ds: calc(100cqw / var(--n, 6) * .6) }
+    .ddb { container-type: inline-size; --ds: calc(100cqw / var(--n, 6) * .8) }
 }
 
 .dzw { position: absolute; pointer-events: none; filter: drop-shadow(2px 3px 0 var(--sh)) }
