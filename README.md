@@ -89,7 +89,8 @@
 | **Mezcla**         | Match a target colour by mixing drops of 4 base paints, using as few drops as possible. |
 | **Siluetas**       | Build a cube figure that fits both its front and side shadows with the minimum number of cubes. |
 | **Rayo**           | Place a limited number of mirrors so the laser lights every gem and reaches the exit. |
-| **Carátula**       | Guess the movie from its pixelated poster (needs a `TMDB_KEY` env var in Vercel, see below). |
+| **Carátula**       | Guess the movie from its poster, divided in 3×3 zones (needs a `TMDB_KEY` env var in Vercel, see below). |
+| **Cronología**     | Put 4 historical events in order, oldest first, over 5 rounds (events in `content/eventos.js`, no API). |
 
 ## Tech Stack
 
@@ -156,7 +157,7 @@ npx serve
    * `supabase/duelos.sql`
    * `supabase/endurecimiento.sql`
 
-   Already have a database? Run `supabase/juegos_sospechosos_balanza.sql` and `supabase/juegos_intruso_mezcla_siluetas.sql` and `supabase/juego_rayo.sql` and `supabase/juego_caratula.sql`, then `duelos.sql` and `endurecimiento.sql` again (all are idempotent).
+   Already have a database? Run `supabase/juegos_sospechosos_balanza.sql` and `supabase/juegos_intruso_mezcla_siluetas.sql` and `supabase/juego_rayo.sql` and `supabase/juego_caratula.sql` and `supabase/juego_cronologia.sql`, then `duelos.sql` and `endurecimiento.sql` again (all are idempotent).
 3. Copy your *Project URL* and *publishable/anon* key into `js/config.js`. Never use the `service_role` key.
 4. Sign up in the app, then make yourself an admin:
 
