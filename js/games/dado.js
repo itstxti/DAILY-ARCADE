@@ -4,7 +4,8 @@
    El reto sale de la fecha (SD). Se hace un paseo al azar con el dado, se eligen como casillas con número algunas por las que pasó (con la cara que llevaba arriba)
    y la meta es donde acaba. Después se BUSCA POR ANCHURA sobre (casilla, orientación del dado, casillas con número ya pisadas) el menor número de movimientos:
    solo se aceptan retos que se pueden resolver, con un mínimo largo y en los que las caras del dado obligan a dar rodeos (más que si no hubiese números).
-   La victoria se comprueba por reglas (todas pisadas y el dado en la meta), no contra una solución guardada. Lunes y martes: 5×5 con 2 números; el resto, 6×6 con 3. */
+   La victoria se comprueba por reglas (todas pisadas y el dado en la meta), no contra una solución guardada. Lunes y martes: 5×5 con 2 números; el resto, 6×6 con 3.
+   El dado se dibuja como un cubo 3D de verdad (CSS, con sus puntos) encima del tablero SVG: ver «Dado 3D» más abajo y css/dado.css. */
 (function () {
    const FACIL = WD == 1 || WD == 2, N = FACIL ? 5 : 6, T = N * N, K = FACIL ? 2 : 3;
    const [LO, HI] = FACIL ? [8, 16] : [11, 22];                      // mínimo de movimientos aceptado (mín. y máx.)
@@ -85,6 +86,62 @@
    const estado = (Z, m) => { let s = { i: Z.i0, o: O0, m: 0 }; for (const d of m) { const q = paso(Z, s, d); if (q.s) s = q.s } return s };
    const pos = i => `fila ${(i / N | 0) + 1}, columna ${i % N + 1}`;
 
+   /* ----- Dado 3D -----
+      Un cubo de verdad hecho con CSS (6 caras con sus puntos) que se coloca encima del tablero SVG, en la casilla del dado.
+      · La orientación [arriba, norte, este] fija una matriz 3D (matriz): es la única fuente de verdad, no se acumulan giros.
+      · Al rodar una casilla (también al deshacer) se anima un giro de 90° sobre el eje de esa dirección, un deslizamiento y un pequeño salto.
+        Como el giro de la animación es el mismo que hace rueda() con las caras, el dado termina exactamente en la orientación nueva.
+      · La vista está inclinada para que se vean TRES caras: arriba, delante (sur) y derecha (este). Las otras tres son sus opuestas (suman 7).
+      El estado final siempre está dibujado de base; la animación solo lo recorre desde la casilla anterior (sin movimiento reducido, no hay animación). */
+   const DIR = { 1: [0, 0, 1], 2: [0, -1, 0], 3: [1, 0, 0], 4: [-1, 0, 0], 5: [0, 1, 0], 6: [0, 0, -1] };   // dónde está cada cara en el dado inicial O0 (x este, y sur, z arriba)
+   const PIPS = { 1: [[2, 2]], 2: [[1, 1], [3, 3]], 3: [[1, 1], [2, 2], [3, 3]], 4: [[1, 1], [1, 3], [3, 1], [3, 3]], 5: [[1, 1], [1, 3], [2, 2], [3, 1], [3, 3]], 6: [[1, 1], [2, 1], [3, 1], [1, 3], [2, 3], [3, 3]] };
+   const CARAS = [1, 2, 3, 4, 5, 6].map(v => `<b class="dzf dzf${v}">${PIPS[v].map(([r, c]) => `<i style="grid-area:${r}/${c}"></i>`).join('')}</b>`).join('');
+   const DUR = 320, EJE = { U: 'rotateX(90deg)', D: 'rotateX(-90deg)', R: 'rotateY(90deg)', L: 'rotateY(-90deg)' };
+   let ultimo = null, rodada = null;                                         // ultimo = lo último que se dibujó · rodada = animación en curso (por si se repinta a mitad)
+
+   /* Matriz CSS (por columnas) que deja el dado con la orientación o: lleva la cara de arriba hacia +z, la del norte hacia −y y la del este hacia +x. */
+   function matriz(o) {
+      const M = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+      for (const [w, d] of [[[0, 0, 1], DIR[o[0]]], [[0, -1, 0], DIR[o[1]]], [[1, 0, 0], DIR[o[2]]]])
+         for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) M[r][c] += w[r] * d[c];
+      return `matrix3d(${M[0][0]},${M[1][0]},${M[2][0]},0,${M[0][1]},${M[1][1]},${M[2][1]},0,${M[0][2]},${M[1][2]},${M[2][2]},0,0,0,0,1)`
+   }
+
+   function dado3d(s, g) {
+      const x = s.i % N, y = s.i / N | 0, oc = s.o.join(''), ahora = performance.now();
+      if (ultimo && ultimo.g == g && (ultimo.i != s.i || ultimo.o != oc)) {
+         // ¿viene de la casilla de al lado con una sola rodada? (mover y deshacer sí; reiniciar o rendirse no: ahí no se anima)
+         for (const d of 'UDLR')
+            if (ultimo.i % N + DIRS[d][0] == x && (ultimo.i / N | 0) + DIRS[d][1] == y && rueda([...ultimo.o].map(Number), d).join('') == oc) {
+               rodada = { g, i: s.i, o: oc, d, fo: ultimo.o, t0: ahora }; break
+            }
+      }
+      ultimo = { g, i: s.i, o: oc };
+      let an = '';
+      if (rodada && rodada.g == g && rodada.i == s.i && rodada.o == oc && ahora - rodada.t0 < DUR) {
+         // si se repinta mientras rueda (p. ej. por el cronómetro), la animación sigue por donde iba
+         an = ` data-rd="${rodada.d}" data-rm="${rodada.fo}" data-rt="${Math.round(ahora - rodada.t0)}"`;
+         requestAnimationFrame(() => animar(0))
+      }
+      return `<div class="dzw" style="left:${x * 100 / N}%;top:${y * 100 / N}%;width:${100 / N}%;height:${100 / N}%"${an} aria-hidden="true">`
+         + `<div class="dz3"><div class="dzv"><div class="dzc" style="transform:${matriz(s.o)}">${CARAS}</div></div></div></div>`
+   }
+
+   /* Se lanza tras dibujar (el HTML aún no está en la página cuando se llama a dado()): busca el dado marcado y lo anima desde la casilla anterior. */
+   function animar(n) {
+      const w = document.querySelector('.dzw[data-rd]');
+      if (!w) { if (n < 3) requestAnimationFrame(() => animar(n + 1)); return }
+      const d = w.dataset.rd, fo = w.dataset.rm.split('').map(Number), t = +w.dataset.rt || 0;
+      w.removeAttribute('data-rd'); w.removeAttribute('data-rm'); w.removeAttribute('data-rt');
+      if (!w.animate || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+      const c = w.querySelector('.dzc'), m = matriz(fo), o = { duration: DUR, easing: 'cubic-bezier(.4,.1,.3,1)' };
+      [
+         w.animate([{ translate: `${-DIRS[d][0] * 100}% ${-DIRS[d][1] * 100}%` }, { translate: '0% 0%' }], o),                                   // desliza desde la casilla anterior
+         c.animate([{ transform: `${EJE[d].replace(/-?90deg/, '0deg')} ${m}` }, { transform: `${EJE[d]} ${m}` }], o),                           // gira 90° desde la orientación anterior
+         c.animate([{ translate: '0px 0px 0px' }, { translate: `0px 0px ${c.offsetWidth * .3}px`, offset: .5 }, { translate: '0px 0px 0px' }], o)  // salta un poco
+      ].forEach(a => { a.currentTime = t })
+   }
+
    /* ----- Dibujo ----- */
    function svgTablero(Z, s, p) {
       const F = full(Z), vis = m => s.m & 1 << m, abre = s.m == F;
@@ -104,10 +161,7 @@
       // meta
       const gx = Z.meta % N, gy = Z.meta / N | 0;
       z += `<rect class="ddm${abre ? ' ok' : ''}" x="${gx + .1}" y="${gy + .1}" width=".8" height=".8" rx=".12"/><path class="ddf" d="M${gx + .38} ${gy + .76}V${gy + .22}M${gx + .38} ${gy + .24}L${gx + .74} ${gy + .37}L${gx + .38} ${gy + .5}z"/>`;
-      // dado: cara de arriba grande y las cuatro de los lados pequeñas
-      const dx = s.i % N, dy = s.i / N | 0, [t, n, e] = s.o;
-      z += `<rect class="ddd" x="${dx + .08}" y="${dy + .08}" width=".84" height=".84" rx=".16"/><text class="dd1" x="${dx + .5}" y="${dy + .53}">${t}</text>`
-         + `<text class="dd2" x="${dx + .5}" y="${dy + .22}">${n}</text><text class="dd2" x="${dx + .5}" y="${dy + .8}">${7 - n}</text><text class="dd2" x="${dx + .84}" y="${dy + .52}">${e}</text><text class="dd2" x="${dx + .16}" y="${dy + .52}">${7 - e}</text>`;
+      // el dado ya no se dibuja aquí: es un cubo 3D encima del tablero (dado3d)
       return z + '</svg>'
    }
 
@@ -115,7 +169,8 @@
    function dado() {
       const p = prog('dd'); ini(p);
       const r = R('dado'), Z = P(), lost = r && r.st == 'lost', s = estado(Z, p.m), F = full(Z), vistas = Z.cp.filter((c, k) => s.m & 1 << k).length;
-      let b = `<div class="ddb" data-b="dado">${svgTablero(Z, lost ? { i: Z.meta, o: s.o, m: F } : s, p)}</div>`;
+      const sh = lost ? { i: Z.meta, o: s.o, m: F } : s;                    // al rendirse el dado se muestra en la meta
+      let b = `<div class="ddb" data-b="dado" style="--n:${N}">${svgTablero(Z, sh, p)}${dado3d(sh, p.g)}</div>`;
       b += `<span class="sr" role="status">Dado en ${pos(s.i)}: arriba ${s.o[0]}, norte ${s.o[1]}, sur ${7 - s.o[1]}, este ${s.o[2]}, oeste ${7 - s.o[2]}. Casillas con número pisadas: ${vistas} de ${Z.cp.length}.</span>`;
       if (lost) b += resRendida('Dado rodante', `Una solución de ${Z.sol.length} movimientos: ${[...Z.sol].map(d => FL[d]).join(' ')}. Vuelve mañana para un reto nuevo.`);
       else if (r) b += res(`¡Meta alcanzada en ${mmss(r.t)}!`, `${r.n} ${pls(r.n, 'movimiento', 'movimientos')} (el mínimo era ${Z.sol.length}). Vuelve mañana para un reto nuevo.`,
@@ -123,7 +178,7 @@
       else b += `<div class="ddp" role="group" aria-label="Rodar el dado (también con las flechas del teclado)"><span></span>${bt('U', p)}<span></span>${bt('L', p)}${bt('D', p)}${bt('R', p)}</div>`
          + `<p class="cap" style="text-align:center;margin:0">Casillas con número pisadas: <b>${vistas} / ${Z.cp.length}</b> · Movimientos: <b>${p.n}</b></p>`
          + `${S.set.tm ? tmHtml(p) : ''}<p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, pista: 1, rendirme: 1 })}`
-         + `<p class="foot" style="margin-top:8px;text-align:center">Número grande: la cara de <b>arriba</b>. Los pequeños: las caras de los lados (norte, sur, este y oeste).</p>`;
+         + `<p class="foot" style="margin-top:8px;text-align:center">El dado enseña tres caras: <b>arriba</b>, <b>delante</b> (sur) y <b>derecha</b> (este). Las que no ves son sus opuestas: suman 7.</p>`;
       return shell('Dado rodante', b)
    }
 
