@@ -4304,7 +4304,7 @@ span.ryc {
 /* ---------- Jarras ----------
    .jrg = banda del objetivo · .jrs = jarras en columnas (--n) · .jrc = una columna (etiqueta, jarra, botones) · .jrk = etiqueta de capacidad
    .jrj = dibujo de la jarra · .jrb = botón de acción · .jsw = muestra del color de la jarra de destino */
-.jrg { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 12px; border-bottom: 3px solid var(--ink); background: color-mix(in srgb, var(--lav) 28%, var(--card)); text-align: center; font-weight: 700; line-height: 1.2 }
+.jrg { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 12px 2px; text-align: center; font-weight: 700; line-height: 1.2 }
 .jrg svg { flex: none; width: 24px; height: 24px; fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
 .jrg svg path { fill: color-mix(in srgb, var(--sky) 45%, var(--card)) }
 .jrg b { font-size: 1.45em; letter-spacing: -.01em }
@@ -4321,7 +4321,7 @@ span.ryc {
 
 /* ---------- Hielo ----------
    .hig = banda de estrellas y movimientos · .hig-e = las estrellas · svg.hit = tablero (touch-action: none para poder deslizar el dedo sin que se mueva la página) */
-.hig { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 12px; border-bottom: 3px solid var(--ink); background: color-mix(in srgb, var(--aqua) 24%, var(--card)); font-weight: 700; line-height: 1.2 }
+.hig { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 12px 2px; font-weight: 700; line-height: 1.2 }
 .hig-e { display: flex; gap: 3px }
 .hig svg { display: block; width: 26px; height: 26px }
 .ddb svg.hit { touch-action: none; -webkit-user-select: none; user-select: none }
@@ -4329,10 +4329,8 @@ span.ryc {
 
 /* ---------- Atasco ----------
    .atk = tarjeta · .atg = banda del objetivo (.atg-t texto con el coche, .atg-n contador) · .atw = marco del tablero (el SVG de #atb ocupa todo su ancho: el arrastre mide sobre él) */
-.atg { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; padding: 8px 12px; border-bottom: 3px solid var(--ink); background: color-mix(in srgb, var(--coral) 22%, var(--card)); font-weight: 700; line-height: 1.2 }
-.atg-t { display: flex; align-items: center; gap: 8px }
-.atg-t svg { flex: none; width: 36px; height: 20px }
-.atg-n { margin-left: auto; white-space: nowrap }
+.atg { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px; padding: 10px 12px 2px; font-weight: 700; line-height: 1.2 }
+.atg-n { white-space: nowrap }
 .atw { padding: 10px 10px 8px }
 
 /* ---------- Horizonte ---------- */
@@ -4354,8 +4352,8 @@ span.ryc {
 /* ---------- Eco ----------
    .eck = tarjeta · .ecg = banda del objetivo (.ecg-t texto, .ecg-n contadores) · .ecs = estado del último movimiento bajo cada tablero (.ecs-x choca, .ecs-ok en la salida) */
 .eck { overflow: hidden }
-.ecg { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; padding: 8px 12px; border-bottom: 3px solid var(--ink); background: color-mix(in srgb, var(--lav) 28%, var(--card)); font-weight: 700; line-height: 1.25 }
-.ecg-n { margin-left: auto; white-space: nowrap; font-size: 14px }
+.ecg { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 10px; padding: 10px 12px 2px; font-weight: 700; line-height: 1.25 }
+.ecg-n { white-space: nowrap }
 .eck .ecw { margin: 0; padding: 10px 10px 8px; max-width: none }
 .ecs { display: inline-block; margin-left: 6px; padding: 0 7px; border-radius: 999px; background: color-mix(in srgb, var(--ink) 10%, var(--card)); font-size: 13px; font-weight: 800 }
 .ecs-x { color: var(--berry) }
@@ -4363,16 +4361,9 @@ span.ryc {
 .ecp .ecd:disabled { opacity: .38; box-shadow: none; cursor: default }
 
 /* ---------- Faros ----------
-   .fak = tarjeta · .fag = banda del objetivo (.fag-t texto, .fag-n contador) · .fag-p = barra de casillas iluminadas · .fal = leyenda · .fa-w = aviso de faros que se ven */
+   .fak = tarjeta ·  .fal = leyenda · .fa-w = aviso de faros que se ven */
 .fak { overflow: hidden }
 .fak .frb { border: 0; border-radius: 0; margin: 0; max-width: none }
-.fag { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; padding: 8px 12px; background: color-mix(in srgb, var(--sun) 30%, var(--card)); font-weight: 700; line-height: 1.2 }
-.fag-t { display: flex; align-items: center; gap: 8px }
-.fag-t svg { flex: none; width: 26px; height: 26px; fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linecap: round }
-.fag-t svg circle { fill: var(--sun) }
-.fag-n { margin-left: auto; white-space: nowrap }
-.fag-p { height: 8px; border-top: 3px solid var(--ink); border-bottom: 3px solid var(--ink); background: var(--card) }
-.fag-p i { display: block; height: 100%; background: var(--sun); transition: width .3s ease }
 .fak .fc:not(.lit):not(.lamp) { background: color-mix(in srgb, var(--ink) 7%, var(--card)) }
 .fak .fc.cf { animation: fa-cf .9s ease-in-out infinite }
 .fal { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; padding: 8px 10px; border-top: 3px solid var(--ink); font-size: 13px; color: var(--mut) }
@@ -4386,16 +4377,12 @@ span.ryc {
 .fal-m { border: 1px solid var(--line); background: color-mix(in srgb, var(--ink) 7%, var(--card)) }
 .fa-w { text-align: center; margin: 8px 0 0; font-weight: 700; color: var(--berry) }
 @keyframes fa-cf { 50% { box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--berry) 45%, transparent) } }
-@media (prefers-reduced-motion: reduce) { .fak .fc.cf { animation: none } .fag-p i { transition: none } }
+@media (prefers-reduced-motion: reduce) { .fak .fc.cf { animation: none } }
 
 /* ---------- Coronas ----------
-   .cok = tarjeta · .cog = banda del objetivo (.cog-t texto, .cog-n contador) · .cok-k corona / .cok-x marca ✕ (SVG en la casilla) · .cok-l = leyenda de colores (.cok-c, .ok = ya tiene su corona, .bd = tiene de más) */
+   .cok = tarjeta ·  .cok-k corona / .cok-x marca ✕ (SVG en la casilla) · .cok-l = leyenda de colores (.cok-c, .ok = ya tiene su corona, .bd = tiene de más) */
 .cok { overflow: hidden }
 .cok .bd2 { border: 0; border-radius: 0; margin: 0; max-width: none }
-.cog { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; padding: 8px 12px; border-bottom: 3px solid var(--ink); background: color-mix(in srgb, var(--sun) 30%, var(--card)); font-weight: 700; line-height: 1.2 }
-.cog-t { display: flex; align-items: center; gap: 8px }
-.cog-n { margin-left: auto; white-space: nowrap }
-.cog-t svg { flex: none; width: 26px; height: 26px; fill: var(--sun); stroke: var(--ink); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round }
 .z .cok-k { width: 62%; height: 62%; fill: #14213D; stroke: #14213D; stroke-width: 1.2; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 1px 0 rgba(255,255,255,.55)) }
 .z .cok-x { width: 44%; height: 44%; fill: none; stroke: #14213D; stroke-opacity: .55; stroke-width: 2.6; stroke-linecap: round }
 .z small { opacity: .7 }
@@ -4410,10 +4397,8 @@ span.ryc {
    .sik = tarjeta · .sik-b banda del objetivo (.sik-t texto, .sik-n contador) · .sis-w/.sis-n = sombra con el número de capa de cada fila
    .siw = capa con franjas objetivo (.sif columnas arriba, .sil filas a la derecha; .on = tiene que haber cubo) · .sic.nx = casilla que nunca lleva cubo (rayada) */
 .sik { overflow: hidden; padding-bottom: 8px }
-.sik-b { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; padding: 8px 12px; border-bottom: 3px solid var(--ink); background: color-mix(in srgb, var(--lime) 30%, var(--card)); font-weight: 700; line-height: 1.2 }
-.sik-t { display: flex; align-items: center; gap: 8px }
-.sik-t svg { flex: none; width: 26px; height: 26px; fill: color-mix(in srgb, var(--sky) 55%, transparent); stroke: var(--ink); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round }
-.sik-n { margin-left: auto; white-space: nowrap }
+.sik-b { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px; padding: 10px 12px 2px; font-weight: 700; line-height: 1.2 }
+.sik-n { white-space: nowrap }
 .sik .sit2 { padding: 0 10px }
 .sik .sip { padding: 0 12px; margin-bottom: 4px }
 .sis-w { display: flex; align-items: stretch; gap: 4px }
@@ -4429,12 +4414,8 @@ span.ryc {
 .sic.nx:not(.on) { background-image: repeating-linear-gradient(135deg, transparent 0 4px, color-mix(in srgb, var(--edge) 28%, transparent) 4px 6px) }
 
 /* ---------- Horizonte (rediseño) ----------
-   .hzk = tarjeta · .hzg = banda del objetivo (.hzg-t texto, .hzg-n pistas cumplidas) · .hzw = marco del tablero · .hzp = teclado de alturas pegado al tablero (.k[data-done] = esa altura ya está en las 4 filas) */
+   .hzk = tarjeta ·  .hzw = marco del tablero · .hzp = teclado de alturas pegado al tablero (.k[data-done] = esa altura ya está en las 4 filas) */
 .hzk { overflow: hidden }
-.hzg { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; padding: 8px 12px; border-bottom: 3px solid var(--ink); background: color-mix(in srgb, var(--mint) 28%, var(--card)); font-weight: 700; line-height: 1.2 }
-.hzg-t { display: flex; align-items: center; gap: 8px }
-.hzg-t svg { flex: none; width: 26px; height: 26px; fill: color-mix(in srgb, var(--mint) 50%, transparent); stroke: var(--ink); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round }
-.hzg-n { margin-left: auto; white-space: nowrap }
 .hzw { padding: 10px 10px 6px }
 .hzp { padding: 4px 10px 12px }
 .hzp .kb { margin: 0 }
