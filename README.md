@@ -3,7 +3,7 @@
 # DAILY ARCADE
 
 <p>
-  A browser-based collection of <strong>27 daily puzzle games</strong>.<br>
+  A browser-based collection of <strong>30 daily puzzle games</strong>.<br>
   A new challenge every day, streaks, friends rankings and live duels.
 </p>
 
@@ -100,6 +100,9 @@
 | **Faros**          | Place lamps so every free cell is lit. A lamp shines in a straight line up to a wall; lamps cannot see each other, and a numbered wall says how many lamps touch it. The generator removes numbers while brute force still finds exactly one solution (5×5 on Mon/Tue, 6×6 otherwise). |
 | **Dado rodante**   | Roll a die across the board, one cell at a time. A numbered cell can only be stepped on with that number on top; step on all of them, then reach the flag. Each daily board is solved by breadth-first search over (cell, die orientation, numbered cells visited), so it is always solvable and the die forces detours. |
 | **Horizonte**      | 4×4 skyscrapers: heights 1–4 with no repeats in any row or column, and each number on the edge tells how many buildings are visible from there. The generator checks against all 576 Latin squares that the clues leave exactly one solution. |
+| **Atasco**         | Rush Hour on a 6×6 board: slide cars and trucks in straight lines to let the red car out. Each daily board is explored completely with breadth-first search (moving is reversible), and the puzzle is a position far from the exit, so it is always solvable and the minimum number of moves is exact. |
+| **Hielo**          | The floor is ice: you slide until you hit a rock or the edge. Pass through every star and stop on the flag (which also stops you). Solved by breadth-first search over (cell, stars collected); only long puzzles where the stars force detours are accepted. |
+| **Jarras**         | Two or three unmarked jugs and a tap: fill, empty or pour to get exactly the requested litres in one jug. Breadth-first search over every jug state gives the minimum; targets that equal a jug's capacity are rejected. |
 
 ## Tech Stack
 
@@ -198,6 +201,9 @@ The whole app can be used without a mouse.
 | Faros | `Tab` to the board, arrows move the cursor, `Enter`/`Space` cycle lamp → mark → empty, `X` toggles the «no lamp here» mark. |
 | Dado rodante | Arrow keys roll the die. |
 | Horizonte | `Tab` to the board, arrows select the cell, digits `1`–`4` set the height, `Backspace`/`Del` clears it. |
+| Atasco | `Tab` to the board, `Enter` marks the next vehicle (`Shift`+`Enter`, the previous one), arrows slide the marked vehicle one cell (several in a row in the same direction count as one move). |
+| Hielo | Arrow keys slide. |
+| Jarras | `Tab` through the *Fill*, *Empty* and *Pour* buttons of each jug. |
 
 Games that need the arrow keys for themselves register with `flechas: true`. Board containers opt in to the single tab stop with `data-rv="name"`.
 

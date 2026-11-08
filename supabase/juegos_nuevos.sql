@@ -4,4 +4,4 @@
 
 alter table resultados drop constraint if exists resultados_juego_valido;
 alter table resultados add constraint resultados_juego_valido
-  check (juego in ('palabra','cifra','coronas','sudoku','escalera','operaciones','camino','luces','tuberias','sopa','sospechosos','balanza','intruso','mezcla','siluetas','rayo','caratula','cronologia','pais','pokemon','masmenos','rio','eco','parcelas','faros','dado','horizonte'));
+  check (juego in ('palabra','cifra','coronas','sudoku','escalera','operaciones','camino','luces','tuberias','sopa','sospechosos','balanza','intruso','mezcla','siluetas','rayo','caratula','cronologia','pais','pokemon','masmenos','rio','eco','parcelas','faros','dado','horizonte','atasco','hielo','jarras'));
