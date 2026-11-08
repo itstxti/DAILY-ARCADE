@@ -4387,3 +4387,21 @@ span.ryc {
 .fa-w { text-align: center; margin: 8px 0 0; font-weight: 700; color: var(--berry) }
 @keyframes fa-cf { 50% { box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--berry) 45%, transparent) } }
 @media (prefers-reduced-motion: reduce) { .fak .fc.cf { animation: none } .fag-p i { transition: none } }
+
+/* ---------- Coronas ----------
+   .cok = tarjeta · .cog = banda del objetivo (.cog-t texto, .cog-n contador) · .cok-k corona / .cok-x marca ✕ (SVG en la casilla) · .cok-l = leyenda de colores (.cok-c, .ok = ya tiene su corona, .bd = tiene de más) */
+.cok { overflow: hidden }
+.cok .bd2 { border: 0; border-radius: 0; margin: 0; max-width: none }
+.cog { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; padding: 8px 12px; border-bottom: 3px solid var(--ink); background: color-mix(in srgb, var(--sun) 30%, var(--card)); font-weight: 700; line-height: 1.2 }
+.cog-t { display: flex; align-items: center; gap: 8px }
+.cog-n { margin-left: auto; white-space: nowrap }
+.cog-t svg { flex: none; width: 26px; height: 26px; fill: var(--sun); stroke: var(--ink); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round }
+.z .cok-k { width: 62%; height: 62%; fill: #14213D; stroke: #14213D; stroke-width: 1.2; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 1px 0 rgba(255,255,255,.55)) }
+.z .cok-x { width: 44%; height: 44%; fill: none; stroke: #14213D; stroke-opacity: .55; stroke-width: 2.6; stroke-linecap: round }
+.z small { opacity: .7 }
+.cok-l { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; padding: 8px 10px; border-top: 3px solid var(--ink) }
+.cok-c { display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-width: 32px; height: 28px; padding: 0 7px; border: 2px solid var(--ink); border-radius: 8px; color: #14213D; font-size: 13px; font-weight: 800; transition: transform .15s }
+.cok-c i { font-style: normal; font-size: 12px }
+.cok-c.ok { box-shadow: 0 0 0 2px var(--mint) }
+.cok-c.bd { box-shadow: 0 0 0 2px var(--berry) }
+@media (prefers-reduced-motion: reduce) { .cok-c { transition: none } }
