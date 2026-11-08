@@ -4267,6 +4267,7 @@ span.ryc {
 .fc, .fw { aspect-ratio: 1; padding: 0; border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 0; display: grid; place-items: center; position: relative }
 .fc { background: var(--card); color: var(--ink); cursor: pointer }
 .fc.lit { background: color-mix(in srgb, var(--sun) 38%, var(--card)) }
+.fc.lamp { background: color-mix(in srgb, var(--sun) 80%, var(--card)) }
 .fc svg { width: 72%; height: 72%; fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linecap: round }
 .fc.lamp svg circle { fill: var(--sun) }
 .fc.mk::after { content: ''; width: 22%; aspect-ratio: 1; border-radius: 50%; background: color-mix(in srgb, var(--ink) 45%, transparent) }
@@ -4360,3 +4361,29 @@ span.ryc {
 .ecs-x { color: var(--berry) }
 .ecs-ok { background: color-mix(in srgb, var(--mint) 35%, var(--card)) }
 .ecp .ecd:disabled { opacity: .38; box-shadow: none; cursor: default }
+
+/* ---------- Faros ----------
+   .fak = tarjeta · .fag = banda del objetivo (.fag-t texto, .fag-n contador) · .fag-p = barra de casillas iluminadas · .fal = leyenda · .fa-w = aviso de faros que se ven */
+.fak { overflow: hidden }
+.fak .frb { border: 0; border-radius: 0; margin: 0; max-width: none }
+.fag { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; padding: 8px 12px; background: color-mix(in srgb, var(--sun) 30%, var(--card)); font-weight: 700; line-height: 1.2 }
+.fag-t { display: flex; align-items: center; gap: 8px }
+.fag-t svg { flex: none; width: 26px; height: 26px; fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linecap: round }
+.fag-t svg circle { fill: var(--sun) }
+.fag-n { margin-left: auto; white-space: nowrap }
+.fag-p { height: 8px; border-top: 3px solid var(--ink); border-bottom: 3px solid var(--ink); background: var(--card) }
+.fag-p i { display: block; height: 100%; background: var(--sun); transition: width .3s ease }
+.fak .fc:not(.lit):not(.lamp) { background: color-mix(in srgb, var(--ink) 7%, var(--card)) }
+.fak .fc.cf { animation: fa-cf .9s ease-in-out infinite }
+.fal { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; padding: 8px 10px; border-top: 3px solid var(--ink); font-size: 13px; color: var(--mut) }
+.fal span { display: inline-flex; align-items: center; gap: 6px }
+.fal i { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 4px; font-style: normal; font-weight: 800; font-size: 12px }
+.fal-w { background: var(--ink); color: var(--card) }
+.fal-l { background: color-mix(in srgb, var(--sun) 80%, var(--card)); border: 1px solid var(--line) }
+.fal-l svg { width: 16px; height: 16px; fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round }
+.fal-l svg circle { fill: var(--sun) }
+.fal-m::after { content: ''; width: 5px; height: 5px; border-radius: 50%; background: color-mix(in srgb, var(--ink) 45%, transparent) }
+.fal-m { border: 1px solid var(--line); background: color-mix(in srgb, var(--ink) 7%, var(--card)) }
+.fa-w { text-align: center; margin: 8px 0 0; font-weight: 700; color: var(--berry) }
+@keyframes fa-cf { 50% { box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--berry) 45%, transparent) } }
+@media (prefers-reduced-motion: reduce) { .fak .fc.cf { animation: none } .fag-p i { transition: none } }
