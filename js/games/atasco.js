@@ -166,7 +166,6 @@
    function pinta() {
       const p = prog('ta'), Z = P(); ini(p);
       const b = $('#atb'); if (b) b.innerHTML = svgTablero(Z, p.pos, p, false);
-      const c = $('#atc'); if (c) c.innerHTML = `Movimientos <b>${p.n}</b>`;
       const m = $('#atm'); if (m) m.textContent = msg
    }
    function atasco() {
@@ -175,7 +174,7 @@
       const ganada = !!r && !lost, va = ganada && sale && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
       if (sale) { sale = false; if (va) requestAnimationFrame(animaSalida) }
       const coche = `<svg viewBox="0 0 36 20" aria-hidden="true"><rect x="1.5" y="2.5" width="33" height="15" rx="6" style="fill:${ROJO};stroke:var(--ink);stroke-width:2"/><path d="M10 10H25M20 5.5 25 10 20 14.5" style="fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"/></svg>`;
-      let b = `<div class="ddb atk"><div class="atg"><span id="atc" class="atg-n">Movimientos <b>${r && r.n != null ? r.n : p.n}</b></span></div>`
+      let b = `<div class="ddb atk">`
          + `<div class="atw"><div id="atb" data-b="atasco"${r ? '' : ` tabindex="0" role="application" aria-label="Tablero de Atasco. Enter para marcar el siguiente vehículo, flechas para deslizar el vehículo marcado una casilla."`} style="${r ? '' : 'touch-action:none;'}user-select:none;-webkit-user-select:none">${svgTablero(Z, lost ? resuelto(Z) : p.pos, p, !!r, ganada, va)}</div></div></div>`;
       if (!r) b += '<span class="sr" id="atl" aria-live="polite"></span>';
       if (lost) b += resRendida('Atasco', `Así se sacaba el coche rojo en ${Z.d} ${pls(Z.d, 'movimiento', 'movimientos')}. Vuelve mañana para un reto nuevo.`);

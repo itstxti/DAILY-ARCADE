@@ -68,7 +68,7 @@
       const p = prog('ec'); ini(p);
       const r = R('eco'), Z = P(), lost = r && r.st == 'lost';
       const L = p.l && !r ? p.l : null, du = L ? L[1] : null, de = L ? { L: 'R', R: 'L', U: 'U', D: 'D' }[L[1]] : null, en = (p.a == Z.e1) + (p.b == Z.e2);
-      let b = `<div class="ddb eck"><div class="ecg"><span class="ecg-n" aria-live="polite">Movimientos <b>${p.m}</b> · ${r && !lost ? 2 : en}/2 en salida</span></div>`
+      let b = `<div class="ddb eck">`
          + `<div class="ecw">${tab(Z.B1, Z.e1, p.a, 'u1', 'Tú', L && [L[2], du])}${tab(Z.B2, Z.e2, p.b, 'u2', 'Eco', L && [L[3], de])}</div></div>`;
       if (lost) b += resRendida('Eco', `El mínimo eran ${Z.sol.length} movimientos: ${[...Z.sol].map(d => FL[d]).join(' ')}. Vuelve mañana para un reto nuevo.`);
       else if (r) b += res(`¡Los dos en la salida en ${mmss(r.t)}!`, `${r.m} ${pls(r.m, 'movimiento', 'movimientos')} (el mínimo era ${Z.sol.length}). Vuelve mañana para un reto nuevo.`,

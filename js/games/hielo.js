@@ -151,8 +151,7 @@
       const r = R('hielo'), Z = P(), lost = r && r.st == 'lost', s = estado(Z, p.m), K = Z.st.length, rec = Z.st.filter((c, k) => s.m & 1 << k).length;
       const sh = lost ? { i: Z.meta, m: lleno(Z), tr: s.tr } : s;           // al rendirse el personaje se muestra en la meta
       const off = d => p.pd != d && !desliza(Z, s.i, d, s.m).n;            // dirección sin salida (roca o borde pegado): botón apagado
-      const banda = `<div class="hig"><span class="hig-e" role="img" aria-label="Estrellas recogidas: ${rec} de ${K}">${Z.st.map((c, k) => icoEst(lost || s.m & 1 << k)).join('')}</span><span>Movimientos <b>${p.n}</b></span></div>`;
-      let b = `<div class="ddb" data-b="hielo">${banda}${svgTablero(Z, sh, 0, { activo: !r, pd: p.pd })}</div>`;
+      let b = `<div class="ddb" data-b="hielo">${svgTablero(Z, sh, 0, { activo: !r, pd: p.pd })}</div>`;
       b += `<span class="sr" role="status">Estás en ${pos(s.i)}. Estrellas recogidas: ${rec} de ${K}. La bandera está en ${pos(Z.meta)}.</span>`;
       if (lost) b += resRendida('Hielo', `Una solución de ${Z.sol.length} movimientos: ${[...Z.sol].map(d => FL[d]).join(' ')}. Vuelve mañana para un reto nuevo.`);
       else if (r) b += res(`¡Meta alcanzada en ${mmss(r.t)}!`, `${r.n} ${pls(r.n, 'movimiento', 'movimientos')} (el mínimo era ${Z.sol.length}). Vuelve mañana para un reto nuevo.`,
