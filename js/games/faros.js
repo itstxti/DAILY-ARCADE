@@ -117,11 +117,16 @@
             z += `<button class="${c}" data-a="fr" data-i="${i}"${r ? ' disabled' : ''} aria-label="${pos(i)}, ${f ? 'faro' + (cf.has(i) ? ' que ve a otro faro' : '') : s[i] == 2 ? 'marcada sin faro' : lit[i] ? 'iluminada' : 'a oscuras'}">${f ? ICO : ''}</button>`
          }
       }
-      let b = `<div class="frb" data-rv="faros" role="group" aria-label="Tablero de faros de ${N} por ${N}" style="grid-template-columns:repeat(${N},1fr)">${z}</div>`;
+      const pc = r && !lost ? 100 : Math.round(ncub / Z.W.length * 100), nc = cf.size;
+      let b = `<div class="ddb fak"><div class="fag"><span class="fag-t">${ICO}<span>Ilumina <b>todo</b> sin que se vean</span></span><span class="fag-n">${r && !lost ? Z.W.length : ncub} / ${Z.W.length}</span></div>`
+         + `<div class="fag-p" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pc}" aria-label="Casillas iluminadas"><i style="width:${pc}%"></i></div>`
+         + `<div class="frb" data-rv="faros" role="group" aria-label="Tablero de faros de ${N} por ${N}" style="grid-template-columns:repeat(${N},1fr)">${z}</div>`
+         + `<div class="fal" aria-hidden="true"><span><i class="fal-w">2</i>faros pegados</span><span><i class="fal-l">${ICO}</i>faro</span><span><i class="fal-m"></i>aquí no</span></div></div>`;
+      if (!r && nc) b += `<p class="fa-w" role="status">Hay faros que se ven entre sí (borde rojo).</p>`;
       if (lost) b += resRendida('Faros', 'Así se iluminaba todo: estos son los faros de la solución. Vuelve mañana para un reto nuevo.');
       else if (r) b += res(`¡Todo iluminado en ${mmss(r.t)}!`, `${r.n} ${pls(r.n, 'faro', 'faros')} en un tablero de ${N}×${N}. Vuelve mañana para un reto nuevo.`,
          `Daily Arcade · Faros #${DAY} · ${N}×${N} · ${mmss(r.t)}${r.h ? ' · ' + r.h + pls(r.h, ' pista', ' pistas') : ''}`);
-      else b += `${S.set.tm ? tmHtml(p) : ''}<p class="cap" style="text-align:center;margin:0">${ncub} / ${Z.W.length} casillas iluminadas · ${nf} ${pls(nf, 'faro', 'faros')}</p><p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, pista: 1, rendirme: 1 })}`
+      else b += `${S.set.tm ? tmHtml(p) : ''}<p class="cap" style="text-align:center;margin:0">${nf} ${pls(nf, 'faro colocado', 'faros colocados')}</p><p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, pista: 1, rendirme: 1 })}`
          + `<p class="foot" style="margin-top:8px;text-align:center">Toca una casilla para poner un faro; otra vez, para marcarla como «aquí no»; y otra, para vaciarla. Con teclado: <b>Enter</b> pone o quita el faro y <b>X</b> marca.</p>`;
       return shell('Faros', b)
    }
