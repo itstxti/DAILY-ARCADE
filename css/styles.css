@@ -1712,6 +1712,38 @@ a.btn {
     font-size: 16px
 }
 
+/* Ejemplos con varias imágenes en fila, cada una con su pie (Jarras, Atasco, Eco). --c = columnas, --mw = ancho máximo */
+.dm .dmg {
+    display: grid;
+    grid-template-columns: repeat(var(--c, 2), minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    max-width: var(--mw, 340px);
+    margin: 0
+}
+
+.dm .dmg figure {
+    margin: 0;
+    text-align: center
+}
+
+.dm .dmg svg {
+    display: block;
+    width: 100%;
+    height: auto
+}
+
+.dm .dmg figcaption {
+    margin-top: 4px;
+    font-size: .78rem;
+    line-height: 1.3;
+    color: var(--mut)
+}
+
+.dm .dmg figcaption b {
+    color: var(--ink)
+}
+
 .eq1 {
     display: flex;
     align-items: center;

@@ -227,6 +227,31 @@
       id: 'dado', name: 'Dado rodante', desc: 'Haz rodar el dado por el tablero cumpliendo las casillas con número hasta llegar a la meta.', color: '--sky', tag: 'Rueda el dado hasta la meta', flechas: true,
       icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>',
       how: ['Haz rodar el dado por el tablero con las <b>flechas</b> o los botones. En un dado, las caras opuestas suman <b>7</b>.', 'Una casilla con número solo se pisa con <b>ese número arriba</b>. Hay que pisar <b>todas</b> (en cualquier orden) y después llegar a la <b>bandera</b>.', 'Las <b>rocas</b> bloquean el paso. Cuenta cada movimiento: intenta acercarte al <b>mínimo</b>.'],
+      /* Ejemplo: el dado (1 arriba, 5 delante, 3 a la derecha) rueda dos veces a la derecha. Las caras salen de rueda(): 1 → 4 → 6, y pisa las casillas «4» y «6». */
+      demo: (() => {
+         const f = "font-family:'Bricolage Grotesque',system-ui,sans-serif;text-anchor:middle", S = 38, D = 15;
+         const pips = v => PIPS[v].map(([r, c]) => `<circle cx="${((c * 2 - 1) / 6).toFixed(3)}" cy="${((r * 2 - 1) / 6).toFixed(3)}" r=".1" style="fill:var(--on-sky)"/>`).join('');
+         // un cubo oblicuo con tres caras visibles: arriba, delante (sur) y derecha (este); x, y = esquina superior izquierda de la cara de delante
+         const cubo = (x, y, [t, n, e]) => {
+            const cara = (m, v, sombra) => `<g transform="matrix(${m})"><rect width="1" height="1" style="fill:var(--sky);stroke:var(--ink);stroke-width:${(2 / S).toFixed(3)};stroke-linejoin:round"/>`
+               + (sombra ? `<rect width="1" height="1" style="fill:${sombra}"/>` : '') + pips(v) + '</g>';
+            return cara(`${S} 0 ${-D} ${D} ${x + D} ${y - D}`, t, 'rgb(255 255 255 / .22)')                 // arriba
+               + cara(`${S} 0 0 ${S} ${x} ${y}`, 7 - n)                                                       // delante (sur = 7 − norte)
+               + cara(`${D} ${-D} 0 ${S} ${x + S} ${y}`, e, 'rgb(0 0 0 / .16)')                               // derecha
+         };
+         const O1 = rueda(O0, 'R'), PASOS = [O0, O1, rueda(O1, 'R')];                                         // [1,2,3] → [4,2,1] → [6,2,4]
+         const celda = (i, num) => {
+            const x0 = 8 + i * 110, y0 = 14, ok = i > 0;
+            let s = `<rect x="${x0}" y="${y0}" width="84" height="84" rx="9" style="fill:${ok ? 'color-mix(in srgb,var(--mint) 30%,var(--card))' : 'var(--card)'};stroke:${ok ? 'var(--mint)' : 'var(--edge)'};stroke-width:${ok ? 3 : 2}${ok ? '' : ';stroke-dasharray:5 4'}"/>`;
+            if (num) s += `<circle cx="${x0 + 14}" cy="${y0 + 14}" r="11" style="fill:var(--card);stroke:var(--ink);stroke-width:2"/><text x="${x0 + 14}" y="${y0 + 19}" style="${f};fill:var(--ink);font-weight:800;font-size:14px">${num}</text>`;
+            return s + cubo(x0 + (84 - S - D) / 2, y0 + (84 - S - D) / 2 + D + 2, PASOS[i])
+         };
+         const fl = x => `<path d="M${x} 56h16m-6-6l6 6-6 6" style="fill:none;stroke:var(--ink);stroke-width:3;stroke-linecap:round;stroke-linejoin:round"/>`;
+         const z = `<svg viewBox="0 0 320 112" role="img" aria-label="Ejemplo del dado rodante. El dado empieza con el 1 arriba y el 3 a la derecha. Al rodar a la derecha queda el 4 arriba y pisa la casilla 4. Al rodar otra vez a la derecha queda el 6 arriba y pisa la casilla 6." style="display:block;width:100%;max-width:330px;margin:4px auto">`
+            + celda(0) + fl(94) + celda(1, 4) + fl(204) + celda(2, 6) + '</svg>';
+         return `<p class="cap">Ejemplo: el dado rueda <b>dos veces a la derecha</b>.</p>${z}`
+            + `<p class="cap">Al rodar a la derecha, la cara de la <b>izquierda</b> pasa arriba (es la opuesta a la de la derecha: <b>7 − 3 = 4</b>). Por eso puedes pisar la casilla <b>4</b> y, después, la <b>6</b>.</p>`
+      })(),
       pk: 'dd',
       render: dado,
       actions: { ddm, undo, reiniciar, pista, rendirme: confirma(rendirse) },
