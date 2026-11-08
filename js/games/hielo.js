@@ -96,6 +96,8 @@
    }
 
    /* ----- Dibujo ----- */
+   const MS_BASE = 160, MS_CASILLA = 110;                                // duración del deslizamiento: base + por casilla recorrida
+   let anim = null;                                                      // { de, a } del último movimiento, hasta que se pinta
    const estrella = (cx, cy, r) => { let s = ''; for (let k = 0; k < 10; k++) { const a = -Math.PI / 2 + k * Math.PI / 5, rr = k % 2 ? r * .45 : r; s += (k ? 'L' : 'M') + (cx + rr * Math.cos(a)).toFixed(3) + ' ' + (cy + rr * Math.sin(a)).toFixed(3) } return s + 'z' };
    function svgTablero(Z, s, meta) {
       const vis = k => s.m & 1 << k, abre = s.m == lleno(Z);
@@ -116,7 +118,18 @@
          z += `<path d="${estrella(x, y, .34)}" style="fill:${vis(k) ? 'var(--mint)' : 'color-mix(in srgb,var(--sun) 55%,var(--card))'};stroke:var(--ink);stroke-width:.05;stroke-linejoin:round"/>`
       });
       const x = s.i % N + .5, y = (s.i / N | 0) + .5;
-      return z + `<circle cx="${x}" cy="${y}" r=".3" style="fill:var(--sky);stroke:var(--ink);stroke-width:.06"/><circle cx="${x - .1}" cy="${y - .06}" r=".06" style="fill:var(--card)"/><circle cx="${x + .1}" cy="${y - .06}" r=".06" style="fill:var(--card)"/></svg>`
+      let dat = ''; if (anim && !meta && anim.a == s.i) { dat = ` data-de="${anim.de}" data-a="${anim.a}"`; requestAnimationFrame(() => animar(0)) } anim = null;
+      return z + `<g class="hjp"${dat}><circle cx="${x}" cy="${y}" r=".3" style="fill:var(--sky);stroke:var(--ink);stroke-width:.06"/><circle cx="${x - .1}" cy="${y - .06}" r=".06" style="fill:var(--card)"/><circle cx="${x + .1}" cy="${y - .06}" r=".06" style="fill:var(--card)"/></g></svg>`
+   }
+
+   /* Se lanza tras pintar: desliza al personaje desde la casilla anterior hasta la nueva (sin movimiento reducido no hay animación; el estado final ya está dibujado). */
+   function animar(n) {
+      const g = document.querySelector('.hjp[data-de]');
+      if (!g) { if (n < 3) requestAnimationFrame(() => animar(n + 1)); return }
+      const de = +g.dataset.de, a = +g.dataset.a; g.removeAttribute('data-de'); g.removeAttribute('data-a');
+      if (!g.animate || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+      const dx = de % N - a % N, dy = (de / N | 0) - (a / N | 0), c = Math.abs(dx) + Math.abs(dy);
+      g.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'translate(0px, 0px)' }], { duration: MS_BASE + MS_CASILLA * c, easing: 'cubic-bezier(.3,.1,.3,1)' })
    }
 
    const bt = (d, p) => `<button class="btn ddd2${p.pd == d ? ' pista' : ''}" data-a="hm" data-d="${d}" aria-label="Deslizarte hacia ${NOM[d].replace('la ', '')}">${FL[d]}</button>`;
@@ -141,7 +154,7 @@
       if (R('hielo')) return;
       const p = prog('hi'); ini(p); const Z = P(), s = estado(Z, p.m), q = desliza(Z, s.i, d, s.m);
       if (!q.n) { msg = 'No te mueves: hay una roca o el borde justo al lado.'; Sfx.p('error'); return draw() }
-      p.t0 = p.t0 || Date.now(); p.m += d; p.n++; p.pd = null; msg = ''; Sfx.p('tap', p.n % 5);
+      p.t0 = p.t0 || Date.now(); p.m += d; p.n++; p.pd = null; msg = ''; Sfx.p('tap', p.n % 5); anim = { de: s.i, a: q.i };
       if (q.i == Z.meta && q.m == lleno(Z)) { Sfx.p('acierto'); fin('hielo', { st: 'completed', t: Date.now() - p.t0, n: p.n, par: Z.sol.length, h: p.h || 0, c: 0 }) }
       sv(); draw()
    }

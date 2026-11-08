@@ -7,7 +7,8 @@
 (function () {
    const N = 6, T = N * N, SAL = N - 2, TOPE = 25000;               // SAL = columna donde queda el rojo al salir · TOPE = máximo de posiciones que se exploran por tablero
    const DIF = WD == 1 || WD == 2 ? [7, 9] : WD == 0 || WD == 6 ? [11, 15] : [9, 12];   // [mínimo aceptado, mínimo que se busca] de movimientos
-   const COL = ['var(--berry)', 'var(--sky)', 'var(--mint)', 'var(--sun)', 'var(--lav)', 'var(--orange)', 'var(--aqua)', 'var(--pink)', 'var(--lime)', 'var(--coral)', 'color-mix(in srgb,var(--sky) 50%,var(--ink))', 'color-mix(in srgb,var(--mint) 50%,var(--sun))'];
+   const ROJO = '#DC2626';                                           // el coche rojo es rojo de verdad (sin mezclar con el fondo)
+   const COL = [ROJO, 'var(--sky)', 'var(--mint)', 'var(--sun)', 'var(--lav)', 'var(--orange)', 'var(--aqua)', 'var(--pink)', 'var(--lime)', 'var(--coral)', 'color-mix(in srgb,var(--sky) 50%,var(--ink))', 'color-mix(in srgb,var(--mint) 50%,var(--sun))'];
    const NOMC = ['rojo', 'azul', 'verde', 'amarillo', 'lila', 'naranja', 'turquesa', 'rosa', 'lima', 'coral', 'azul oscuro', 'oliva'];
    const pls = (n, a, b) => n == 1 ? a : b;
    const clave = pos => pos.join('');                                // las posiciones son de 0 a 5: una cifra por vehículo
@@ -118,11 +119,11 @@
       for (let i = 0; i < T; i++) s += `<rect x="${i % N}" y="${i / N | 0}" width="1" height="1" style="fill:var(--card);stroke:var(--line);stroke-width:.03"/>`;
       // borde del tablero con un hueco en la salida (fila 2, a la derecha)
       s += `<path d="M${N} 2V0H0V${N}H${N}V3" style="fill:none;stroke:var(--ink);stroke-width:.09;stroke-linejoin:round;stroke-linecap:round"/>`
-         + `<path d="M${N + .12} 2.28 ${N + .42} 2.5 ${N + .12} 2.72z" style="fill:var(--berry);stroke:var(--ink);stroke-width:.04;stroke-linejoin:round"/>`;
+         + `<path d="M${N + .12} 2.28 ${N + .42} 2.5 ${N + .12} 2.72z" style="fill:${ROJO};stroke:var(--ink);stroke-width:.04;stroke-linejoin:round"/>`;
       Z.ve.forEach((v, k) => {
          const off = arrastre && arrastre.k == k ? arrastre.off : 0, q = pos[k] + off;
          const x = v.h ? q : v.c, y = v.h ? v.c : q, w = v.h ? v.l : 1, h = v.h ? 1 : v.l, marca = k == kv && !dis, pista = k == p.pd && !dis;
-         s += `<rect x="${x + .07}" y="${y + .07}" width="${w - .14}" height="${h - .14}" rx=".2" style="fill:color-mix(in srgb,${COL[k % COL.length]} 70%,var(--card));stroke:${marca ? 'var(--ink)' : 'color-mix(in srgb,var(--ink) 80%,transparent)'};stroke-width:${marca ? .13 : .06}${pista ? ';stroke-dasharray:.2 .12' : ''}"/>`;
+         s += `<rect x="${x + .07}" y="${y + .07}" width="${w - .14}" height="${h - .14}" rx=".2" style="fill:${k ? `color-mix(in srgb,${COL[k % COL.length]} 70%,var(--card))` : ROJO};stroke:${marca ? 'var(--ink)' : 'color-mix(in srgb,var(--ink) 80%,transparent)'};stroke-width:${marca ? .13 : .06}${pista ? ';stroke-dasharray:.2 .12' : ''}"/>`;
          // faros/luna: dos rayas cortas en el sentido de la marcha para distinguir el coche del camión sin depender del color
          const cx = x + w / 2, cy = y + h / 2;
          if (k) s += v.h ? `<path d="M${cx - .12} ${cy - .18}v.36M${cx + .12} ${cy - .18}v.36" style="stroke:var(--ink);stroke-width:.05;stroke-linecap:round;opacity:.45"/>` : `<path d="M${cx - .18} ${cy - .12}h.36M${cx - .18} ${cy + .12}h.36" style="stroke:var(--ink);stroke-width:.05;stroke-linecap:round;opacity:.45"/>`;
