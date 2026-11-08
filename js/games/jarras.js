@@ -69,34 +69,59 @@
    const estado = (Z, m) => m.reduce((s, mv) => aplica(Z.cap, s, mv), Array(Z.cap.length).fill(0));
 
    /* ----- Dibujo ----- */
-   function svgJarra(Z, k, v, hl) {
-      const c = Z.cap[k], u = 118 / Math.max(...Z.cap), h = c * u, y0 = 156, x0 = 22, w = 56;
-      let s = `<svg viewBox="0 0 100 172" aria-hidden="true" style="display:block;width:100%;height:auto;max-width:112px;margin:0 auto">`;
-      s += `<rect x="${x0}" y="${y0 - h}" width="${w}" height="${h}" rx="6" style="fill:var(--card);stroke:none"/>`;
-      if (v > 0) s += `<rect x="${x0}" y="${y0 - v * u}" width="${w}" height="${v * u}" rx="${v == c ? 6 : 2}" style="fill:color-mix(in srgb,${COL[k]} 55%,var(--card))"/>`;
+   /* Jarra: el agua se dibuja a su altura máxima (entre antes y ahora) y se escala en vertical, así al cambiar sube o baja suave (ver animar).
+      La línea punteada marca el objetivo en las jarras donde cabe. */
+   function svgJarra(Z, k, v, hl, from, meta) {
+      const c = Z.cap[k], u = 124 / Math.max(...Z.cap), h = c * u, y0 = 134, x0 = 22, w = 56, top = y0 - h, mx = Math.max(v, from);
+      let s = `<svg class="jrj" viewBox="0 0 100 140" aria-hidden="true"><clipPath id="jcl${k}"><rect x="${x0}" y="${top}" width="${w}" height="${h}" rx="6"/></clipPath>`;
+      s += `<rect x="${x0}" y="${top}" width="${w}" height="${h}" rx="6" style="fill:var(--card)"/>`;
+      if (mx > 0) s += `<g clip-path="url(#jcl${k})"><g class="jw"${v != from ? ` data-f="${from / mx}" data-t="${v / mx}"` : ''} style="transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(${v / mx})">`
+         + `<rect x="${x0}" y="${y0 - mx * u}" width="${w}" height="${mx * u}" style="fill:color-mix(in srgb,${COL[k]} 58%,var(--card))"/>`
+         + `<rect x="${x0}" y="${y0 - mx * u}" width="${w}" height="4" style="fill:#fff;opacity:.4"/></g></g>`;
       for (let i = 1; i < c; i++) s += `<path d="M${x0} ${y0 - i * u}h${i % 5 ? 7 : 12}" style="stroke:var(--ink);stroke-width:1;opacity:.35"/>`;
-      s += `<rect x="${x0}" y="${y0 - h}" width="${w}" height="${h}" rx="6" style="fill:none;stroke:${hl ? 'var(--mint)' : 'var(--ink)'};stroke-width:${hl ? 5 : 3}"/>`;
-      s += `<text x="50" y="${y0 - h / 2 + 7}" text-anchor="middle" style="fill:var(--ink);font:800 20px 'Bricolage Grotesque',system-ui,sans-serif">${v}</text>`;
-      s += `<text x="50" y="14" text-anchor="middle" style="fill:var(--ink);font:700 12px 'Bricolage Grotesque',system-ui,sans-serif;opacity:.8">de ${c} L</text>`;
+      if (h > 34) s += `<rect x="${x0 + 8}" y="${top + 14}" width="4" height="${h - 30}" rx="2" style="fill:#fff;opacity:.2"/>`;
+      if (meta != null && meta < c) s += `<path d="M${x0 - 5} ${y0 - meta * u}H${x0 + w + 4}" style="stroke:var(--berry);stroke-width:2;stroke-dasharray:4 3;stroke-linecap:round"/>`
+         + `<text x="${x0 + w + 7}" y="${y0 - meta * u + 4}" style="fill:var(--berry);font:800 11px 'Bricolage Grotesque',system-ui,sans-serif">${meta}</text>`;
+      s += `<rect x="${x0}" y="${top}" width="${w}" height="${h}" rx="6" style="fill:none;stroke:${hl ? 'var(--mint)' : 'var(--ink)'};stroke-width:${hl ? 5 : 3}"/>`;
+      s += `<rect x="${x0 - 4}" y="${top - 2}" width="${w + 8}" height="6" rx="3" style="fill:var(--card);stroke:${hl ? 'var(--mint)' : 'var(--ink)'};stroke-width:2.5"/>`;
+      s += `<text x="50" y="${Math.min(y0 - 8, y0 - h / 2 + 8)}" text-anchor="middle" style="fill:var(--ink);font:800 22px 'Bricolage Grotesque',system-ui,sans-serif;paint-order:stroke;stroke:var(--card);stroke-width:3px;stroke-opacity:.55">${v}</text>`;
       return s + '</svg>'
    }
-   const btn = (a, k, j, txt, label, pd) => `<button class="btn${pd ? ' pista' : ''}" data-a="${a}" data-k="${k}"${j == null ? '' : ` data-j="${j}"`} aria-label="${label}" style="padding:6px 4px;font-size:.85rem;min-width:0;width:100%${pd ? ';box-shadow:0 0 0 4px var(--sky)' : ''}">${txt}</button>`;
+   const IC = {
+      llenar: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c3.2 4 5.2 6.6 5.2 9.4a5.2 5.2 0 0 1-10.4 0C6.8 9.6 8.8 7 12 3z"/></svg>',
+      vaciar: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10M7.5 10 12 14.5 16.5 10M5 20h14"/></svg>',
+      verter: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 7l5 5-5 5"/></svg>'
+   };
+   const btn = (a, k, j, txt, label, pd, off) => `<button class="btn jrb${pd ? ' pista' : ''}" data-a="${a}" data-k="${k}"${j == null ? '' : ` data-j="${j}"`} aria-label="${label}" title="${label}"${off ? ' disabled' : ''}>${txt}</button>`;
+   let prev = null;                                                          // niveles dibujados la última vez (para animar el cambio)
+   function animar() {
+      const gs = document.querySelectorAll('.jw[data-f]');
+      gs.forEach(g => {
+         const a = g.dataset.f, b = g.dataset.t; g.removeAttribute('data-f');
+         if (g.animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) g.animate([{ transform: `scaleY(${a})` }, { transform: `scaleY(${b})` }], { duration: 480, easing: 'cubic-bezier(.3,.1,.3,1)' })
+      })
+   }
    function jarras() {
       const p = prog('ja'); ini(p);
       const r = R('jarras'), Z = P(), lost = r && r.st == 'lost', s = estado(Z, p.m), n = Z.cap.length;
+      const vis = lost ? Z.sol.reduce((a, mv) => aplica(Z.cap, a, mv), Array(n).fill(0)) : s;     // lo que se ve (al rendirse, la solución)
+      const key = Z.cap.join('.') + ':' + Z.obj, from = prev && prev.k == key ? prev.s : vis;
+      prev = { k: key, s: vis.slice() };
+      if (vis.some((x, i) => x != from[i])) requestAnimationFrame(animar);
       const pd = p.pd;                                                   // movimiento aconsejado por la pista (se resalta su botón)
-      let b = `<p class="cap" style="text-align:center;margin:8px 0 0;font-size:1rem">Consigue <b style="font-size:1.35em">${lit(Z.obj)}</b> exactamente en una jarra</p>`;
-      b += `<div class="ddb" data-b="jarras" style="display:grid;grid-template-columns:repeat(${n},1fr);gap:6px;padding:10px 6px">`;
+      let b = `<div class="ddb" data-b="jarras"><div class="jrg">${IC.llenar}<span>Consigue <b>${lit(Z.obj)}</b> exactamente en una jarra</span></div>`;
+      b += `<div class="jrs" style="--n:${n}">`;
       for (let k = 0; k < n; k++) {
-         const sv_ = lost ? Z.sol.reduce((a, mv) => aplica(Z.cap, a, mv), Array(n).fill(0))[k] : s[k], hl = !!r && !lost && s[k] == Z.obj || lost && sv_ == Z.obj;
-         b += `<div style="display:flex;flex-direction:column;gap:5px;align-items:stretch;min-width:0">${svgJarra(Z, k, sv_, hl)}`;
+         const hl = !!r && !lost && vis[k] == Z.obj || lost && vis[k] == Z.obj;
+         b += `<div class="jrc"><span class="jrk" style="--jc:${COL[k]}"><i></i>${Z.cap[k]} L</span>${svgJarra(Z, k, vis[k], hl, from[k], r ? null : Z.obj)}`;
          if (!r) {
-            b += btn('jf', k, null, 'Llenar', `Llenar la jarra de ${Z.cap[k]} litros`, pd == 'f' + k) + btn('je', k, null, 'Vaciar', `Vaciar la jarra de ${Z.cap[k]} litros`, pd == 'e' + k);
-            for (let j = 0; j < n; j++) if (j != k) b += btn('jp', k, j, `→ ${Z.cap[j]} L`, `Verter la jarra de ${Z.cap[k]} litros en la de ${Z.cap[j]}`, pd == 'p' + k + j)
+            const off = mv => !(pd == mv) && mismo(s, aplica(Z.cap, s, mv));      // jugadas que no cambian nada se desactivan
+            b += btn('jf', k, null, `${IC.llenar}Llenar`, `Llenar la jarra de ${Z.cap[k]} litros`, pd == 'f' + k, off('f' + k)) + btn('je', k, null, `${IC.vaciar}Vaciar`, `Vaciar la jarra de ${Z.cap[k]} litros`, pd == 'e' + k, off('e' + k));
+            for (let j = 0; j < n; j++) if (j != k) b += btn('jp', k, j, `${IC.verter}<i class="jsw" style="--jc:${COL[j]}"></i>${Z.cap[j]} L`, `Verter la jarra de ${Z.cap[k]} litros en la de ${Z.cap[j]}`, pd == 'p' + k + j, off('p' + k + j))
          }
          b += '</div>'
       }
-      b += '</div>';
+      b += '</div></div>';
       b += `<span class="sr" role="status">${Z.cap.map((c, k) => `Jarra de ${c} litros: ${s[k]}`).join('. ')}. Objetivo: ${lit(Z.obj)}.</span>`;
       if (lost) b += resRendida('Jarras', `Una solución de ${Z.sol.length} movimientos: ${Z.sol.map(mv => dice(Z, mv)).join(', ')}. Vuelve mañana para un reto nuevo.`);
       else if (r) b += res(`¡${lit(Z.obj)} conseguidos en ${mmss(r.t)}!`, `${r.n} ${pls(r.n, 'movimiento', 'movimientos')} (el mínimo era ${Z.sol.length}). Vuelve mañana para un reto nuevo.`,
@@ -161,6 +186,7 @@
                z += `<rect x="${x}" y="${y0 - h}" width="${w}" height="${h}" rx="4" style="fill:var(--card)"/>`
                   + (v ? `<rect x="${x}" y="${y0 - v * u}" width="${w}" height="${v * u}" rx="${v == c ? 4 : 1.5}" style="fill:color-mix(in srgb,${COL[k]} 55%,var(--card))"/>` : '')
                   + `<rect x="${x}" y="${y0 - h}" width="${w}" height="${h}" rx="4" style="fill:none;stroke:${on ? 'var(--mint)' : 'var(--ink)'};stroke-width:${on ? 3.5 : 2.2}"/>`
+                  + `<rect x="${x - 3}" y="${y0 - h - 1.5}" width="${w + 6}" height="5" rx="2.5" style="fill:var(--card);stroke:${on ? 'var(--mint)' : 'var(--ink)'};stroke-width:2"/>`
                   + `<text x="${x + w / 2}" y="${y0 - h / 2 + 5}" style="${f};fill:var(--ink);font-weight:800;font-size:14px">${v}</text>`
                   + `<text x="${x + w / 2}" y="95" style="${f};fill:var(--ink);font-weight:700;font-size:9px;opacity:.8">de ${c} L</text>`
             });
