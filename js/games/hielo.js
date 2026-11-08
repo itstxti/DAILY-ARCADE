@@ -90,8 +90,8 @@
    /* Progreso: p.m = movimientos hechos (texto de direcciones, para Deshacer) · p.n = movimientos contados (deshacer no los devuelve) · p.h = pistas · p.g = huella del reto. */
    const ini = p => { const Z = P(), g = Z.i0 + ',' + Z.meta + ',' + Z.st.join('.'); if (typeof p.m != 'string' || p.g != g) { p.m = ''; p.n = 0; p.h = 0; p.pd = null; p.g = g } };
    function estado(Z, m) {
-      let s = { i: Z.i0, m: 0, ult: null };
-      for (const d of m) { const q = desliza(Z, s.i, d, s.m); s = { i: q.i, m: q.m, ult: q.n ? [q.de, q.i] : null } }
+      let s = { i: Z.i0, m: 0, tr: [] };                                     // tr = recorrido: [desde, hasta] de cada deslizamiento
+      for (const d of m) { const q = desliza(Z, s.i, d, s.m); s = { i: q.i, m: q.m, tr: q.n ? s.tr.concat([[q.de, q.i]]) : s.tr } }
       return s
    }
 
@@ -99,27 +99,39 @@
    const MS_BASE = 160, MS_CASILLA = 110;                                // duración del deslizamiento: base + por casilla recorrida
    let anim = null;                                                      // { de, a } del último movimiento, hasta que se pinta
    const estrella = (cx, cy, r) => { let s = ''; for (let k = 0; k < 10; k++) { const a = -Math.PI / 2 + k * Math.PI / 5, rr = k % 2 ? r * .45 : r; s += (k ? 'L' : 'M') + (cx + rr * Math.cos(a)).toFixed(3) + ' ' + (cy + rr * Math.sin(a)).toFixed(3) } return s + 'z' };
-   function svgTablero(Z, s, meta) {
-      const vis = k => s.m & 1 << k, abre = s.m == lleno(Z);
-      let z = `<svg viewBox="0 0 ${N} ${N}" role="img" aria-label="Tablero de Hielo de ${N} por ${N}. Estás en ${pos(s.i)}." style="display:block;width:100%;height:auto">`;
+   /* op.activo: la partida sigue (se dibujan las casillas de destino, tocables) · op.pd: dirección que aconseja la pista.
+      Las casillas de destino enseñan dónde acabarías con cada flecha; las estrellas, la bandera y el personaje no capturan toques (pointer-events). */
+   function svgTablero(Z, s, meta, op) {
+      op = op || {};
+      const vis = k => s.m & 1 << k, abre = s.m == lleno(Z), cx = i => i % N + .5, cy = i => (i / N | 0) + .5, F = "font-family:'Bricolage Grotesque',system-ui,sans-serif";
+      let z = `<svg class="hit" viewBox="0 0 ${N} ${N}" role="img" aria-label="Tablero de Hielo de ${N} por ${N}. Estás en ${pos(s.i)}." style="display:block;width:100%;height:auto">`;
       for (let i = 0; i < T; i++) {
          const x = i % N, y = i / N | 0;
          z += Z.R.has(i)
             ? `<rect x="${x + .04}" y="${y + .04}" width=".92" height=".92" rx=".14" style="fill:var(--line);stroke:var(--ink);stroke-width:.05"/><path d="M${x + .28} ${y + .68}l.16-.3.14.14.14-.28.1.44z" style="fill:var(--ink);opacity:.35"/>`
             : `<rect x="${x + .04}" y="${y + .04}" width=".92" height=".92" rx=".08" style="fill:color-mix(in srgb,var(--aqua) 16%,var(--card));stroke:color-mix(in srgb,var(--aqua) 45%,transparent);stroke-width:.03"/>`
       }
-      if (s.ult) z += `<path d="M${s.ult[0] % N + .5} ${(s.ult[0] / N | 0) + .5}L${s.ult[1] % N + .5} ${(s.ult[1] / N | 0) + .5}" style="fill:none;stroke:var(--sky);stroke-width:.09;stroke-dasharray:.14 .12;stroke-linecap:round;opacity:.6"/>`;
+      // salida (por dónde empezaste) y recorrido completo; el último tramo, más marcado
+      z += `<circle cx="${cx(Z.i0)}" cy="${cy(Z.i0)}" r=".2" style="fill:none;stroke:var(--ink);stroke-width:.05;stroke-dasharray:.09 .07;opacity:.5"/>`;
+      (s.tr || []).forEach(([de, a], k, A) => z += `<path d="M${cx(de)} ${cy(de)}L${cx(a)} ${cy(a)}" style="fill:none;stroke:var(--sky);stroke-width:.09;stroke-dasharray:.14 .12;stroke-linecap:round;opacity:${k == A.length - 1 ? .7 : .3}"/>`);
       // meta (bandera): se pinta solo si la partida sigue o al rendirse
       const gx = Z.meta % N, gy = Z.meta / N | 0;
-      z += `<rect x="${gx + .1}" y="${gy + .1}" width=".8" height=".8" rx=".12" style="fill:${abre ? 'color-mix(in srgb,var(--mint) 35%,var(--card))' : 'none'};stroke:var(--ink);stroke-width:.05;${abre ? '' : 'stroke-dasharray:.12 .1'}"/>`
+      z += `<g style="pointer-events:none"><rect x="${gx + .1}" y="${gy + .1}" width=".8" height=".8" rx=".12" style="fill:${abre ? 'color-mix(in srgb,var(--mint) 35%,var(--card))' : 'none'};stroke:var(--ink);stroke-width:.05;${abre ? '' : 'stroke-dasharray:.12 .1'}"/>`
          + `<path d="M${gx + .38} ${gy + .76}V${gy + .22}M${gx + .38} ${gy + .24}L${gx + .74} ${gy + .37}L${gx + .38} ${gy + .5}z" style="fill:var(--berry);stroke:var(--ink);stroke-width:.04;stroke-linejoin:round;stroke-linecap:round"/>`;
-      Z.st.forEach((c, k) => {
-         const x = c % N + .5, y = (c / N | 0) + .5;
-         z += `<path d="${estrella(x, y, .34)}" style="fill:${vis(k) ? 'var(--mint)' : 'color-mix(in srgb,var(--sun) 55%,var(--card))'};stroke:var(--ink);stroke-width:.05;stroke-linejoin:round"/>`
-      });
-      const x = s.i % N + .5, y = (s.i / N | 0) + .5;
+      Z.st.forEach((c, k) => z += `<path d="${estrella(cx(c), cy(c), .34)}" style="fill:${vis(k) ? 'var(--mint)' : 'color-mix(in srgb,var(--sun) 55%,var(--card))'};stroke:var(--ink);stroke-width:.05;stroke-linejoin:round"/>`);
+      z += '</g>';
+      // dónde acabarías con cada dirección (tocar la casilla = deslizarte hacia allí)
+      if (op.activo) for (const d of 'UDLR') {
+         const q = desliza(Z, s.i, d, s.m); if (!q.n) continue;
+         const x = q.i % N, y = q.i / N | 0, on = op.pd == d;
+         z += `<g data-a="hmv" data-d="${d}" role="button" aria-label="Deslizarte hacia ${NOM[d].replace('la ', '')}: acabas en ${pos(q.i)}" style="cursor:pointer">`
+            + `<rect x="${x + .04}" y="${y + .04}" width=".92" height=".92" rx=".1" style="fill:color-mix(in srgb,var(--sky) ${on ? 30 : 16}%,transparent);stroke:var(--sky);stroke-width:${on ? .09 : .05};${on ? '' : 'stroke-dasharray:.1 .08'}"/>`
+            + `<circle cx="${x + .8}" cy="${y + .2}" r=".15" style="fill:var(--sky);stroke:var(--ink);stroke-width:.03"/>`
+            + `<text x="${x + .8}" y="${y + .21}" style="${F};fill:var(--on-sky);font-weight:800;font-size:.21px;text-anchor:middle;dominant-baseline:central">${FL[d]}</text></g>`
+      }
+      const x = cx(s.i), y = cy(s.i);
       let dat = ''; if (anim && !meta && anim.a == s.i) { dat = ` data-de="${anim.de}" data-a="${anim.a}"`; requestAnimationFrame(() => animar(0)) } anim = null;
-      return z + `<g class="hjp"${dat}><circle cx="${x}" cy="${y}" r=".3" style="fill:var(--sky);stroke:var(--ink);stroke-width:.06"/><circle cx="${x - .1}" cy="${y - .06}" r=".06" style="fill:var(--card)"/><circle cx="${x + .1}" cy="${y - .06}" r=".06" style="fill:var(--card)"/></g></svg>`
+      return z + `<g class="hjp"${dat} style="pointer-events:none"><circle cx="${x}" cy="${y}" r=".3" style="fill:var(--sky);stroke:var(--ink);stroke-width:.06"/><circle cx="${x - .1}" cy="${y - .06}" r=".06" style="fill:var(--card)"/><circle cx="${x + .1}" cy="${y - .06}" r=".06" style="fill:var(--card)"/></g></svg>`
    }
 
    /* Se lanza tras pintar: desliza al personaje desde la casilla anterior hasta la nueva (sin movimiento reducido no hay animación; el estado final ya está dibujado). */
@@ -132,20 +144,22 @@
       g.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'translate(0px, 0px)' }], { duration: MS_BASE + MS_CASILLA * c, easing: 'cubic-bezier(.3,.1,.3,1)' })
    }
 
-   const bt = (d, p) => `<button class="btn ddd2${p.pd == d ? ' pista' : ''}" data-a="hm" data-d="${d}" aria-label="Deslizarte hacia ${NOM[d].replace('la ', '')}">${FL[d]}</button>`;
+   const bt = (d, p, off) => `<button class="btn ddd2${p.pd == d ? ' pista' : ''}" data-a="hmv" data-d="${d}" aria-label="Deslizarte hacia ${NOM[d].replace('la ', '')}"${off ? ' disabled' : ''}>${FL[d]}</button>`;
+   const icoEst = on => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${estrella(12, 12.6, 10.4)}" style="fill:${on ? 'var(--mint)' : 'color-mix(in srgb,var(--sun) 55%,var(--card))'};stroke:var(--ink);stroke-width:1.6;stroke-linejoin:round"/></svg>`;
    function hielo() {
       const p = prog('hi'); ini(p);
       const r = R('hielo'), Z = P(), lost = r && r.st == 'lost', s = estado(Z, p.m), K = Z.st.length, rec = Z.st.filter((c, k) => s.m & 1 << k).length;
-      const sh = lost ? { i: Z.meta, m: lleno(Z), ult: null } : s;           // al rendirse el personaje se muestra en la meta
-      let b = `<div class="ddb" data-b="hielo">${svgTablero(Z, sh)}</div>`;
+      const sh = lost ? { i: Z.meta, m: lleno(Z), tr: s.tr } : s;           // al rendirse el personaje se muestra en la meta
+      const off = d => p.pd != d && !desliza(Z, s.i, d, s.m).n;            // dirección sin salida (roca o borde pegado): botón apagado
+      const banda = `<div class="hig"><span class="hig-e" role="img" aria-label="Estrellas recogidas: ${rec} de ${K}">${Z.st.map((c, k) => icoEst(lost || s.m & 1 << k)).join('')}</span><span>Movimientos <b>${p.n}</b></span></div>`;
+      let b = `<div class="ddb" data-b="hielo">${banda}${svgTablero(Z, sh, 0, { activo: !r, pd: p.pd })}</div>`;
       b += `<span class="sr" role="status">Estás en ${pos(s.i)}. Estrellas recogidas: ${rec} de ${K}. La bandera está en ${pos(Z.meta)}.</span>`;
       if (lost) b += resRendida('Hielo', `Una solución de ${Z.sol.length} movimientos: ${[...Z.sol].map(d => FL[d]).join(' ')}. Vuelve mañana para un reto nuevo.`);
       else if (r) b += res(`¡Meta alcanzada en ${mmss(r.t)}!`, `${r.n} ${pls(r.n, 'movimiento', 'movimientos')} (el mínimo era ${Z.sol.length}). Vuelve mañana para un reto nuevo.`,
          `Daily Arcade · Hielo #${DAY} · ${N}×${N} · ${r.n}/${Z.sol.length} mov.${r.h ? ' · ' + r.h + pls(r.h, ' pista', ' pistas') : ''} · ${mmss(r.t)}`);
-      else b += `<div class="ddp" role="group" aria-label="Deslizarte (también con las flechas del teclado)"><span></span>${bt('U', p)}<span></span>${bt('L', p)}${bt('D', p)}${bt('R', p)}</div>`
-         + `<p class="cap" style="text-align:center;margin:0">Estrellas: <b>${rec} / ${K}</b> · Movimientos: <b>${p.n}</b></p>`
+      else b += `<div class="ddp" role="group" aria-label="Deslizarte (también con las flechas del teclado o deslizando el dedo por el tablero)"><span></span>${bt('U', p, off('U'))}<span></span>${bt('L', p, off('L'))}${bt('D', p, off('D'))}${bt('R', p, off('R'))}</div>`
          + `${S.set.tm ? tmHtml(p) : ''}<p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, pista: 1, rendirme: 1 })}`
-         + `<p class="foot" style="margin-top:8px;text-align:center">Te deslizas hasta chocar con una <b>roca</b> o el borde. La <b>bandera</b> también te frena. Pasa por todas las <b>estrellas</b> y termina en la bandera.</p>`;
+         + `<p class="foot" style="margin-top:8px;text-align:center">Toca una <b>casilla marcada</b>, desliza el dedo por el tablero o usa las flechas. Te deslizas hasta chocar con una <b>roca</b> o el borde; la <b>bandera</b> también te frena. Pasa por todas las <b>estrellas</b> y termina en la bandera.</p>`;
       return shell('Hielo', b)
    }
 
@@ -158,7 +172,7 @@
       if (q.i == Z.meta && q.m == lleno(Z)) { Sfx.p('acierto'); fin('hielo', { st: 'completed', t: Date.now() - p.t0, n: p.n, par: Z.sol.length, h: p.h || 0, c: 0 }) }
       sv(); draw()
    }
-   function hm(b) { mover(b.dataset.d) }
+   function hmv(b) { mover(b.dataset.d) }                                // OJO: no llamarla «hm»: app.js ya tiene una acción «hm» (mapa de actividad) y se tragaba los clics
    function undo() {
       const p = prog('hi'); ini(p);
       if (R('hielo') || !p.m) return;
@@ -188,10 +202,21 @@
       e.preventDefault(); mover(d)
    });
 
+   /* Deslizar el dedo (o arrastrar el ratón) por el tablero = moverse en esa dirección. Un toque corto lo atiende el clic de la casilla marcada. */
+   let sw0 = null, swAt = 0;
+   document.addEventListener('pointerdown', e => { sw0 = e.target.closest && e.target.closest('.ddb[data-b="hielo"] svg.hit') ? { x: e.clientX, y: e.clientY, id: e.pointerId } : null });
+   document.addEventListener('pointerup', e => {
+      const a = sw0; sw0 = null; if (!a || a.id != e.pointerId) return;
+      const dx = e.clientX - a.x, dy = e.clientY - a.y, ax = Math.abs(dx), ay = Math.abs(dy);
+      if (Math.max(ax, ay) < 28 || Math.max(ax, ay) < 1.2 * Math.min(ax, ay)) return;
+      swAt = Date.now(); mover(ax > ay ? (dx > 0 ? 'R' : 'L') : (dy > 0 ? 'D' : 'U'))
+   });
+   document.addEventListener('click', e => { if (Date.now() - swAt < 400 && e.target.closest && e.target.closest('.ddb[data-b="hielo"]')) { e.stopPropagation(); e.preventDefault() } }, true);   // el clic que sigue a un arrastre no cuenta
+
    DailyArcade.register({
       id: 'hielo', name: 'Hielo', desc: 'Deslízate por el hielo hasta la bandera pasando por todas las estrellas.', color: '--aqua', tag: 'Deslízate hasta la bandera', flechas: true,
       icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9"/><path d="M9.5 4.7 12 7l2.5-2.3M9.5 19.3 12 17l2.5 2.3"/></svg>',
-      how: ['El suelo es de <b>hielo</b>: cuando te mueves con las <b>flechas</b> o los botones, te deslizas hasta chocar con una <b>roca</b> o con el borde.', 'Hay que pasar por <b>todas las estrellas</b> (da igual si pasas o te paras encima) y acabar parado en la <b>bandera</b>, que también te frena.', 'Cuenta cada movimiento: intenta acercarte al <b>mínimo</b>.'],
+      how: ['El suelo es de <b>hielo</b>: cuando te mueves con las <b>flechas</b>, los botones o <b>deslizando el dedo</b> por el tablero, te deslizas hasta chocar con una <b>roca</b> o con el borde.', 'Hay que pasar por <b>todas las estrellas</b> (da igual si pasas o te paras encima) y acabar parado en la <b>bandera</b>, que también te frena.', 'Cuenta cada movimiento: intenta acercarte al <b>mínimo</b>.'],
       /* Ejemplo en 5×4: deslizar a la derecha (recoge la estrella, frena la roca) y luego hacia arriba (frena la bandera). Mismo dibujo que el tablero. */
       demo: (() => {
          const C = 5, F = 4, roca = [4, 3], est = [2, 3], meta = [3, 1], ini = [0, 3], f = "font-family:'Bricolage Grotesque',system-ui,sans-serif;text-anchor:middle";
@@ -223,7 +248,7 @@
       })(),
       pk: 'hi',
       render: hielo,
-      actions: { hm, undo, reiniciar, pista, rendirme: confirma(rendirse) },
+      actions: { hmv, undo, reiniciar, pista, rendirme: confirma(rendirse) },
       status: (r, p) => r && r.st == 'lost' ? 'Rendida' : r ? `Completada · ${r.n}/${r.par} movimientos · ${mmss(r.t)}` : (p && p.t0 ? 'En curso' : 'Sin jugar')
    });
 })();

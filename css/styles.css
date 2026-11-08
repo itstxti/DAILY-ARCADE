@@ -4315,6 +4315,14 @@ span.ryc {
 .jrb:disabled { opacity: .38; box-shadow: none; cursor: default }
 .jrb.pista { box-shadow: 0 0 0 4px var(--sky) }
 
+/* ---------- Hielo ----------
+   .hig = banda de estrellas y movimientos · .hig-e = las estrellas · svg.hit = tablero (touch-action: none para poder deslizar el dedo sin que se mueva la página) */
+.hig { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 12px; border-bottom: 3px solid var(--ink); background: color-mix(in srgb, var(--aqua) 24%, var(--card)); font-weight: 700; line-height: 1.2 }
+.hig-e { display: flex; gap: 3px }
+.hig svg { display: block; width: 26px; height: 26px }
+.ddb svg.hit { touch-action: none; -webkit-user-select: none; user-select: none }
+.ddd2:disabled { opacity: .38; box-shadow: none; cursor: default }
+
 /* ---------- Horizonte ---------- */
 .hzb { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); max-width: var(--bw, 372px); margin: 12px auto }
 .hzb::after { content: ''; position: absolute; left: calc(100% / 6); top: calc(100% / 6); width: calc(100% * 4 / 6); height: calc(100% * 4 / 6); border: 3px solid var(--ink); border-radius: var(--r-md); pointer-events: none }
