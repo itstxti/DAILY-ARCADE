@@ -67,7 +67,7 @@
          const i = idx(z, y, x), on = v[i], fx = !r && p.lk.includes(i), nx = !Z.F[z][x] || !Z.S[z][N - 1 - y];
          return `<button class="sic${on ? ' on' : ''}${fx ? ' fx' : ''}${nx ? ' nx' : ''}" data-a="sc" data-i="${i}" aria-pressed="${!!on}"${r ? ' disabled' : ''} aria-label="Capa ${z + 1}, fila ${y + 1}, columna ${x + 1}: ${on ? 'cubo' : 'vacío'}${fx ? ', fijado por una pista' : ''}"></button>`
       }).join('')).join('')}</div><div class="sil" aria-hidden="true">${tira([...Z.S[z]].reverse())}</div></div></div>`;
-      let b = `<div class="ddb sik"><div class="sik-b"><span class="sik-n">Cubos <b>${cubos(v)}</b> / mín. <b>${Z.m}</b></span></div><div class="sit2"><figure>${sombra(Z.F, 'Sombra frontal')}<figcaption>Frontal</figcaption></figure><figure>${sombra(Z.S, 'Sombra lateral, vista desde la derecha')}<figcaption>Lateral <small>(desde la derecha)</small></figcaption></figure></div>`;
+      let b = `<div class="ddb sik"><div class="sit2"><figure>${sombra(Z.F, 'Sombra frontal')}<figcaption>Frontal</figcaption></figure><figure>${sombra(Z.S, 'Sombra lateral, vista desde la derecha')}<figcaption>Lateral <small>(desde la derecha)</small></figcaption></figure></div>`;
       b += `<div class="sip" data-rv="si-capas">${[0, 1, 2, 3].map(capa).join('')}</div></div>`;
       if (lost) b += resRendida('Siluetas', `Así cumplía las dos sombras con ${Z.m} cubos. Vuelve mañana para un reto nuevo.`);
       else if (r) b += res(`¡Figura construida en ${mmss(r.t)}!`, `Cumple las dos sombras con ${Z.m} cubos, el mínimo. Vuelve mañana para un reto nuevo.`,

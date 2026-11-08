@@ -4320,17 +4320,12 @@ span.ryc {
 .jrb.pista { box-shadow: 0 0 0 4px var(--sky) }
 
 /* ---------- Hielo ----------
-   .hig = banda de estrellas y movimientos · .hig-e = las estrellas · svg.hit = tablero (touch-action: none para poder deslizar el dedo sin que se mueva la página) */
-.hig { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 12px 2px; font-weight: 700; line-height: 1.2 }
-.hig-e { display: flex; gap: 3px }
-.hig svg { display: block; width: 26px; height: 26px }
+   svg.hit = tablero (touch-action: none para poder deslizar el dedo sin que se mueva la página) */
 .ddb svg.hit { touch-action: none; -webkit-user-select: none; user-select: none }
 .ddd2:disabled { opacity: .38; box-shadow: none; cursor: default }
 
 /* ---------- Atasco ----------
-   .atk = tarjeta · .atg = banda del objetivo (.atg-t texto con el coche, .atg-n contador) · .atw = marco del tablero (el SVG de #atb ocupa todo su ancho: el arrastre mide sobre él) */
-.atg { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px; padding: 10px 12px 2px; font-weight: 700; line-height: 1.2 }
-.atg-n { white-space: nowrap }
+   .atk = tarjeta ·  .atw = marco del tablero (el SVG de #atb ocupa todo su ancho: el arrastre mide sobre él) */
 .atw { padding: 10px 10px 8px }
 
 /* ---------- Horizonte ---------- */
@@ -4350,10 +4345,8 @@ span.ryc {
 .hzx:disabled { cursor: default }
 
 /* ---------- Eco ----------
-   .eck = tarjeta · .ecg = banda del objetivo (.ecg-t texto, .ecg-n contadores) · .ecs = estado del último movimiento bajo cada tablero (.ecs-x choca, .ecs-ok en la salida) */
+   .eck = tarjeta ·  .ecs = estado del último movimiento bajo cada tablero (.ecs-x choca, .ecs-ok en la salida) */
 .eck { overflow: hidden }
-.ecg { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 10px; padding: 10px 12px 2px; font-weight: 700; line-height: 1.25 }
-.ecg-n { white-space: nowrap }
 .eck .ecw { margin: 0; padding: 10px 10px 8px; max-width: none }
 .ecs { display: inline-block; margin-left: 6px; padding: 0 7px; border-radius: 999px; background: color-mix(in srgb, var(--ink) 10%, var(--card)); font-size: 13px; font-weight: 800 }
 .ecs-x { color: var(--berry) }
@@ -4394,11 +4387,9 @@ span.ryc {
 @media (prefers-reduced-motion: reduce) { .cok-c { transition: none } }
 
 /* ---------- Siluetas (rediseño) ----------
-   .sik = tarjeta · .sik-b banda del objetivo (.sik-t texto, .sik-n contador) · .sis-w/.sis-n = sombra con el número de capa de cada fila
+   .sik = tarjeta ·  .sis-w/.sis-n = sombra con el número de capa de cada fila
    .siw = capa con franjas objetivo (.sif columnas arriba, .sil filas a la derecha; .on = tiene que haber cubo) · .sic.nx = casilla que nunca lleva cubo (rayada) */
 .sik { overflow: hidden; padding-bottom: 8px }
-.sik-b { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px; padding: 10px 12px 2px; font-weight: 700; line-height: 1.2 }
-.sik-n { white-space: nowrap }
 .sik .sit2 { padding: 0 10px }
 .sik .sip { padding: 0 12px; margin-bottom: 4px }
 .sis-w { display: flex; align-items: stretch; gap: 4px }
