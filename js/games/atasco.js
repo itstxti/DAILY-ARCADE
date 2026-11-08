@@ -113,11 +113,12 @@
 
    /* ----- Dibujo ----- */
    const W = N + .55;
+   let sale = false;                                                    // true justo al ganar: el coche rojo se dibuja en la salida y se va (ver animaSalida)
    let kv = -1, arrastre = null;                                        // kv = vehículo marcado (toque o teclado) · arrastre = { k, g0, neg, mas, off }
    /* dis = partida terminada (no se dibujan marcas). Orden: casillas → carril del rojo → alcance del marcado / destino del arrastre / destino de la pista → vehículos → chevron de la pista.
       El alcance es la franja por la que puede deslizarse el vehículo marcado (con una flecha en cada extremo libre). */
    const caja = (v, q) => v.h ? [q, v.c, v.l, 1] : [v.c, q, 1, v.l];
-   function svgTablero(Z, pos, p, dis) {
+   function svgTablero(Z, pos, p, dis, ganada, va) {                    // ganada: el rojo ya salió (no se dibuja, salvo `va`: se está yendo)
       let s = `<svg viewBox="0 0 ${W} ${N}" role="img" aria-label="Tablero de Atasco de ${N} por ${N}. Hay que sacar el coche rojo por la derecha." style="display:block;width:100%;height:auto">`;
       for (let i = 0; i < T; i++) s += `<rect x="${i % N}" y="${i / N | 0}" width="1" height="1" style="fill:var(--card);stroke:var(--line);stroke-width:.03"/>`;
       // carril del coche rojo (fila de la salida) con puntas de flecha hacia la salida
@@ -143,6 +144,8 @@
       const pt = !dis && p.pd >= 0 && p.pt >= 0 ? [p.pd, p.pt] : null;   // destino que aconseja la pista
       if (pt) { const [gx, gy, gw, gh] = caja(Z.ve[pt[0]], pt[1]); s += `<rect x="${gx + .05}" y="${gy + .05}" width="${gw - .1}" height="${gh - .1}" rx=".22" style="fill:color-mix(in srgb,var(--sky) 22%,transparent);stroke:var(--sky);stroke-width:.1"/>` }
       Z.ve.forEach((v, k) => {
+         if (k == 0 && ganada && !va) return;                          // ya salió
+         const s0 = s; s = '';
          const off = ar && ar.k == k ? ar.off : 0, q = pos[k] + off;
          const x = v.h ? q : v.c, y = v.h ? v.c : q, w = v.h ? v.l : 1, h = v.h ? 1 : v.l, marca = k == kv && !dis, pista = pt && pt[0] == k;
          s += `<rect x="${x + .07}" y="${y + .07}" width="${w - .14}" height="${h - .14}" rx=".2" style="fill:${k ? `color-mix(in srgb,${COL[k % COL.length]} 70%,var(--card))` : ROJO};stroke:${pista ? 'var(--sky)' : marca ? 'var(--ink)' : 'color-mix(in srgb,var(--ink) 80%,transparent)'};stroke-width:${pista ? .14 : marca ? .13 : .06}"/>`;
@@ -151,6 +154,7 @@
          const cx = x + w / 2, cy = y + h / 2;
          if (k) s += v.h ? `<path d="M${cx - .12} ${cy - .18}v.36M${cx + .12} ${cy - .18}v.36" style="stroke:var(--ink);stroke-width:.05;stroke-linecap:round;opacity:.45"/>` : `<path d="M${cx - .18} ${cy - .12}h.36M${cx - .18} ${cy + .12}h.36" style="stroke:var(--ink);stroke-width:.05;stroke-linecap:round;opacity:.45"/>`;
          if (k == 0) s += `<path d="M${cx - .22} ${cy}H${cx + .22}M${cx + .06} ${cy - .16}L${cx + .22} ${cy}L${cx + .06} ${cy + .16}" style="fill:none;stroke:var(--card);stroke-width:.08;stroke-linecap:round;stroke-linejoin:round"/>`
+         s = s0 + (k == 0 && ganada ? `<g class="atr">${s}</g>` : s)
       });
       if (pt) {                                                           // chevron en el extremo del destino, en el sentido de la marcha
          const v = Z.ve[pt[0]], sg = Math.sign(pt[1] - pos[pt[0]]), [bx, by, bw, bh] = caja(v, pt[1]);
@@ -168,9 +172,11 @@
    function atasco() {
       const p = prog('ta'); ini(p);
       const r = R('atasco'), Z = P(), lost = r && r.st == 'lost';
+      const ganada = !!r && !lost, va = ganada && sale && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+      if (sale) { sale = false; if (va) requestAnimationFrame(animaSalida) }
       const coche = `<svg viewBox="0 0 36 20" aria-hidden="true"><rect x="1.5" y="2.5" width="33" height="15" rx="6" style="fill:${ROJO};stroke:var(--ink);stroke-width:2"/><path d="M10 10H25M20 5.5 25 10 20 14.5" style="fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"/></svg>`;
       let b = `<div class="ddb atk"><div class="atg"><span class="atg-t">${coche}<span>Saca el <b>coche rojo</b> por la derecha</span></span><span id="atc" class="atg-n">Movimientos <b>${r && r.n != null ? r.n : p.n}</b></span></div>`
-         + `<div class="atw"><div id="atb" data-b="atasco"${r ? '' : ` tabindex="0" role="application" aria-label="Tablero de Atasco. Enter para marcar el siguiente vehículo, flechas para deslizar el vehículo marcado una casilla."`} style="${r ? '' : 'touch-action:none;'}user-select:none;-webkit-user-select:none">${svgTablero(Z, lost ? resuelto(Z) : p.pos, p, !!r)}</div></div></div>`;
+         + `<div class="atw"><div id="atb" data-b="atasco"${r ? '' : ` tabindex="0" role="application" aria-label="Tablero de Atasco. Enter para marcar el siguiente vehículo, flechas para deslizar el vehículo marcado una casilla."`} style="${r ? '' : 'touch-action:none;'}user-select:none;-webkit-user-select:none">${svgTablero(Z, lost ? resuelto(Z) : p.pos, p, !!r, ganada, va)}</div></div></div>`;
       if (!r) b += '<span class="sr" id="atl" aria-live="polite"></span>';
       if (lost) b += resRendida('Atasco', `Así se sacaba el coche rojo en ${Z.d} ${pls(Z.d, 'movimiento', 'movimientos')}. Vuelve mañana para un reto nuevo.`);
       else if (r) b += res(`¡Coche rojo fuera en ${mmss(r.t)}!`, `${r.n} ${pls(r.n, 'movimiento', 'movimientos')} (el mínimo era ${Z.d}). Vuelve mañana para un reto nuevo.`,
@@ -180,10 +186,18 @@
       return shell('Atasco', b)
    }
 
+   /* El coche rojo arranca (un pequeño tirón hacia atrás) y acelera por el hueco de la salida hasta salir del dibujo (el SVG recorta lo que se sale).
+      Las unidades de translateX en un grupo SVG son las del viewBox: 1 = una casilla. Al acabar el coche se queda fuera: svgTablero ya no lo dibuja. */
+   function animaSalida() {
+      const g = document.querySelector('#atb .atr'); if (!g || !g.animate) return;
+      const fin = W - SAL + .2;                                            // lo que falta para que el rojo (que empieza en SAL) salga del todo
+      g.animate([{ transform: 'translateX(0px)', easing: 'ease-out' }, { transform: 'translateX(-.12px)', offset: .16, easing: 'cubic-bezier(.5,0,.9,.6)' }, { transform: `translateX(${fin}px)` }], { duration: 900, fill: 'forwards' })
+   }
+
    /* ----- Jugadas ----- */
    function final(p) {
       const Z = P();
-      if (!R('atasco') && p.pos[0] == SAL) { Sfx.p('acierto'); fin('atasco', { st: 'completed', t: Date.now() - p.t0, n: p.n, par: Z.d, h: p.h || 0, c: 0 }); sv(); draw(); return true }
+      if (!R('atasco') && p.pos[0] == SAL) { sale = true; Sfx.p('acierto'); fin('atasco', { st: 'completed', t: Date.now() - p.t0, n: p.n, par: Z.d, h: p.h || 0, c: 0 }); sv(); draw(); return true }
       return false
    }
    /* Desliza el vehículo k hasta la posición a (ya comprobado que el camino está libre). teclado = una casilla suelta con flechas: varias seguidas en el mismo sentido son un solo movimiento. */
