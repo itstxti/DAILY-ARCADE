@@ -55,40 +55,42 @@
    const pos = i => `fila ${Math.floor(i / N) + 1}, columna ${i % N + 1}`;
 
    /* Un tablero en SVG: rocas, salida (aro) y personaje. */
-   function tab(B, e, i, cl, nombre) {
+   function tab(B, e, i, cl, nombre, ult) {
       let s = '';
       for (let k = 0; k < NN; k++) { const x = k % N, y = Math.floor(k / N); s += `<rect class="${B.has(k) ? 'ecb' : 'ecq'}" x="${x + .04}" y="${y + .04}" width=".92" height=".92" rx="${B.has(k) ? .14 : .08}"/>` }
       const ex = e % N + .5, ey = Math.floor(e / N) + .5, ix = i % N + .5, iy = Math.floor(i / N) + .5;
-      s += `<circle class="ece${i == e ? ' ok' : ''}" cx="${ex}" cy="${ey}" r=".34"/><circle class="ect ${cl}" cx="${ix}" cy="${iy}" r=".24"/>`;
-      return `<figure class="ecf"><svg viewBox="0 0 ${N} ${N}" role="img" aria-label="${nombre}: estás en ${pos(i)}; tu salida está en ${pos(e)}. ${B.size} rocas.">${s}</svg><figcaption>${nombre}</figcaption></figure>`
+      s += `<circle class="ece ${cl}${i == e ? ' ok' : ''}" cx="${ex}" cy="${ey}" r=".36"/><circle class="ect ${cl}" cx="${ix}" cy="${iy}" r=".27"/>${i == e ? `<path class="ecv" d="M${ix - .12} ${iy}l.09 .1l.17-.2"/>` : ''}`;
+      const est = !ult ? '' : ult[0] ? `<span class="ecs">${FL[ult[1]]}</span>` : '<span class="ecs ecs-x">choca ✕</span>';
+      return `<figure class="ecf"><svg viewBox="0 0 ${N} ${N}" role="img" aria-label="${nombre}: estás en ${pos(i)}; tu salida está en ${pos(e)}. ${B.size} rocas.">${s}</svg><figcaption>${nombre}${i == e ? ' <span class="ecs ecs-ok">en la salida</span>' : est}</figcaption></figure>`
    }
 
    function eco() {
       const p = prog('ec'); ini(p);
       const r = R('eco'), Z = P(), lost = r && r.st == 'lost';
-      let b = `<div class="ecw">${tab(Z.B1, Z.e1, p.a, 'u1', 'Tú')}${tab(Z.B2, Z.e2, p.b, 'u2', 'Eco')}</div>`;
-      b += `<p class="cap" style="text-align:center;margin:0" aria-live="polite">Movimientos: <b>${p.m}</b></p>`;
+      const L = p.l && !r ? p.l : null, du = L ? L[1] : null, de = L ? { L: 'R', R: 'L', U: 'U', D: 'D' }[L[1]] : null, en = (p.a == Z.e1) + (p.b == Z.e2);
+      let b = `<div class="ddb eck"><div class="ecg"><span class="ecg-t">Lleva a los dos a su <b>aro</b> · el Eco va en <b>espejo</b> ⇄</span><span class="ecg-n" aria-live="polite">Movimientos <b>${p.m}</b> · ${r && !lost ? 2 : en}/2 en salida</span></div>`
+         + `<div class="ecw">${tab(Z.B1, Z.e1, p.a, 'u1', 'Tú', L && [L[2], du])}${tab(Z.B2, Z.e2, p.b, 'u2', 'Eco', L && [L[3], de])}</div></div>`;
       if (lost) b += resRendida('Eco', `El mínimo eran ${Z.sol.length} movimientos: ${[...Z.sol].map(d => FL[d]).join(' ')}. Vuelve mañana para un reto nuevo.`);
       else if (r) b += res(`¡Los dos en la salida en ${mmss(r.t)}!`, `${r.m} ${pls(r.m, 'movimiento', 'movimientos')} (el mínimo era ${Z.sol.length}). Vuelve mañana para un reto nuevo.`,
          `Daily Arcade · Eco #${DAY} · ${mmss(r.t)} · ${r.m}/${Z.sol.length} mov.${r.h ? ' · ' + r.h + pls(r.h, ' pista', ' pistas') : ''}`);
-      else b += `<div class="ecp" role="group" aria-label="Mover (también con las flechas del teclado)"><span></span>${bt('U')}<span></span>${bt('L')}${bt('D')}${bt('R')}</div>`
+      else b += `<div class="ecp" role="group" aria-label="Mover (también con las flechas del teclado)"><span></span>${bt('U', Z, p)}<span></span>${bt('L', Z, p)}${bt('D', Z, p)}${bt('R', Z, p)}</div>`
          + `<p class="cap" style="text-align:center;margin:0">El Eco copia tus movimientos <b>en espejo</b>: si vas a la izquierda, él va a la derecha.</p>`
          + `${S.set.tm ? tmHtml(p) : ''}<p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, pista: 1, rendirme: 1 })}`;
       return shell('Eco', b)
    }
-   const bt = d => `<button class="btn ecd" data-a="ecm" data-d="${d}" aria-label="Mover hacia ${NOM[d].replace('la ', '')}">${FL[d]}</button>`;
+   const bt = (d, Z, p) => `<button class="btn ecd" data-a="ecm" data-d="${d}"${mueve(Z.B1, p.a, d, false) == p.a && mueve(Z.B2, p.b, d, true) == p.b ? ' disabled' : ''} aria-label="Mover hacia ${NOM[d].replace('la ', '')}">${FL[d]}</button>`;
 
    function mover(d) {
       if (R('eco')) return;
       const p = prog('ec'); ini(p); const Z = P(), a = mueve(Z.B1, p.a, d, false), b = mueve(Z.B2, p.b, d, true);
       if (a == p.a && b == p.b) { msg = 'Ninguno de los dos puede moverse en esa dirección.'; Sfx.p('error'); return draw() }
-      p.t0 = p.t0 || Date.now(); hist.push([p.a, p.b, p.m]); p.a = a; p.b = b; p.m++; msg = ''; Sfx.p('tap', p.m % 5);
+      p.t0 = p.t0 || Date.now(); hist.push([p.a, p.b, p.m]); p.l = [0, d, a != p.a, b != p.b]; p.a = a; p.b = b; p.m++; msg = ''; Sfx.p('tap', p.m % 5);
       if (a == Z.e1 && b == Z.e2) { Sfx.p('acierto'); fin('eco', { st: 'completed', t: Date.now() - p.t0, m: p.m, h: p.h || 0, c: 0 }) }
       sv(); draw()
    }
    function ecm(b) { mover(b.dataset.d) }
-   function undo() { const p = prog('ec'); ini(p); if (R('eco') || !hist.length) return; [p.a, p.b, p.m] = hist.pop(); msg = ''; sv(); draw() }
-   function reiniciar() { const p = prog('ec'); ini(p); if (R('eco') || !p.m) return; const Z = P(); hist.push([p.a, p.b, p.m]); p.a = Z.s1; p.b = Z.s2; p.m = 0; msg = ''; sv(); draw() }   // el tiempo y las pistas siguen contando
+   function undo() { const p = prog('ec'); ini(p); if (R('eco') || !hist.length) return; [p.a, p.b, p.m] = hist.pop(); p.l = null; msg = ''; sv(); draw() }
+   function reiniciar() { const p = prog('ec'); ini(p); if (R('eco') || !p.m) return; const Z = P(); hist.push([p.a, p.b, p.m]); p.a = Z.s1; p.b = Z.s2; p.m = 0; p.l = null; msg = ''; sv(); draw() }   // el tiempo y las pistas siguen contando
    /* Pista: dice cuál es el mejor siguiente movimiento desde donde estás (no lo hace por ti). Si desde aquí ya no se puede llegar, avisa de que hay que deshacer. */
    function pista() {
       const p = prog('ec'); ini(p); if (R('eco')) return;
