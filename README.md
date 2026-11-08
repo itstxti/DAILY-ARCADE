@@ -137,12 +137,8 @@
 ## Screenshots
 
 <p align="center">
-<img width="49%" alt="image" src="https://github.com/user-attachments/assets/96d05d1a-d3f1-483d-9433-3bd200ba1c52" />
-<img width="49%" alt="image" src="https://github.com/user-attachments/assets/72e02b15-56e4-4c04-8d33-5b2b756dba3d" />
-</p>
-<p align="center">
-<img width="49%" alt="image" src="https://github.com/user-attachments/assets/b8a0076b-a87f-4d8c-b57e-4b42f825f47d" />
-<img width="49%" alt="image" src="https://github.com/user-attachments/assets/c6aec438-014f-49a4-803f-a94e91ec48f9" />
+<img width="1848" height="882" alt="image" src="https://github.com/user-attachments/assets/90757adb-2330-400e-942b-3e142ff24472" />
+
 </p>
 
 ## Installation
