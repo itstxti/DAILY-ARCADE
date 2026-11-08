@@ -73,15 +73,18 @@
             continue
          }
          const i = (f - 1) * N + c - 1, v = g[i], x = c - 1, y = f - 1;
-         const cl = ['hzx', p.lk.includes(i) && !r ? 'g' : '', s === i ? 'sel' : '', s != null && v && v == g[s] ? 'eq' : '', !r && S.set.hl && cf.has(i) ? 'cf' : ''].filter(Boolean).join(' ');
+         const cl = ['hzx', v ? '' : 'em', p.lk.includes(i) && !r ? 'g' : '', s === i ? 'sel' : '', s != null && v && v == g[s] ? 'eq' : '', !r && S.set.hl && cf.has(i) ? 'cf' : ''].filter(Boolean).join(' ');
          z += `<button class="${cl}" style="--h:${v}" data-a="sc" data-i="${i}"${r ? ' disabled' : ''} aria-label="Fila ${y + 1}, columna ${x + 1}, ${p.lk.includes(i) && !r ? 'edificio fijado de altura ' + v : v ? 'altura ' + v : 'vacía'}">${v || ''}</button>`
       }
-      let b = `<div class="hzb" data-rv="horizonte" role="group" aria-label="Tablero de Horizonte de 4 por 4 con pistas en el borde">${z}</div>`;
+      const okc = Z.act.filter(c => estadoPista(g, Z, c) === true).length, uso = [1, 2, 3, 4].map(n => g.filter(v => v == n).length);
+      const teclas = !r ? `<div class="hzp"><div class="kb np"><div class="kr">${[1, 2, 3, 4].map(n => `<button class="k"${uso[n - 1] >= N ? ' data-done="1"' : ''} data-a="k" data-k="${n}" aria-label="Altura ${n}${uso[n - 1] >= N ? ', ya puesta en las 4 filas' : ''}">${n}</button>`).join('')}<button class="k w" data-a="k" data-k="Del" aria-label="Borrar">⌫</button></div></div></div>` : '';
+      let b = `<div class="ddb hzk"><div class="hzg"><span class="hzg-t"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18M5 21V12h4v9M9 21V5h5v16M14 21v-7h5v7"/></svg><span>Edificios del <b>1 al 4</b>; cada número del borde cuenta los que <b>se ven</b></span></span><span class="hzg-n">Pistas <b>${r && !lost ? Z.act.length : okc} / ${Z.act.length}</b></span></div>`
+         + `<div class="hzw"><div class="hzb" data-rv="horizonte" role="group" aria-label="Tablero de Horizonte de 4 por 4 con pistas en el borde">${z}</div></div>${teclas}</div>`;
       if (lost) b += resRendida('Horizonte', 'Esta era la solución. Vuelve mañana para un reto nuevo.');
       else if (r) b += res(`¡Ciudad completada en ${mmss(r.t)}!`, 'Todas las pistas se cumplen. Vuelve mañana para un reto nuevo.',
          `Daily Arcade · Horizonte #${DAY} · ${mmss(r.t)}${r.h ? ' · ' + r.h + pls(r.h, ' pista', ' pistas') : ''}`);
-      else b += `${S.set.tm ? tmHtml(p) : ''}<p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, pista: 1, rendirme: 1 })}<div class="kb np"><div class="kr">${[1, 2, 3, 4].map(n => `<button class="k" data-a="k" data-k="${n}">${n}</button>`).join('')}<button class="k w" data-a="k" data-k="Del" aria-label="Borrar">⌫</button></div></div>`
-         + `<p class="foot" style="margin-top:8px;text-align:center">Un número del borde indica cuántos edificios se ven desde ahí. Toca una casilla y elige su altura.</p>`;
+      else b += `${S.set.tm ? tmHtml(p) : ''}<p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, pista: 1, rendirme: 1 })}`
+         + `<p class="foot" style="margin-top:8px;text-align:center">Toca una casilla y elige su altura. Un número del borde se pone <b>verde</b> si se cumple y <b>rojo</b> si no.</p>`;
       return shell('Horizonte', b)
    }
 
