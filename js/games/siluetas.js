@@ -56,22 +56,23 @@
    const coincide = p => { const [F, S] = sombras(p.v), Z = P(); return igual(F, Z.F) && igual(S, Z.S) };
 
    const desc = (M, nom) => `${nom}. ` + [...rango].reverse().map(z => `Capa ${z + 1}: ${M[z].some(c => c) ? 'posiciones ' + rango.filter(i => M[z][i]).map(i => i + 1).join(', ') : 'vacía'}`).join('. ');
-   const sombra = (M, nom) => `<div class="sis" role="img" aria-label="${desc(M, nom)}">${[...rango].reverse().map(z => M[z].map(c => `<span${c ? ' class="on"' : ''}></span>`).join('')).join('')}</div>`;
+   const sombra = (M, nom) => `<div class="sis-w"><div class="sis-n" aria-hidden="true">${[...rango].reverse().map(z => `<i>${z + 1}</i>`).join('')}</div><div class="sis" role="img" aria-label="${desc(M, nom)}">${[...rango].reverse().map(z => M[z].map(c => `<span${c ? ' class="on"' : ''}></span>`).join('')).join('')}</div></div>`;
 
    function siluetas() {
       const p = prog('si'); ini(p);
       const r = R('siluetas'), Z = P(), lost = r && r.st == 'lost', v = lost ? Z.sol : p.v;
-      const capa = z => `<div class="sib" role="group" aria-label="Capa ${z + 1}${z == 0 ? ', la base' : z == N - 1 ? ', la de arriba' : ''}"><p class="sit${!r && p.bad.includes(z) ? ' bd' : ''}">Capa ${z + 1}${z == 0 ? ' · base' : z == N - 1 ? ' · arriba' : ''}${!r && p.bad.includes(z) ? ' !' : ''}</p><div class="sig" data-rv="si-${z}">${rango.map(y => rango.map(x => {
-         const i = idx(z, y, x), on = v[i], fx = !r && p.lk.includes(i);
-         return `<button class="sic${on ? ' on' : ''}${fx ? ' fx' : ''}" data-a="sc" data-i="${i}" aria-pressed="${!!on}"${r ? ' disabled' : ''} aria-label="Capa ${z + 1}, fila ${y + 1}, columna ${x + 1}: ${on ? 'cubo' : 'vacío'}${fx ? ', fijado por una pista' : ''}"></button>`
-      }).join('')).join('')}</div></div>`;
-      let b = `<div class="sit2"><figure>${sombra(Z.F, 'Sombra frontal')}<figcaption>Frontal</figcaption></figure><figure>${sombra(Z.S, 'Sombra lateral, vista desde la derecha')}<figcaption>Lateral <small>(desde la derecha)</small></figcaption></figure></div>`;
-      b += `<p class="cap" style="text-align:center;margin:0">Cubos: <b>${cubos(v)}</b> · mínimo posible: <b>${Z.m}</b></p>`;
-      b += `<div class="sip" data-rv="si-capas">${[0, 1, 2, 3].map(capa).join('')}</div>`;
+      /* Franjas objetivo de cada capa: arriba, columnas que deben tener cubo (sombra frontal); a la derecha, filas (lateral). Solo el objetivo: no dicen si lo cumples (eso cuesta Comprobar). */
+      const tira = (A, f) => A.map((t, k) => `<i class="${t ? 'on' : ''}"></i>`).join('');
+      const capa = z => `<div class="sib" role="group" aria-label="Capa ${z + 1}${z == 0 ? ', la base' : z == N - 1 ? ', la de arriba' : ''}"><p class="sit${!r && p.bad.includes(z) ? ' bd' : ''}">Capa ${z + 1}${z == 0 ? ' · base' : z == N - 1 ? ' · arriba' : ''}${!r && p.bad.includes(z) ? ' !' : ''}</p><div class="siw"><div class="sif" aria-hidden="true">${tira(Z.F[z])}</div><div class="sig" data-rv="si-${z}">${rango.map(y => rango.map(x => {
+         const i = idx(z, y, x), on = v[i], fx = !r && p.lk.includes(i), nx = !Z.F[z][x] || !Z.S[z][N - 1 - y];
+         return `<button class="sic${on ? ' on' : ''}${fx ? ' fx' : ''}${nx ? ' nx' : ''}" data-a="sc" data-i="${i}" aria-pressed="${!!on}"${r ? ' disabled' : ''} aria-label="Capa ${z + 1}, fila ${y + 1}, columna ${x + 1}: ${on ? 'cubo' : 'vacío'}${fx ? ', fijado por una pista' : ''}"></button>`
+      }).join('')).join('')}</div><div class="sil" aria-hidden="true">${tira([...Z.S[z]].reverse())}</div></div></div>`;
+      let b = `<div class="ddb sik"><div class="sik-b"><span class="sik-t"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7.5 4.2v8.6L12 20l-7.5-4.2V7.2z"/><path d="M12 11.5v8.5M4.5 7.2L12 11.5l7.5-4.3"/></svg><span>Construye la figura que proyecta las dos sombras con los <b>menos cubos</b></span></span><span class="sik-n">Cubos <b>${cubos(v)}</b> / mín. <b>${Z.m}</b></span></div><div class="sit2"><figure>${sombra(Z.F, 'Sombra frontal')}<figcaption>Frontal</figcaption></figure><figure>${sombra(Z.S, 'Sombra lateral, vista desde la derecha')}<figcaption>Lateral <small>(desde la derecha)</small></figcaption></figure></div>`;
+      b += `<div class="sip" data-rv="si-capas">${[0, 1, 2, 3].map(capa).join('')}</div></div>`;
       if (lost) b += resRendida('Siluetas', `Así cumplía las dos sombras con ${Z.m} cubos. Vuelve mañana para un reto nuevo.`);
       else if (r) b += res(`¡Figura construida en ${mmss(r.t)}!`, `Cumple las dos sombras con ${Z.m} cubos, el mínimo. Vuelve mañana para un reto nuevo.`,
          `Daily Arcade · Siluetas #${DAY} · ${mmss(r.t)}${r.h ? ' · ' + r.h + pls(r.h, ' pista', ' pistas') : ''}${r.c ? ' · ' + r.c + pls(r.c, ' comprobación', ' comprobaciones') : ''}`);
-      else b += `<p class="cap" style="text-align:center;margin:0">Cada capa se ve desde arriba: «atrás» arriba y «delante» abajo. Toca una casilla para poner o quitar un cubo.</p>`
+      else b += `<p class="cap" style="text-align:center;margin:0">Cada capa se ve desde arriba («atrás» arriba, «delante» abajo). Las franjas <b>marcadas</b> de cada capa indican en qué columna (arriba) y fila (derecha) tiene que haber un cubo; las casillas rayadas nunca llevan cubo.</p>`
          + `${S.set.tm ? tmHtml(p) : ''}<p class="msg" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, comprobar: 1, pista: 1, rendirme: 1 })}`;
       return shell('Siluetas', b)
    }

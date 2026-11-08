@@ -4405,3 +4405,25 @@ span.ryc {
 .cok-c.ok { box-shadow: 0 0 0 2px var(--mint) }
 .cok-c.bd { box-shadow: 0 0 0 2px var(--berry) }
 @media (prefers-reduced-motion: reduce) { .cok-c { transition: none } }
+
+/* ---------- Siluetas (rediseño) ----------
+   .sik = tarjeta · .sik-b banda del objetivo (.sik-t texto, .sik-n contador) · .sis-w/.sis-n = sombra con el número de capa de cada fila
+   .siw = capa con franjas objetivo (.sif columnas arriba, .sil filas a la derecha; .on = tiene que haber cubo) · .sic.nx = casilla que nunca lleva cubo (rayada) */
+.sik { overflow: hidden; padding-bottom: 8px }
+.sik-b { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; padding: 8px 12px; border-bottom: 3px solid var(--ink); background: color-mix(in srgb, var(--lime) 30%, var(--card)); font-weight: 700; line-height: 1.2 }
+.sik-t { display: flex; align-items: center; gap: 8px }
+.sik-t svg { flex: none; width: 26px; height: 26px; fill: color-mix(in srgb, var(--sky) 55%, transparent); stroke: var(--ink); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round }
+.sik-n { margin-left: auto; white-space: nowrap }
+.sik .sit2 { padding: 0 10px }
+.sik .sip { padding: 0 12px; margin-bottom: 4px }
+.sis-w { display: flex; align-items: stretch; gap: 4px }
+.sis-n { display: grid; grid-template-rows: repeat(4, 1fr); padding: 6px 0; font-style: normal; font-size: 12px; font-weight: 800; color: var(--mut); text-align: right; align-items: center }
+.sis-n i { font-style: normal }
+.siw { display: grid; grid-template-columns: 1fr 10px; grid-template-rows: 10px auto; gap: 3px }
+.sif, .sil { display: grid; gap: 3px }
+.sif { grid-column: 1; grid-row: 1; grid-template-columns: repeat(4, 1fr) }
+.sil { grid-column: 2; grid-row: 2; grid-template-rows: repeat(4, 1fr) }
+.siw .sig { grid-column: 1; grid-row: 2 }
+.sif i, .sil i { border-radius: 3px; background: color-mix(in srgb, var(--edge) 22%, var(--card)) }
+.sif i.on, .sil i.on { background: var(--ink) }
+.sic.nx:not(.on) { background-image: repeating-linear-gradient(135deg, transparent 0 4px, color-mix(in srgb, var(--edge) 28%, transparent) 4px 6px) }
