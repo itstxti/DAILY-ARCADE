@@ -99,6 +99,17 @@
       id: 'masmenos', name: 'Más o menos', desc: 'Elige cuál tiene más, ronda tras ronda.', color: '--sun', tag: 'Elige cuál tiene más',
       icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 20V5M4 9l4-4 4 4M16 4v15M12 15l4 4 4-4"/></svg>',
       how: ['Se enfrentan <b>dos elementos</b>: población de países, visitas diarias de Wikipedia, altura de montañas o longitud de ríos.', 'Toca el que <b>tiene más</b>. Verás los dos valores y pasarás a la siguiente ronda.', 'Son 10 rondas seguidas y se acaba <b>al primer fallo</b>. Tu puntuación son los aciertos.'],
+      /* Ejemplo: una ronda con sus dos tarjetas (la correcta en verde, como en el juego) y la tira de 10 rondas con un fallo. Usa .mm-par y .mm-op. */
+      demo: (() => {
+         const bola = (est, t) => `<span style="display:inline-grid;place-items:center;width:22px;height:22px;box-sizing:border-box;border-radius:50%;font:800 12px sans-serif;${est}">${t}</span>`;
+         const si = bola('background:var(--mint);color:#fff', '✓'), no = bola('background:var(--berry);color:#fff', '✕'), vac = bola('border:2px dashed var(--edge)', '');
+         const op = (n, v, c) => `<div class="mm-op ${c}" style="min-height:66px;padding:8px 6px;cursor:default;pointer-events:none"><span class="mm-n">${n}</span><span class="mm-v">${CAT.montanas.f(v)}</span></div>`;
+         return `<p class="cap">Ejemplo de ronda: <b>${CAT.montanas.q}</b></p>`
+            + `<div class="mm-par" aria-hidden="true" style="width:100%;max-width:300px;grid-template-columns:1fr 1fr">${op('Everest', 8849, 'ok')}${op('Aneto', 3404, '')}</div>`
+            + `<p class="cap">Tocas una y ves los dos valores: en <b style="color:var(--mint)">verde</b> la que tiene más.</p>`
+            + `<div role="img" aria-label="Diez rondas: seis aciertos, un fallo y tres rondas sin jugar" style="display:flex;gap:4px;justify-content:center">${si.repeat(6)}${no}${vac.repeat(3)}</div>`
+            + `<p class="cap">Son <b>10 rondas</b> y se acaba al <b>primer fallo</b>: aquí, 6 aciertos.</p>`
+      })(),
       pk: 'mm',
       render,
       actions: { mmel, mmsig, mmrt },

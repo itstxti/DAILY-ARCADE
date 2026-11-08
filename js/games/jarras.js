@@ -145,6 +145,32 @@
       id: 'jarras', name: 'Jarras', desc: 'Llena, vacía y vierte jarras sin marcas hasta medir los litros exactos.', color: '--lav', tag: 'Mide los litros exactos',
       icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10l-1 16H8z"/><path d="M7.6 11h8.8"/></svg>',
       how: ['Tienes unas <b>jarras sin marcas</b> y un grifo. Hay que conseguir <b>exactamente</b> los litros pedidos dentro de una jarra.', 'Puedes <b>llenar</b> una jarra del todo, <b>vaciarla</b> del todo o <b>verterla</b> en otra: sale agua hasta que la primera se vacía o la segunda se llena.', 'Cuenta cada movimiento: intenta acercarte al <b>mínimo</b>.'],
+      /* Ejemplo: medir 1 litro con jarras de 3 y 5 (llenar, verter, llenar, verter). Mismo dibujo y colores que el juego. */
+      demo: (() => {
+         const cap = [3, 5], u = 13, y0 = 80, w = 26, xs = [8, 42], f = "font-family:'Bricolage Grotesque',system-ui,sans-serif;text-anchor:middle";
+         const pasos = [
+            { s: [3, 0], t: '<b>1.</b> Llenas la de 3' },
+            { s: [0, 3], t: '<b>2.</b> La viertes en la de 5' },
+            { s: [3, 3], t: '<b>3.</b> Llenas otra vez la de 3' },
+            { s: [1, 5], t: '<b>4.</b> La viertes: queda <b>1&nbsp;L</b>' }
+         ];
+         const jarra = (s, hl, lbl) => {
+            let z = `<svg viewBox="0 0 76 100" role="img" aria-label="${lbl}">`;
+            cap.forEach((c, k) => {
+               const h = c * u, v = s[k], x = xs[k], on = hl && k == 0;
+               z += `<rect x="${x}" y="${y0 - h}" width="${w}" height="${h}" rx="4" style="fill:var(--card)"/>`
+                  + (v ? `<rect x="${x}" y="${y0 - v * u}" width="${w}" height="${v * u}" rx="${v == c ? 4 : 1.5}" style="fill:color-mix(in srgb,${COL[k]} 55%,var(--card))"/>` : '')
+                  + `<rect x="${x}" y="${y0 - h}" width="${w}" height="${h}" rx="4" style="fill:none;stroke:${on ? 'var(--mint)' : 'var(--ink)'};stroke-width:${on ? 3.5 : 2.2}"/>`
+                  + `<text x="${x + w / 2}" y="${y0 - h / 2 + 5}" style="${f};fill:var(--ink);font-weight:800;font-size:14px">${v}</text>`
+                  + `<text x="${x + w / 2}" y="95" style="${f};fill:var(--ink);font-weight:700;font-size:9px;opacity:.8">de ${c} L</text>`
+            });
+            return z + '</svg>'
+         };
+         const lbl = ['Llenas la jarra de 3: tiene 3 litros y la de 5, ninguno.', 'La viertes en la de 5: la de 3 queda con 0 y la de 5 con 3.', 'Llenas otra vez la de 3: 3 litros en cada una.', 'La viertes en la de 5 hasta que se llena: en la de 3 queda 1 litro.'];
+         return `<p class="cap">Ejemplo con jarras de <b>3</b> y <b>5</b> litros: ¿cómo medir <b>1 litro</b>?</p>`
+            + `<div class="dmg" style="--c:4">${pasos.map((p, i) => `<figure>${jarra(p.s, i == 3, lbl[i])}<figcaption>${p.t}</figcaption></figure>`).join('')}</div>`
+            + `<p class="cap">Al verter, el agua sale hasta que la de 5 se llena: <b>lo que sobra</b> en la de 3 es tu litro.</p>`
+      })(),
       pk: 'ja',
       render: jarras,
       actions: { jf, je, jp, undo, reiniciar, pista, rendirme: confirma(rendirse) },

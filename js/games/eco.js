@@ -110,6 +110,24 @@
       id: 'eco', name: 'Eco', desc: 'Lleva a tu reflejo y a ti a la salida a la vez.', color: '--lav', tag: 'Tú y tu reflejo, a la salida', flechas: true,
       icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="7" cy="12" r="3"/><circle cx="17" cy="12" r="3"/><path d="M12 4v16" stroke-dasharray="2 3"/></svg>',
       how: ['Hay <b>dos tableros</b>: en el de la izquierda estás tú y en el de la derecha, tu <b>Eco</b>. Llega con los dos a la <b>salida</b> (el aro) a la vez.', 'Cada movimiento lo repite el Eco <b>en espejo</b>: si vas a la <b>izquierda</b>, él va a la <b>derecha</b>. Arriba y abajo son iguales.', 'Si uno choca con una <b>roca</b> o el borde, se queda quieto mientras el otro se mueve. Usa las flechas del teclado o los botones.'],
+      /* Ejemplo: pulsas → con dos tableros 3×3. Tú avanzas a la derecha; el Eco iría a la izquierda pero choca con una roca y se queda. Mismas clases que los tableros (ecq, ecb, ece, ect). */
+      demo: (() => {
+         const f = "font-family:'Bricolage Grotesque',system-ui,sans-serif;text-anchor:middle";
+         const tablero = (x, rocas, salida, yo, cl) => {
+            let s = `<g transform="translate(${x} 0)"><rect x="-.04" y="-.04" width="3.08" height="3.08" rx=".18" style="fill:var(--card);stroke:var(--ink);stroke-width:.09"/>`;
+            for (let k = 0; k < 9; k++) { const cx = k % 3, cy = k / 3 | 0; s += `<rect class="${rocas.includes(k) ? 'ecb' : 'ecq'}" x="${cx + .04}" y="${cy + .04}" width=".92" height=".92" rx="${rocas.includes(k) ? .14 : .08}"/>` }
+            return s + `<circle class="ece" cx="${salida % 3 + .5}" cy="${(salida / 3 | 0) + .5}" r=".34"/><circle class="ect ${cl}" cx="${yo % 3 + .5}" cy="${(yo / 3 | 0) + .5}" r=".24"/></g>`
+         };
+         const fl = (x1, x2, y) => `<path d="M${x1} ${y}H${x2}M${x2 + (x2 > x1 ? -.2 : .2)} ${y - .17}L${x2} ${y}L${x2 + (x2 > x1 ? -.2 : .2)} ${y + .17}" style="fill:none;stroke:var(--ink);stroke-width:.09;stroke-linecap:round;stroke-linejoin:round"/>`;
+         const lab = (x, t) => `<text x="${x}" y="3.82" style="${f};fill:var(--ink);font-weight:800;font-size:.55px">${t}</text>`;
+         // tú: casilla 3 (fila 1, col. 0), salida 2 (arriba a la derecha), roca en 7 · Eco: casilla 5, salida 0 (arriba a la izquierda), rocas en 4 y 6
+         const marco = (ya, eco, extra, lbl) => `<svg viewBox="-.1 -.1 7.4 4.1" role="img" aria-label="${lbl}">${tablero(0, [7], 2, ya, 'u1')}${tablero(4.2, [4, 6], 0, eco, 'u2')}${lab(1.5, 'Tú')}${lab(5.7, 'Eco')}${extra}</svg>`;
+         const antes = marco(3, 5, fl(.95, 1.4, 1.5) + fl(6.35, 5.85, 1.5), 'Antes: tú estás en la casilla de la izquierda del tablero izquierdo y el Eco, a la derecha del tablero derecho, con una roca justo a su izquierda.');
+         const despues = marco(4, 5, `<path d="M5.5 1.3l.4.4m0-.4l-.4.4" style="fill:none;stroke:var(--berry);stroke-width:.13;stroke-linecap:round"/>`, 'Después de pulsar la flecha derecha: tú has avanzado una casilla y el Eco no se ha movido porque chocaba con la roca.');
+         return `<p class="cap">Pulsas <b>→</b>. Los dos tienen una salida (el aro).</p>`
+            + `<div class="dmg" style="--c:2"><figure>${antes}<figcaption><b>Antes.</b> Tú irás a la derecha; el Eco, a la izquierda…</figcaption></figure>`
+            + `<figure>${despues}<figcaption><b>Después.</b> Tú avanzas, pero el Eco choca con la <b>roca</b> y se queda</figcaption></figure></div>`
+      })(),
       pk: 'ec',
       render: eco,
       actions: { ecm, undo, reiniciar, pista, rendirme: confirma(rendirse) },

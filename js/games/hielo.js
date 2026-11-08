@@ -192,6 +192,35 @@
       id: 'hielo', name: 'Hielo', desc: 'Deslízate por el hielo hasta la bandera pasando por todas las estrellas.', color: '--aqua', tag: 'Deslízate hasta la bandera', flechas: true,
       icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9"/><path d="M9.5 4.7 12 7l2.5-2.3M9.5 19.3 12 17l2.5 2.3"/></svg>',
       how: ['El suelo es de <b>hielo</b>: cuando te mueves con las <b>flechas</b> o los botones, te deslizas hasta chocar con una <b>roca</b> o con el borde.', 'Hay que pasar por <b>todas las estrellas</b> (da igual si pasas o te paras encima) y acabar parado en la <b>bandera</b>, que también te frena.', 'Cuenta cada movimiento: intenta acercarte al <b>mínimo</b>.'],
+      /* Ejemplo en 5×4: deslizar a la derecha (recoge la estrella, frena la roca) y luego hacia arriba (frena la bandera). Mismo dibujo que el tablero. */
+      demo: (() => {
+         const C = 5, F = 4, roca = [4, 3], est = [2, 3], meta = [3, 1], ini = [0, 3], f = "font-family:'Bricolage Grotesque',system-ui,sans-serif;text-anchor:middle";
+         let z = `<svg viewBox="0 0 ${C} ${F}" role="img" aria-label="Ejemplo de Hielo. Sales de abajo a la izquierda y te deslizas a la derecha: pasas por una estrella y te frena la roca. Después te deslizas hacia arriba y te frena la bandera." style="display:block;width:100%;max-width:230px;margin:6px auto;border:3px solid var(--ink);border-radius:var(--r-sm)">`;
+         for (let y = 0; y < F; y++) for (let x = 0; x < C; x++)
+            z += (x == roca[0] && y == roca[1])
+               ? `<rect x="${x + .04}" y="${y + .04}" width=".92" height=".92" rx=".14" style="fill:var(--line);stroke:var(--ink);stroke-width:.05"/><path d="M${x + .28} ${y + .68}l.16-.3.14.14.14-.28.1.44z" style="fill:var(--ink);opacity:.35"/>`
+               : `<rect x="${x + .04}" y="${y + .04}" width=".92" height=".92" rx=".08" style="fill:color-mix(in srgb,var(--aqua) 16%,var(--card));stroke:color-mix(in srgb,var(--aqua) 45%,transparent);stroke-width:.03"/>`;
+         // bandera (meta)
+         const gx = meta[0], gy = meta[1];
+         z += `<rect x="${gx + .1}" y="${gy + .1}" width=".8" height=".8" rx=".12" style="fill:none;stroke:var(--ink);stroke-width:.05;stroke-dasharray:.12 .1"/>`
+            + `<path d="M${gx + .38} ${gy + .76}V${gy + .22}M${gx + .38} ${gy + .24}L${gx + .74} ${gy + .37}L${gx + .38} ${gy + .5}z" style="fill:var(--berry);stroke:var(--ink);stroke-width:.04;stroke-linejoin:round;stroke-linecap:round"/>`;
+         // estrella
+         z += `<path d="${estrella(est[0] + .5, est[1] + .5, .34)}" style="fill:color-mix(in srgb,var(--sun) 55%,var(--card));stroke:var(--ink);stroke-width:.05;stroke-linejoin:round"/>`;
+         // recorridos: 1 → a la derecha hasta la roca · 2 → hacia arriba hasta la bandera (cada flecha termina donde frenas)
+         const tr = 'fill:none;stroke:var(--sky);stroke-width:.1;stroke-dasharray:.16 .13;stroke-linecap:round';
+         z += `<path d="M.9 3.5H3.1" style="${tr}"/><path d="M3.5 3.1V1.9" style="${tr}"/>`
+            + `<path d="M2.95 3.3L3.2 3.5L2.95 3.7M3.3 2.1L3.5 1.85L3.7 2.1" style="fill:none;stroke:var(--sky);stroke-width:.1;stroke-linecap:round;stroke-linejoin:round"/>`;
+         // dónde frenas tras el primer deslizamiento (casilla vacía con contorno)
+         z += `<circle cx="3.5" cy="3.5" r=".3" style="fill:none;stroke:var(--sky);stroke-width:.06;stroke-dasharray:.1 .08"/>`;
+         // número de cada movimiento
+         [[1.5, 3.1, 1], [3.95, 2.5, 2]].forEach(([x, y, n]) => {
+            z += `<circle cx="${x}" cy="${y}" r=".2" style="fill:var(--card);stroke:var(--ink);stroke-width:.05"/><text x="${x}" y="${y + .09}" style="${f};fill:var(--ink);font-weight:800;font-size:.27px">${n}</text>`
+         });
+         // personaje al inicio
+         const px = ini[0] + .5, py = ini[1] + .5;
+         z += `<circle cx="${px}" cy="${py}" r=".3" style="fill:var(--sky);stroke:var(--ink);stroke-width:.06"/><circle cx="${px - .1}" cy="${py - .06}" r=".06" style="fill:var(--card)"/><circle cx="${px + .1}" cy="${py - .06}" r=".06" style="fill:var(--card)"/>`;
+         return `<p class="cap">No paras hasta chocar: <b>1</b> pasas por la <b>estrella</b> y te frena la <b>roca</b>; <b>2</b> subes y la <b>bandera</b> te frena.</p>${z}</svg>`
+      })(),
       pk: 'hi',
       render: hielo,
       actions: { hm, undo, reiniciar, pista, rendirme: confirma(rendirse) },

@@ -245,6 +245,32 @@
       id: 'atasco', name: 'Atasco', desc: 'Desliza coches y camiones para dejar salir al coche rojo.', color: '--coral', tag: 'Saca el coche rojo',
       icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="9" width="12" height="6" rx="2"/><path d="M18 12h4M20 10l2 2-2 2"/><path d="M6 15v3M12 15v3"/></svg>',
       how: ['Hay <b>coches</b> (2 casillas) y <b>camiones</b> (3). Cada uno solo se desliza en <b>línea recta</b>, hacia delante o hacia atrás, y no puede atravesar a otro.', 'Saca el <b>coche rojo</b> por la salida de la derecha. Deslizar un vehículo varias casillas cuenta como <b>un solo movimiento</b>.', 'Arrastra con el dedo o el ratón. Con teclado: <b>Tab</b> hasta el tablero, <b>Enter</b> para marcar un vehículo y las <b>flechas</b> para moverlo.'],
+      /* Ejemplo: un camión bloquea al coche rojo; deslizarlo 2 casillas es 1 solo movimiento y el rojo sale. Mismo dibujo que el tablero. */
+      demo: (() => {
+         // h = horizontal · c = carril (fila si es horizontal, columna si es vertical) · p = primera casilla · l = largo · k = color
+         const roj = { h: 1, c: 2, p: 0, l: 2, k: 0 }, cam = k => ({ h: 0, c: 3, p: k, l: 3, k: 1 });
+         const otros = [{ h: 0, c: 5, p: 0, l: 2, k: 2 }, { h: 1, c: 4, p: 0, l: 2, k: 3 }];
+         const cabeza = (x1, y1, x2, y2) => { const a = Math.atan2(y2 - y1, x2 - x1), h = .2, q = v => v.toFixed(2); return `M${q(x2 - h * Math.cos(a - .5))} ${q(y2 - h * Math.sin(a - .5))}L${q(x2)} ${q(y2)}L${q(x2 - h * Math.cos(a + .5))} ${q(y2 - h * Math.sin(a + .5))}` };
+         const flecha = (x1, y1, x2, y2, c, disc) => `<path d="M${x1} ${y1}L${x2} ${y2}${cabeza(x1, y1, x2, y2)}" style="fill:none;stroke:${c};stroke-width:.1;stroke-linecap:round;stroke-linejoin:round${disc ? ';stroke-dasharray:.2 .15' : ''}"/>`;
+         const tablero = (ve, extra, lbl) => {
+            let s = `<svg viewBox="0 0 ${W} ${N}" role="img" aria-label="${lbl}">`;
+            for (let i = 0; i < T; i++) s += `<rect x="${i % N}" y="${i / N | 0}" width="1" height="1" style="fill:var(--card);stroke:var(--line);stroke-width:.03"/>`;
+            s += `<path d="M${N} 2V0H0V${N}H${N}V3" style="fill:none;stroke:var(--ink);stroke-width:.09;stroke-linejoin:round;stroke-linecap:round"/>`
+               + `<path d="M${N + .12} 2.28 ${N + .42} 2.5 ${N + .12} 2.72z" style="fill:${ROJO};stroke:var(--ink);stroke-width:.04;stroke-linejoin:round"/>`;
+            ve.forEach(v => {
+               const x = v.h ? v.p : v.c, y = v.h ? v.c : v.p, w = v.h ? v.l : 1, h = v.h ? 1 : v.l, cx = x + w / 2, cy = y + h / 2;
+               s += `<rect x="${x + .07}" y="${y + .07}" width="${w - .14}" height="${h - .14}" rx=".2" style="fill:${v.k ? `color-mix(in srgb,${COL[v.k]} 70%,var(--card))` : ROJO};stroke:color-mix(in srgb,var(--ink) 80%,transparent);stroke-width:.06"/>`;
+               if (v.k) s += v.h ? `<path d="M${cx - .12} ${cy - .18}v.36M${cx + .12} ${cy - .18}v.36" style="stroke:var(--ink);stroke-width:.05;stroke-linecap:round;opacity:.45"/>` : `<path d="M${cx - .18} ${cy - .12}h.36M${cx - .18} ${cy + .12}h.36" style="stroke:var(--ink);stroke-width:.05;stroke-linecap:round;opacity:.45"/>`;
+               else s += `<path d="M${cx - .22} ${cy}H${cx + .22}M${cx + .06} ${cy - .16}L${cx + .22} ${cy}L${cx + .06} ${cy + .16}" style="fill:none;stroke:var(--card);stroke-width:.08;stroke-linecap:round;stroke-linejoin:round"/>`
+            });
+            return s + extra + '</svg>'
+         };
+         const antes = tablero([roj, cam(1), ...otros], flecha(3.5, 1.75, 3.5, 3.45, 'var(--ink)', 0), 'Antes: el camión, en vertical, tapa la salida del coche rojo. Lo deslizas dos casillas hacia abajo.');
+         const despues = tablero([roj, cam(3), ...otros], flecha(2.2, 2.5, 6.25, 2.5, ROJO, 1), 'Después: el camino está libre y el coche rojo sale por la derecha.');
+         return `<p class="cap">El camión <b>tapa</b> la salida del coche rojo.</p>`
+            + `<div class="dmg" style="--c:2"><figure>${antes}<figcaption><b>1.</b> Deslizas el camión <b>2 casillas</b> abajo: cuenta como <b>1 movimiento</b></figcaption></figure>`
+            + `<figure>${despues}<figcaption><b>2.</b> El camino queda libre y el <b>coche rojo</b> sale</figcaption></figure></div>`
+      })(),
       pk: 'ta',
       render: atasco,
       actions: { undo, reiniciar, pista, rendirme: confirma(rendirse) },
