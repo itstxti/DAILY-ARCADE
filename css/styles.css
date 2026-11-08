@@ -4323,6 +4323,14 @@ span.ryc {
 .ddb svg.hit { touch-action: none; -webkit-user-select: none; user-select: none }
 .ddd2:disabled { opacity: .38; box-shadow: none; cursor: default }
 
+/* ---------- Atasco ----------
+   .atk = tarjeta · .atg = banda del objetivo (.atg-t texto con el coche, .atg-n contador) · .atw = marco del tablero (el SVG de #atb ocupa todo su ancho: el arrastre mide sobre él) */
+.atg { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; padding: 8px 12px; border-bottom: 3px solid var(--ink); background: color-mix(in srgb, var(--coral) 22%, var(--card)); font-weight: 700; line-height: 1.2 }
+.atg-t { display: flex; align-items: center; gap: 8px }
+.atg-t svg { flex: none; width: 36px; height: 20px }
+.atg-n { margin-left: auto; white-space: nowrap }
+.atw { padding: 10px 10px 8px }
+
 /* ---------- Horizonte ---------- */
 .hzb { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); max-width: var(--bw, 372px); margin: 12px auto }
 .hzb::after { content: ''; position: absolute; left: calc(100% / 6); top: calc(100% / 6); width: calc(100% * 4 / 6); height: calc(100% * 4 / 6); border: 3px solid var(--ink); border-radius: var(--r-md); pointer-events: none }

@@ -102,7 +102,7 @@
    /* Progreso: p.pos = posiciones · p.m = movimientos [vehículo, de, a, teclado?] (para Deshacer) · p.n = movimientos contados (deshacer no los devuelve) · p.h = pistas · p.g = huella del reto. */
    const ini = p => {
       const Z = P(), g = clave(Z.pos) + Z.ve.map(v => (v.h ? 'h' : 'v') + v.l + v.c).join('');
-      if (!Array.isArray(p.pos) || p.g != g) { p.pos = Z.pos.slice(); p.m = []; p.n = 0; p.h = 0; p.pd = -1; p.g = g }
+      if (!Array.isArray(p.pos) || p.g != g) { p.pos = Z.pos.slice(); p.m = []; p.n = 0; p.h = 0; p.pd = p.pt = -1; p.g = g }
    };
    /* La solución completa desde la posición del reto (solo para enseñarla al rendirse): el tablero resuelto. */
    function resuelto(Z) {
@@ -114,39 +114,69 @@
    /* ----- Dibujo ----- */
    const W = N + .55;
    let kv = -1, arrastre = null;                                        // kv = vehículo marcado (toque o teclado) · arrastre = { k, g0, neg, mas, off }
+   /* dis = partida terminada (no se dibujan marcas). Orden: casillas → carril del rojo → alcance del marcado / destino del arrastre / destino de la pista → vehículos → chevron de la pista.
+      El alcance es la franja por la que puede deslizarse el vehículo marcado (con una flecha en cada extremo libre). */
+   const caja = (v, q) => v.h ? [q, v.c, v.l, 1] : [v.c, q, 1, v.l];
    function svgTablero(Z, pos, p, dis) {
       let s = `<svg viewBox="0 0 ${W} ${N}" role="img" aria-label="Tablero de Atasco de ${N} por ${N}. Hay que sacar el coche rojo por la derecha." style="display:block;width:100%;height:auto">`;
       for (let i = 0; i < T; i++) s += `<rect x="${i % N}" y="${i / N | 0}" width="1" height="1" style="fill:var(--card);stroke:var(--line);stroke-width:.03"/>`;
+      // carril del coche rojo (fila de la salida) con puntas de flecha hacia la salida
+      s += `<rect x="0" y="2" width="${N}" height="1" style="fill:color-mix(in srgb,${ROJO} 10%,transparent)"/>`;
+      for (let x = pos[0] + 2.35; x < N - .2; x += .55) s += `<path d="M${x} 2.36L${x + .2} 2.5L${x} 2.64" style="fill:none;stroke:${ROJO};stroke-width:.07;stroke-linecap:round;stroke-linejoin:round;opacity:.3"/>`;
       // borde del tablero con un hueco en la salida (fila 2, a la derecha)
       s += `<path d="M${N} 2V0H0V${N}H${N}V3" style="fill:none;stroke:var(--ink);stroke-width:.09;stroke-linejoin:round;stroke-linecap:round"/>`
-         + `<path d="M${N + .12} 2.28 ${N + .42} 2.5 ${N + .12} 2.72z" style="fill:${ROJO};stroke:var(--ink);stroke-width:.04;stroke-linejoin:round"/>`;
+         + `<path d="M${N + .12} 2.24 ${N + .46} 2.5 ${N + .12} 2.76z" style="fill:${dis && pos[0] == SAL ? 'var(--mint)' : ROJO};stroke:var(--ink);stroke-width:.05;stroke-linejoin:round"/>`;
+      const ar = arrastre, cv = k => k ? COL[k % COL.length] : ROJO;
+      if (!dis && kv >= 0 && Z.ve[kv]) {                                  // alcance del vehículo marcado
+         const v = Z.ve[kv], [neg, mas] = holgura(Z.ve, pos, kv), q0 = pos[kv] - neg, [bx, by, bw, bh] = v.h ? [q0, v.c, v.l + neg + mas, 1] : [v.c, q0, 1, v.l + neg + mas];
+         if (neg + mas) {
+            s += `<rect x="${bx + .04}" y="${by + .04}" width="${bw - .08}" height="${bh - .08}" rx=".22" style="fill:color-mix(in srgb,var(--ink) 8%,transparent);stroke:var(--ink);stroke-width:.04;stroke-dasharray:.1 .08;opacity:.7"/>`;
+            const fl = (cx, cy, dx, dy) => `<path d="M${cx - dy * .15 - dx * .08} ${cy + dx * .15 - dy * .08}L${cx + dx * .1} ${cy + dy * .1}L${cx + dy * .15 - dx * .08} ${cy - dx * .15 - dy * .08}" style="fill:none;stroke:var(--ink);stroke-width:.07;stroke-linecap:round;stroke-linejoin:round;opacity:.55"/>`;
+            if (neg) s += v.h ? fl(bx + .3, by + .5, -1, 0) : fl(bx + .5, by + .3, 0, -1);
+            if (mas) s += v.h ? fl(bx + bw - .3, by + .5, 1, 0) : fl(bx + .5, by + bh - .3, 0, 1)
+         }
+      }
+      if (!dis && ar && Math.round(ar.off)) {                             // dónde se quedaría al soltar
+         const v = Z.ve[ar.k], [gx, gy, gw, gh] = caja(v, pos[ar.k] + Math.round(ar.off));
+         s += `<rect x="${gx + .07}" y="${gy + .07}" width="${gw - .14}" height="${gh - .14}" rx=".2" style="fill:color-mix(in srgb,${cv(ar.k)} 30%,transparent);stroke:var(--ink);stroke-width:.07;stroke-dasharray:.14 .1"/>`
+      }
+      const pt = !dis && p.pd >= 0 && p.pt >= 0 ? [p.pd, p.pt] : null;   // destino que aconseja la pista
+      if (pt) { const [gx, gy, gw, gh] = caja(Z.ve[pt[0]], pt[1]); s += `<rect x="${gx + .05}" y="${gy + .05}" width="${gw - .1}" height="${gh - .1}" rx=".22" style="fill:color-mix(in srgb,var(--sky) 22%,transparent);stroke:var(--sky);stroke-width:.1"/>` }
       Z.ve.forEach((v, k) => {
-         const off = arrastre && arrastre.k == k ? arrastre.off : 0, q = pos[k] + off;
-         const x = v.h ? q : v.c, y = v.h ? v.c : q, w = v.h ? v.l : 1, h = v.h ? 1 : v.l, marca = k == kv && !dis, pista = k == p.pd && !dis;
-         s += `<rect x="${x + .07}" y="${y + .07}" width="${w - .14}" height="${h - .14}" rx=".2" style="fill:${k ? `color-mix(in srgb,${COL[k % COL.length]} 70%,var(--card))` : ROJO};stroke:${marca ? 'var(--ink)' : 'color-mix(in srgb,var(--ink) 80%,transparent)'};stroke-width:${marca ? .13 : .06}${pista ? ';stroke-dasharray:.2 .12' : ''}"/>`;
-         // faros/luna: dos rayas cortas en el sentido de la marcha para distinguir el coche del camión sin depender del color
+         const off = ar && ar.k == k ? ar.off : 0, q = pos[k] + off;
+         const x = v.h ? q : v.c, y = v.h ? v.c : q, w = v.h ? v.l : 1, h = v.h ? 1 : v.l, marca = k == kv && !dis, pista = pt && pt[0] == k;
+         s += `<rect x="${x + .07}" y="${y + .07}" width="${w - .14}" height="${h - .14}" rx=".2" style="fill:${k ? `color-mix(in srgb,${COL[k % COL.length]} 70%,var(--card))` : ROJO};stroke:${pista ? 'var(--sky)' : marca ? 'var(--ink)' : 'color-mix(in srgb,var(--ink) 80%,transparent)'};stroke-width:${pista ? .14 : marca ? .13 : .06}"/>`;
+         // brillo (da volumen) y faros/luna: dos rayas cortas en el sentido de la marcha para distinguir el coche del camión sin depender del color
+         s += v.h ? `<rect x="${x + .2}" y="${y + .13}" width="${w - .4}" height=".1" rx=".05" style="fill:#fff;opacity:.3"/>` : `<rect x="${x + .13}" y="${y + .2}" width=".1" height="${h - .4}" rx=".05" style="fill:#fff;opacity:.3"/>`;
          const cx = x + w / 2, cy = y + h / 2;
          if (k) s += v.h ? `<path d="M${cx - .12} ${cy - .18}v.36M${cx + .12} ${cy - .18}v.36" style="stroke:var(--ink);stroke-width:.05;stroke-linecap:round;opacity:.45"/>` : `<path d="M${cx - .18} ${cy - .12}h.36M${cx - .18} ${cy + .12}h.36" style="stroke:var(--ink);stroke-width:.05;stroke-linecap:round;opacity:.45"/>`;
          if (k == 0) s += `<path d="M${cx - .22} ${cy}H${cx + .22}M${cx + .06} ${cy - .16}L${cx + .22} ${cy}L${cx + .06} ${cy + .16}" style="fill:none;stroke:var(--card);stroke-width:.08;stroke-linecap:round;stroke-linejoin:round"/>`
       });
+      if (pt) {                                                           // chevron en el extremo del destino, en el sentido de la marcha
+         const v = Z.ve[pt[0]], sg = Math.sign(pt[1] - pos[pt[0]]), [bx, by, bw, bh] = caja(v, pt[1]);
+         const cx = v.h ? (sg > 0 ? bx + bw - .32 : bx + .32) : bx + .5, cy = v.h ? by + .5 : (sg > 0 ? by + bh - .32 : by + .32), dx = v.h ? sg : 0, dy = v.h ? 0 : sg;
+         s += `<path d="M${cx - dy * .2 - dx * .12} ${cy + dx * .2 - dy * .12}L${cx + dx * .14} ${cy + dy * .14}L${cx + dy * .2 - dx * .12} ${cy - dx * .2 - dy * .12}" style="fill:none;stroke:var(--sky);stroke-width:.13;stroke-linecap:round;stroke-linejoin:round"/>`
+      }
       return s + '</svg>'
    }
    function pinta() {
       const p = prog('ta'), Z = P(); ini(p);
       const b = $('#atb'); if (b) b.innerHTML = svgTablero(Z, p.pos, p, false);
-      const c = $('#atc'); if (c) c.innerHTML = `Movimientos: <b>${p.n}</b>`;
+      const c = $('#atc'); if (c) c.innerHTML = `Movimientos <b>${p.n}</b>`;
       const m = $('#atm'); if (m) m.textContent = msg
    }
    function atasco() {
       const p = prog('ta'); ini(p);
       const r = R('atasco'), Z = P(), lost = r && r.st == 'lost';
-      let b = `<div id="atb" data-b="atasco"${r ? '' : ` tabindex="0" role="application" aria-label="Tablero de Atasco. Enter para marcar el siguiente vehículo, flechas para deslizar el vehículo marcado una casilla."`} style="${r ? '' : 'touch-action:none;'}max-width:var(--bw,372px);margin:12px auto;user-select:none;-webkit-user-select:none">${svgTablero(Z, lost ? resuelto(Z) : p.pos, p, !!r)}</div>`;
+      const coche = `<svg viewBox="0 0 36 20" aria-hidden="true"><rect x="1.5" y="2.5" width="33" height="15" rx="6" style="fill:${ROJO};stroke:var(--ink);stroke-width:2"/><path d="M10 10H25M20 5.5 25 10 20 14.5" style="fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"/></svg>`;
+      let b = `<div class="ddb atk"><div class="atg"><span class="atg-t">${coche}<span>Saca el <b>coche rojo</b> por la derecha</span></span><span id="atc" class="atg-n">Movimientos <b>${r && r.n != null ? r.n : p.n}</b></span></div>`
+         + `<div class="atw"><div id="atb" data-b="atasco"${r ? '' : ` tabindex="0" role="application" aria-label="Tablero de Atasco. Enter para marcar el siguiente vehículo, flechas para deslizar el vehículo marcado una casilla."`} style="${r ? '' : 'touch-action:none;'}user-select:none;-webkit-user-select:none">${svgTablero(Z, lost ? resuelto(Z) : p.pos, p, !!r)}</div></div></div>`;
       if (!r) b += '<span class="sr" id="atl" aria-live="polite"></span>';
       if (lost) b += resRendida('Atasco', `Así se sacaba el coche rojo en ${Z.d} ${pls(Z.d, 'movimiento', 'movimientos')}. Vuelve mañana para un reto nuevo.`);
       else if (r) b += res(`¡Coche rojo fuera en ${mmss(r.t)}!`, `${r.n} ${pls(r.n, 'movimiento', 'movimientos')} (el mínimo era ${Z.d}). Vuelve mañana para un reto nuevo.`,
          `Daily Arcade · Atasco #${DAY} · ${r.n}/${Z.d} mov.${r.h ? ' · ' + r.h + pls(r.h, ' pista', ' pistas') : ''} · ${mmss(r.t)}`);
-      else b += `<p class="cap" id="atc" style="text-align:center;margin:0">Movimientos: <b>${p.n}</b></p>${S.set.tm ? tmHtml(p) : ''}<p class="msg" id="atm" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, pista: 1, rendirme: 1 })}`
-         + `<p class="foot" style="margin-top:8px;text-align:center">Arrastra los vehículos en línea recta para sacar el <b>coche rojo</b> por la derecha. Deslizar uno varias casillas cuenta como <b>un movimiento</b>. Con teclado: <b>Tab</b> hasta el tablero, <b>Enter</b> para marcar un vehículo y las <b>flechas</b> para moverlo.</p>`;
+      else b += `${S.set.tm ? tmHtml(p) : ''}<p class="msg" id="atm" role="status">${msg}</p>${controles({ undo: 1, reiniciar: 1, pista: 1, rendirme: 1 })}`
+         + `<p class="foot" style="margin-top:8px;text-align:center"><b>Toca</b> un vehículo para ver hasta dónde puede llegar y <b>arrástralo</b> en línea recta. Deslizar uno varias casillas cuenta como <b>un movimiento</b>. Con teclado: <b>Tab</b> hasta el tablero, <b>Enter</b> para marcar un vehículo y las <b>flechas</b> para moverlo.</p>`;
       return shell('Atasco', b)
    }
 
@@ -159,7 +189,7 @@
    /* Desliza el vehículo k hasta la posición a (ya comprobado que el camino está libre). teclado = una casilla suelta con flechas: varias seguidas en el mismo sentido son un solo movimiento. */
    function coloca(p, k, a, teclado) {
       const de = p.pos[k], ult = p.m[p.m.length - 1];
-      p.t0 = p.t0 || Date.now(); p.pd = -1; msg = '';
+      p.t0 = p.t0 || Date.now(); p.pd = p.pt = -1; msg = '';
       if (teclado && ult && ult[3] && ult[0] == k && Math.sign(ult[2] - ult[1]) == Math.sign(a - de)) ult[2] = a;
       else { p.m.push([k, de, a, teclado ? 1 : 0]); p.n++ }
       p.pos[k] = a; Sfx.p('tap', p.n % 5)
@@ -177,6 +207,7 @@
       e.preventDefault(); try { b.setPointerCapture(e.pointerId) } catch (x) { }
       if (k < 0) { kv = -1; arrastre = null; return pinta() }
       const [neg, mas] = holgura(Z.ve, p.pos, k);
+      if (neg + mas) msg = ''; else { msg = `El ${Z.ve[k].l == 3 ? 'camión' : 'coche'} ${NOMC[k % NOMC.length]} está bloqueado: mueve antes a quien lo tapa.`; Sfx.p('error') }
       kv = k; arrastre = { k, g0: Z.ve[k].h ? fx : fy, neg, mas, off: 0 }; pinta()
    });
    A.addEventListener('pointermove', e => {
@@ -219,12 +250,12 @@
    function undo() {
       const p = prog('ta'); ini(p);
       if (R('atasco') || !p.m.length) return;
-      const [k, de] = p.m.pop(); p.pos[k] = de; p.pd = -1; msg = ''; sv(); draw()      // los movimientos ya hechos siguen contando
+      const [k, de] = p.m.pop(); p.pos[k] = de; p.pd = p.pt = -1; msg = ''; sv(); draw()      // los movimientos ya hechos siguen contando
    }
    function reiniciar() {
       const p = prog('ta'); ini(p);
       if (R('atasco') || !p.m.length) return;
-      p.pos = P().pos.slice(); p.m = []; p.pd = -1; kv = -1; msg = ''; sv(); draw()     // el contador, el tiempo y las pistas siguen contando
+      p.pos = P().pos.slice(); p.m = []; p.pd = p.pt = -1; kv = -1; msg = ''; sv(); draw()     // el contador, el tiempo y las pistas siguen contando
    }
    /* Pista: dice qué vehículo mover y hacia dónde para terminar en el mínimo de movimientos desde donde estás (no lo mueve por ti). */
    function pista() {
@@ -232,10 +263,10 @@
       const Z = P(), d = falta(Z, p.pos); let sig = null;
       p.t0 = p.t0 || Date.now(); p.h = (p.h || 0) + 1;
       if (d > 0) vecinos(Z.ve, p.pos, (k, q) => { if (sig) return; const n = p.pos.slice(); n[k] = q; if (falta(Z, n) == d - 1) sig = [k, q] });
-      if (!sig) { msg = 'Pista: no hay nada que mover.'; p.pd = -1 }
+      if (!sig) { msg = 'Pista: no hay nada que mover.'; p.pd = p.pt = -1 }
       else {
          const [k, q] = sig, h = Z.ve[k].h, mas = q > p.pos[k], cuantas = Math.abs(q - p.pos[k]);
-         p.pd = k; msg = `Pista: mueve el ${Z.ve[k].l == 3 ? 'camión' : 'coche'} ${NOMC[k % NOMC.length]} ${cuantas} ${pls(cuantas, 'casilla', 'casillas')} ${h ? (mas ? 'a la derecha' : 'a la izquierda') : (mas ? 'hacia abajo' : 'hacia arriba')} (${d} ${pls(d, 'movimiento', 'movimientos')} para terminar).`
+         p.pd = k; p.pt = q; msg = `Pista: mueve el ${Z.ve[k].l == 3 ? 'camión' : 'coche'} ${NOMC[k % NOMC.length]} ${cuantas} ${pls(cuantas, 'casilla', 'casillas')} ${h ? (mas ? 'a la derecha' : 'a la izquierda') : (mas ? 'hacia abajo' : 'hacia arriba')} (${d} ${pls(d, 'movimiento', 'movimientos')} para terminar).`
       }
       sv(); draw()
    }
@@ -244,7 +275,7 @@
    DailyArcade.register({
       id: 'atasco', name: 'Atasco', desc: 'Desliza coches y camiones para dejar salir al coche rojo.', color: '--coral', tag: 'Saca el coche rojo',
       icon: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="9" width="12" height="6" rx="2"/><path d="M18 12h4M20 10l2 2-2 2"/><path d="M6 15v3M12 15v3"/></svg>',
-      how: ['Hay <b>coches</b> (2 casillas) y <b>camiones</b> (3). Cada uno solo se desliza en <b>línea recta</b>, hacia delante o hacia atrás, y no puede atravesar a otro.', 'Saca el <b>coche rojo</b> por la salida de la derecha. Deslizar un vehículo varias casillas cuenta como <b>un solo movimiento</b>.', 'Arrastra con el dedo o el ratón. Con teclado: <b>Tab</b> hasta el tablero, <b>Enter</b> para marcar un vehículo y las <b>flechas</b> para moverlo.'],
+      how: ['Hay <b>coches</b> (2 casillas) y <b>camiones</b> (3). Cada uno solo se desliza en <b>línea recta</b>, hacia delante o hacia atrás, y no puede atravesar a otro.', 'Saca el <b>coche rojo</b> por la salida de la derecha. Deslizar un vehículo varias casillas cuenta como <b>un solo movimiento</b>.', 'Toca un vehículo para ver hasta dónde llega y arrástralo con el dedo o el ratón. Con teclado: <b>Tab</b> hasta el tablero, <b>Enter</b> para marcar un vehículo y las <b>flechas</b> para moverlo.'],
       /* Ejemplo: un camión bloquea al coche rojo; deslizarlo 2 casillas es 1 solo movimiento y el rojo sale. Mismo dibujo que el tablero. */
       demo: (() => {
          // h = horizontal · c = carril (fila si es horizontal, columna si es vertical) · p = primera casilla · l = largo · k = color
