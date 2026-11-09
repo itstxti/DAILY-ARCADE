@@ -4373,18 +4373,13 @@ span.ryc {
 @media (prefers-reduced-motion: reduce) { .fak .fc.cf { animation: none } }
 
 /* ---------- Coronas ----------
-   .cok = tarjeta ·  .cok-k corona / .cok-x marca ✕ (SVG en la casilla) · .cok-l = leyenda de colores (.cok-c, .ok = ya tiene su corona, .bd = tiene de más) */
+   .cok = tarjeta ·  .cok-k corona / .cok-x marca ✕ (SVG en la casilla) */
 .cok { overflow: hidden }
 .cok .bd2 { border: 0; border-radius: 0; margin: 0; max-width: none }
+.cok .z { border: 0; min-width: 0; width: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden }
 .z .cok-k { width: 62%; height: 62%; fill: #14213D; stroke: #14213D; stroke-width: 1.2; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 1px 0 rgba(255,255,255,.55)) }
 .z .cok-x { width: 44%; height: 44%; fill: none; stroke: #14213D; stroke-opacity: .55; stroke-width: 2.6; stroke-linecap: round }
 .z small { opacity: .7 }
-.cok-l { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; padding: 8px 10px; border-top: 3px solid var(--ink) }
-.cok-c { display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-width: 32px; height: 28px; padding: 0 7px; border: 2px solid var(--ink); border-radius: 8px; color: #14213D; font-size: 13px; font-weight: 800; transition: transform .15s }
-.cok-c i { font-style: normal; font-size: 12px }
-.cok-c.ok { box-shadow: 0 0 0 2px var(--mint) }
-.cok-c.bd { box-shadow: 0 0 0 2px var(--berry) }
-@media (prefers-reduced-motion: reduce) { .cok-c { transition: none } }
 
 /* ---------- Siluetas (rediseño) ----------
    .sik = tarjeta ·  .sis-w/.sis-n = sombra con el número de capa de cada fila
