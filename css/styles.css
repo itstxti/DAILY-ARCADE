@@ -3018,23 +3018,31 @@ h1[tabindex="-1"]:focus {
 }
 
 /* Inicio: progreso de hoy en un segmento por juego (con el color del juego cuando está hecho) */
+/* Una sola barra con borde y los segmentos dentro, sin borde propio: así sigue siendo legible con 30+ juegos
+   (con borde por segmento, a ~7 px de ancho cada uno se leía como una fila de "0"). */
 .segs {
     display: grid;
-    gap: 4px;
-    height: 20px
+    gap: 2px;
+    box-sizing: border-box;
+    height: 18px;
+    padding: 2px;
+    border: 2px solid var(--ink);
+    border-radius: var(--r-sm, 8px);
+    background: var(--card);
+    overflow: hidden
 }
 
 .segs i {
     display: block;
-    box-sizing: border-box;
-    border: 2px solid var(--ink);
-    border-radius: 6px;
-    background: var(--card)
+    min-width: 0;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--ink) 14%, transparent)
 }
 
 .segs i.on {
     background: var(--c, var(--mint))
 }
+
 
 @media (prefers-reduced-motion:no-preference) {
     #app.in .segs i {
